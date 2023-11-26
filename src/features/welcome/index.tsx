@@ -1,14 +1,35 @@
 import { ModeToggle } from '@/components/mode-toggle';
 import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
-import * as React from 'react';
+import './styles.css';
+import { LoadingPage } from '@/components/common/LoadingPage';
+import Typed from 'react-typed';
+import { useEffect, useState } from 'react';
 
 export interface WelcomeProps {}
 
 export default function Welcome(props: WelcomeProps) {
     const { theme } = useTheme();
+    const [showTyped, setShowTyped] = useState(false);
+
+    useEffect(() => {
+        // Set a timeout to show the Typed component after 2 seconds
+        const timeoutId = setTimeout(() => {
+            
+ 
+setShowTyped(true);
+        }, 2000);
+    },[])
     return (
-        <div className="h-screen w-screen">
+        <div className="h-screen w-screen relative overflow-hidden">
+            <LoadingPage />
+            <div className="cube dark:border-white border border-black "></div>
+            <div className="cube dark:border-white border border-black "></div>
+            <div className="cube dark:border-white border border-black "></div>
+            <div className="cube dark:border-white border border-black "></div>
+            <div className="cube dark:border-white border border-black "></div>
+            <div className="cube dark:border-white border border-black "></div>
+
             <header>
                 <div className="py-5 px-[50px] flex items-center justify-between ">
                     <a href="/" className="cursor-pointer inline-block">
@@ -35,7 +56,7 @@ export default function Welcome(props: WelcomeProps) {
                         >
                             Liên hệ
                         </a>
-                        <Button>Đăng nhập</Button>
+                        <a href="/login"><Button>Đăng nhập</Button></a>
                         <ModeToggle />
                     </div>
                 </div>
@@ -44,9 +65,16 @@ export default function Welcome(props: WelcomeProps) {
                 <div className="container text-center flex flex-col items-center max-w-[1024px] pt-[100px]">
                     <div className="max-w-[800px]">
                         <h1 className="text-[3.5rem] leading-[1.5] mb-4 font-bold">
-                            Chào mừng đến với ứng dụng quản trị nhân sự
+                           {showTyped &&  <Typed
+                                strings={['Chào mừng đến với ứng dụng quản trị nhân sự','Một sản phẩm của công ty White Neuron']}
+                                typeSpeed={60}
+                                backSpeed={40}
+                                backDelay={1500}
+                                loop
+                            />}
+
                         </h1>
-                        <p className="leading-[1.875] mb-5 px-[10px]">
+                        <p className="leading-[1.875] mb-7 px-[10px]">
                             Ứng dụng được phát triển và xây dựng cho cục bộ không nhằm mục đích kiếm
                             tiền. Mọi thắc mắc xin liên hệ với công ty để được hướng dẫn và giải
                             quyết!{' '}

@@ -4,7 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import { ModeToggle } from "./components/mode-toggle";
 import { LoginPage } from "./features/auth/pages/LoginPage";
 import Welcome from "./features/welcome";
-
+import "./app.css"
 function App() {
 
 
