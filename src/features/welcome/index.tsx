@@ -4,32 +4,40 @@ import { Button } from '@/components/ui/button';
 import './styles.css';
 import { LoadingPage } from '@/components/common/LoadingPage';
 import Typed from 'react-typed';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import type { Container, Engine } from "tsparticles-engine";
+import Particles from "react-tsparticles";
+import { loadSlim } from "tsparticles-slim";
 
-export interface WelcomeProps {}
 
-export default function Welcome(props: WelcomeProps) {
+export default function Welcome() {
     const { theme } = useTheme();
     const [showTyped, setShowTyped] = useState(false);
+    const particlesInit = useCallback(async (engine: Engine) => {
+        console.log(engine);
 
+        // you can initialize the tsParticles instance (engine) here, adding custom shapes or presets
+        // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
+        // starting from v2 you can add only the features you need reducing the bundle size
+        //await loadFull(engine);
+        await loadSlim(engine);
+    }, []);
+
+    const particlesLoaded = useCallback(async (container: Container | undefined) => {
+        await console.log(container);
+    }, []);
     useEffect(() => {
         // Set a timeout to show the Typed component after 2 seconds
         const timeoutId = setTimeout(() => {
-            
- 
-setShowTyped(true);
+        setShowTyped(true);
         }, 2000);
+        return ()=>{
+            clearTimeout(timeoutId)
+        }
     },[])
     return (
         <div className="h-screen w-screen relative overflow-hidden">
             <LoadingPage />
-            <div className="cube dark:border-white border border-black "></div>
-            <div className="cube dark:border-white border border-black "></div>
-            <div className="cube dark:border-white border border-black "></div>
-            <div className="cube dark:border-white border border-black "></div>
-            <div className="cube dark:border-white border border-black "></div>
-            <div className="cube dark:border-white border border-black "></div>
-
             <header>
                 <div className="py-5 px-[50px] flex items-center justify-between ">
                     <a href="/" className="cursor-pointer inline-block">
@@ -61,6 +69,69 @@ setShowTyped(true);
                     </div>
                 </div>
             </header>
+            <Particles
+            id="tsparticles"
+            init={particlesInit}
+            loaded={particlesLoaded}
+            options={{
+               
+                fpsLimit: 120,
+                interactivity: {
+                    events: {
+                        onHover: {
+                            enable: true,
+                            mode: "repulse",
+                        },
+                        resize: true,
+                    },
+                    modes: {
+                        repulse: {
+                            distance: 140,
+                            duration: 0.4,
+                        },
+                    },
+                },
+                particles: {
+                    color: {
+                        value: `${theme=="dark"?"#ffffff":"#000000"}`,
+                    },
+                    links: {
+                        color: `${theme=="dark"?"#ffffff":"#000000"}`,
+                        distance: 200,
+                        enable: true,
+                        opacity: 0.5,
+                        width: 1,
+                    },
+                    move: {
+                        direction: "none",
+                        enable: true,
+                        outModes: {
+                            default: "bounce",
+                        },
+                        random: false,
+                        speed: 2,
+                        straight: false,
+                    },
+                    number: {
+                        density: {
+                            enable: true,
+                            area: 600,
+                        },
+                        value: 40,
+                    },
+                    opacity: {
+                        value: 0.5,
+                    },
+                    shape: {
+                        type: "circle",
+                    },
+                    size: {
+                        value: { min: 1, max: 5 },
+                    },
+                },
+                detectRetina: true,
+            }}
+        />
             <section className="main-content mx-auto">
                 <div className="container text-center flex flex-col items-center max-w-[1024px] pt-[100px]">
                     <div className="max-w-[800px]">

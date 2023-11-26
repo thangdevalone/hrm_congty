@@ -1,7 +1,5 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { LoginForm, RegisterForm, User } from "@/models"
-import { InfoForm } from "@/models/InfoForm"
-import StorageKeys from "@/constants/storage-keys"
+import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 
 export interface AuthState {
   logging?: boolean
@@ -21,13 +19,6 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    updateInfor(state,action:PayloadAction<InfoForm>){
-      const oldState=state.currentUser
-      const newState={...oldState,...action.payload}
-      state.currentUser=newState as User
-      localStorage.setItem(StorageKeys.USER, JSON.stringify(newState))
-      localStorage.setItem(StorageKeys.NAMEUSER, newState.accountName)
-    },
     login(state, action: PayloadAction<LoginForm>) {
       state.logging = true
       state.actionAuth = "No action"

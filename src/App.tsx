@@ -1,10 +1,8 @@
-import { ThemeProvider} from "@/components/theme-provider";
-import { useContext, useEffect } from "react";
+import { ThemeProvider } from "@/components/theme-provider";
 import { Route, Routes } from "react-router-dom";
-import { ModeToggle } from "./components/mode-toggle";
+import "./app.css";
 import { LoginPage } from "./features/auth/pages/LoginPage";
 import Welcome from "./features/welcome";
-import "./app.css"
 function App() {
 
 
