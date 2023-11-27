@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import "./app.css";
 import { LoginPage } from "./features/auth/pages/LoginPage";
 import Welcome from "./features/welcome";
+import Home from "./features/home";
 function App() {
 
 
@@ -12,6 +13,9 @@ function App() {
         <Routes>
         <Route path="/" element={<Welcome/>}/>
         <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/home" element={<Home/>}>
+          
+        </Route>
         </Routes>
       </div>
     </ThemeProvider>
