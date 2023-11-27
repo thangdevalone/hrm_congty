@@ -5,10 +5,9 @@ import './styles.css';
 import { LoadingPage } from '@/components/common/LoadingPage';
 import Typed from 'react-typed';
 import { useCallback, useEffect, useState } from 'react';
-import type { Container, Engine } from "tsparticles-engine";
-import Particles from "react-tsparticles";
-import { loadSlim } from "tsparticles-slim";
-
+import type { Container, Engine } from 'tsparticles-engine';
+import Particles from 'react-tsparticles';
+import { loadSlim } from 'tsparticles-slim';
 
 export default function Welcome() {
     const { theme } = useTheme();
@@ -29,12 +28,12 @@ export default function Welcome() {
     useEffect(() => {
         // Set a timeout to show the Typed component after 2 seconds
         const timeoutId = setTimeout(() => {
-        setShowTyped(true);
+            setShowTyped(true);
         }, 2000);
-        return ()=>{
-            clearTimeout(timeoutId)
-        }
-    },[])
+        return () => {
+            clearTimeout(timeoutId);
+        };
+    }, []);
     return (
         <div className="h-screen w-screen relative overflow-hidden">
             <LoadingPage />
@@ -64,86 +63,91 @@ export default function Welcome() {
                         >
                             Liên hệ
                         </a>
-                        <a href="/login"><Button>Đăng nhập</Button></a>
+                        <a href="/login">
+                            <Button>Đăng nhập</Button>
+                        </a>
                         <ModeToggle />
                     </div>
                 </div>
             </header>
             <Particles
-            id="tsparticles"
-            init={particlesInit}
-            loaded={particlesLoaded}
-            options={{
-               
-                fpsLimit: 120,
-                interactivity: {
-                    events: {
-                        onHover: {
+                id="tsparticles"
+                init={particlesInit}
+                loaded={particlesLoaded}
+                options={{
+                    fpsLimit: 120,
+                    interactivity: {
+                        events: {
+                            onHover: {
+                                enable: true,
+                                mode: 'repulse',
+                            },
+                            resize: true,
+                        },
+                        modes: {
+                            repulse: {
+                                distance: 140,
+                                duration: 0.4,
+                            },
+                        },
+                    },
+                    particles: {
+                        color: {
+                            value: `${theme == 'dark' ? '#ffffff' : '#000000'}`,
+                        },
+                        links: {
+                            color: `${theme == 'dark' ? '#ffffff' : '#000000'}`,
+                            distance: 200,
                             enable: true,
-                            mode: "repulse",
+                            opacity: 0.5,
+                            width: 1,
                         },
-                        resize: true,
-                    },
-                    modes: {
-                        repulse: {
-                            distance: 140,
-                            duration: 0.4,
-                        },
-                    },
-                },
-                particles: {
-                    color: {
-                        value: `${theme=="dark"?"#ffffff":"#000000"}`,
-                    },
-                    links: {
-                        color: `${theme=="dark"?"#ffffff":"#000000"}`,
-                        distance: 200,
-                        enable: true,
-                        opacity: 0.5,
-                        width: 1,
-                    },
-                    move: {
-                        direction: "none",
-                        enable: true,
-                        outModes: {
-                            default: "bounce",
-                        },
-                        random: false,
-                        speed: 2,
-                        straight: false,
-                    },
-                    number: {
-                        density: {
+                        move: {
+                            direction: 'none',
                             enable: true,
-                            area: 600,
+                            outModes: {
+                                default: 'bounce',
+                            },
+                            random: false,
+                            speed: 2,
+                            straight: false,
                         },
-                        value: 40,
+                        number: {
+                            density: {
+                                enable: true,
+                                area: 600,
+                            },
+                            value: 40,
+                        },
+                        opacity: {
+                            value: 0.5,
+                        },
+                        shape: {
+                            type: 'circle',
+                        },
+                        size: {
+                            value: { min: 1, max: 5 },
+                        },
                     },
-                    opacity: {
-                        value: 0.5,
-                    },
-                    shape: {
-                        type: "circle",
-                    },
-                    size: {
-                        value: { min: 1, max: 5 },
-                    },
-                },
-                detectRetina: true,
-            }}
-        />
+                    detectRetina: true,
+                }}
+            />
             <section className="main-content mx-auto">
                 <div className="container text-center flex flex-col items-center max-w-[1024px] pt-[100px]">
                     <div className="max-w-[800px]">
                         <h1 className="text-[3.5rem] leading-[1.5] mb-4 font-bold">
-                           {showTyped &&  <Typed
-                                strings={['Chào mừng đến với ứng dụng quản trị nhân sự','Một sản phẩm của công ty White Neuron']}
-                                typeSpeed={60}
-                                backSpeed={40}
-                                backDelay={1500}
-                                loop
-                            />}
-
+                            {showTyped && (
+                                <Typed
+                                    strings={[
+                                        'Chào mừng đến với ứng dụng quản trị nhân sự',
+                                        'Một sản phẩm của công ty White Neuron',
+                                    ]}
+                                    typeSpeed={60}
+                                    backSpeed={40}
+                                    backDelay={1500}
+                                    loop
+                                />
+                            )}
                         </h1>
                         <p className="leading-[1.875] mb-7 px-[10px]">
                             Ứng dụng được phát triển và xây dựng cho cục bộ không nhằm mục đích kiếm
