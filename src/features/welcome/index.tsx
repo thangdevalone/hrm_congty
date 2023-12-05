@@ -1,30 +1,22 @@
+import { LoadingPage } from '@/components/common/LoadingPage';
 import { ModeToggle } from '@/components/mode-toggle';
 import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
-import './styles.css';
-import { LoadingPage } from '@/components/common/LoadingPage';
-import Typed from 'react-typed';
 import { useCallback, useEffect, useState } from 'react';
-import type { Container, Engine } from 'tsparticles-engine';
 import Particles from 'react-tsparticles';
+import Typed from 'react-typed';
+import type { Engine } from 'tsparticles-engine';
 import { loadSlim } from 'tsparticles-slim';
+import './styles.css';
 
 export default function Welcome() {
     const { theme } = useTheme();
     const [showTyped, setShowTyped] = useState(false);
     const particlesInit = useCallback(async (engine: Engine) => {
-        console.log(engine);
-
-        // you can initialize the tsParticles instance (engine) here, adding custom shapes or presets
-        // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
-        // starting from v2 you can add only the features you need reducing the bundle size
-        //await loadFull(engine);
         await loadSlim(engine);
     }, []);
 
-    const particlesLoaded = useCallback(async (container: Container | undefined) => {
-        await console.log(container);
-    }, []);
+
     useEffect(() => {
         // Set a timeout to show the Typed component after 2 seconds
         const timeoutId = setTimeout(() => {
@@ -73,7 +65,7 @@ export default function Welcome() {
             <Particles
                 id="tsparticles"
                 init={particlesInit}
-                loaded={particlesLoaded}
+           
                 options={{
                     fpsLimit: 120,
                     interactivity: {

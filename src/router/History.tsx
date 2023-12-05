@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type NavigationFunction = (page: any, ...rest: any) => void;
 
 const History = {

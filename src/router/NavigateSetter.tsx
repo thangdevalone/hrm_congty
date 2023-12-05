@@ -1,4 +1,4 @@
-import History from "@/Router/History";
+import History from "@/router/History";
 import { useNavigate } from "react-router-dom";
 
 const NavigateSetter = () => {
