@@ -23,6 +23,7 @@ module.exports = {
         3: "3 3 0%",
         4: "4 4 0%",
         5: "5 5 0%",
+        6: "6 6 0%",
       },
       colors: {
         border: "hsl(var(--border))",
@@ -64,6 +65,10 @@ module.exports = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      animation: {
+        'slide-right': 'slide-right 0.5s cubic-bezier(0.250,0.460,0.450, 0.940) both',
+        'slide-left': 'slide-left 0.5s cubic-bezier(0.250,0.460,0.450, 0.940) both',
+      },
       keyframes: {
         "accordion-down": {
           from: {
@@ -81,6 +86,26 @@ module.exports = {
             height: 0
           },
         },
+        'slide-right': {
+          '0%': {
+            '-webkit-transform': 'translateX(-20px)',
+            transform: 'translateX(-20px)'
+          },
+          '100%': {
+            '-webkit-transform': 'translateX(0)',
+            transform: 'translateX(0)'
+          }
+        },
+        'slide-left': {
+          '0%': {
+            '-webkit-transform': 'translateX(20px)',
+            transform: 'translateX(20px)'
+          },
+          '100%': {
+            '-webkit-transform': 'translateX(0)',
+            transform: 'translateX(0)'
+          }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -88,6 +113,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"),
-  ],
+  plugins: [require("tailwindcss-animate"), ],
 }

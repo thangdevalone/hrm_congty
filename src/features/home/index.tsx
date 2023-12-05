@@ -1,8 +1,9 @@
-import { Sidebar } from '@/components/common/sidebarLeft';
+import { Navbar } from '@/components/common';
+import { Sidebar } from '@/components/common/SidebarLeft';
 import { ModeToggle } from '@/components/mode-toggle';
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Navbar from '@/components/common/navbar';
+
 export default function Home() {
     const [collapse, setCollapse] = useState<boolean>(false);
 
@@ -14,10 +15,14 @@ export default function Home() {
             <Sidebar
                 setCollapse={setCollapse}
                 collapse={collapse}
-                className={`${collapse ? 'basis-0' : 'basis-[200px]'}`}
+                className={`${
+                    collapse ? 'basis-0 animate-slide-left' : 'basis-[200px] animate-slide-right'
+                } `}
             />
-            <div className="flex-1 mt-[20px] border border-white">
-                <Navbar />
+            <div className="flex-1  mt-[20px] ">
+                <div className="mb-4">
+                    <Navbar />
+                </div>
                 <Outlet />
             </div>
         </div>

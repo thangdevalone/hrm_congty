@@ -1,11 +1,10 @@
+import { useTheme } from '@/components/theme-provider';
 import { cn } from '@/lib/utils';
 import { TextAlignJustifyIcon } from '@radix-ui/react-icons';
+import * as React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Icons } from '../icons';
 import { Button } from '../ui/button';
-import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@/components/theme-provider';
-import * as React from 'react';
-import { useParams, useLocation } from 'react-router-dom';
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     collapse: boolean;
@@ -71,7 +70,7 @@ export function Sidebar({ className, collapse, setCollapse }: SidebarProps) {
                     <img
                         src="https://scontent.fhan17-1.fna.fbcdn.net/v/t39.30808-6/387096162_1010374856956433_1269973518960313897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_ohc=4c3iUDbhTKwAX8x8TpP&_nc_ht=scontent.fhan17-1.fna&oh=00_AfA8pN-ZBScsHT5pZfUVAV2G6u2QxPTv_nn5hD5xqjaOWQ&oe=656932DF"
                         alt="avatar default"
-                        className="w-8 h-8 rounded-full"
+                        className="w-8 h-8 border rounded-full"
                     />
                     {!collapse && <span>Thắng Dev Alone</span>}
                 </div>
