@@ -1,8 +1,8 @@
 interface Props {}
 
-const Group = (props: Props) => {
+export const PIM = (props: Props) => {
     const {} = props;
     return <div>Group</div>;
 };
 
-export default Group;
+
