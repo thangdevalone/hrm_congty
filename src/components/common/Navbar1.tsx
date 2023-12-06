@@ -61,7 +61,7 @@ export function Navbar() {
                         onBlur={() => setIsInputFocused(false)}
                     />
                 </div>
-                <Button className="flex-1 cursor-pointer flex items-center justify-center bg-black text-white h-full rounded-[4px]">
+                <Button className="flex-1 cursor-pointer flex items-center justify-center h-full rounded-[4px]">
                     <span className="capitalize px-2 py-1">all leads</span>
                     <Cross2Icon />
                 </Button>
