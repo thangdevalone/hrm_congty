@@ -1,23 +1,45 @@
 import { ModeToggle } from '@/components/mode-toggle';
-import { useTheme } from '@/components/theme-provider';
-import { Button } from '@/components/ui/button';
-import { CardContent, CardFooter } from '@/components/ui/card';
+
+import { LoginForm } from '@/models';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { authActions } from '../AuthSlice';
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { InputPassword } from '@/components/ui/inputPassword';
-import { Label } from '@/components/ui/label';
 
 export function LoginPage() {
-    const { theme } = useTheme();
-    // const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const dispatch = useDispatch();
+    // const [isLoading, setIsLoading] = React.useState<boolean>(false)
+    const schema = yup.object().shape({
+        username: yup.string().required('Cần nhập tên đăng nhập'),
+        password: yup.string().required('Cần nhập mật khẩu'),
+    });
 
+    const form = useForm<LoginForm>({
+        resolver: yupResolver(schema),
+    });
+    const handleLogin: SubmitHandler<LoginForm> = (data) => {
+        dispatch(authActions.login(data));
+    };
     return (
         <>
             <div className="absolute top-[20px] right-[20px] z-20">
                 <ModeToggle />
             </div>
-            <div className="container relative hidden h-full flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+            <div className="container relative grid h-full flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
                 <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r  lg:flex">
-                    <div className="absolute inset-0 bg-zinc-800" />
+                    <div className="absolute inset-0 bg-zinc-900" />
                     <div className="relative z-20 flex items-center text-lg font-medium">
                         <img
                             src="/assets/logo-white.png"
@@ -39,7 +61,7 @@ export function LoginPage() {
                         </blockquote>
                     </div>
                 </div>
-                <div className="lg:p-8">
+                <div className="lg:p-8 -translate-y-[50px]">
                     <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
                         <div className="flex flex-col space-y-2 text-center">
                             <h1 className="text-2xl font-semibold tracking-tight">Đăng nhập</h1>
@@ -47,33 +69,47 @@ export function LoginPage() {
                                 Nhập tên đăng nhập và mật khẩu để tiếp tục
                             </p>
                         </div>
-                        <form>
-                            <CardContent className="grid gap-3 px-6 py-4">
-                                <div className="grid gap-2 mb-2">
-                                    <Label htmlFor="username" className="mb-0.5">
-                                        Tên đăng nhập
-                                    </Label>
-                                    <Input
-                                        id="username"
-                                        type="text"
-                                        placeholder="haidang@gmail.com"
-                                        autoComplete="username"
-                                    />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="password" className="mb-0.5">
-                                        Mật khẩu
-                                    </Label>
-                                    <InputPassword id="password" placeholder="Nhập mật khẩu" />
-                                </div>
-                                <p className="text-end">
-                                    <i className="text-sm ">Quên mật khẩu?</i>
-                                </p>
-                            </CardContent>
-                            <CardFooter>
-                                <Button className="w-full">Đăng nhập</Button>
-                            </CardFooter>
-                        </form>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="username"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Tên đăng nhập</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Nhập tên đăng nhập"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="password"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Mật khẩu</FormLabel>
+                                            <FormControl>
+                                                <InputPassword
+                                                    placeholder="Nhập mật khẩu"
+                                                    {...field}
+                                                />
+
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <p className='text-end text-sm p-y-2'><a href="/forgot-pass" className='hover:underline'><i>Quên mật khẩu?</i></a></p>
+                                <Button type="submit" className="w-full ">
+                                    Đăng nhập
+                                </Button>
+                            </form>
+                        </Form>
                     </div>
                 </div>
             </div>

@@ -11,65 +11,66 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     setCollapse: (newCollapse: boolean) => void;
 }
 
-export function Sidebar({ className, collapse, setCollapse }: SidebarProps) {
+export function SidebarLeft({ className, collapse, setCollapse }: SidebarProps) {
     const navitage = useNavigate();
     const theme = useTheme();
     const location = useLocation();
     const handleNavitage = (router: string) => {
-        navitage(`/home/${router.toLowerCase()}`);
+        if (location.pathname.includes(router)) return;
+        navitage(`/home/${router}`);
     };
 
     return (
-        <div className={cn('pb-12', className)}>
+        <div className={cn('pb-12 dark:border-r side-bs', className)}>
             <div className="space-y-4 py-4 ">
-                <div className="mb-4 px-2 flex-row flex items-center justify-center">
-                    {/* <img src="/assets/logo-black.jpg" alt="" className="w-[60%]" /> */}
+                <div className="mb-4 px-5 gap-3 flex-row flex items-center">
                     <Button size="icon" onClick={() => setCollapse(!collapse)}>
                         <TextAlignJustifyIcon />
                     </Button>
+                    
                 </div>
                 <div className="px-3 py-2">
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                         <Button
-                            onClick={() => handleNavitage('Dashboard')}
+                            onClick={() => handleNavitage('admin')}
                             variant={
-                                location.pathname.includes('dashboard') ? 'secondary' : 'ghost'
+                                location.pathname.includes('admin') ? 'secondary' : 'ghost'
                             }
-                            className="w-full gap-2 justify-start"
+                            className="w-full gap-3 justify-start h-10"
                         >
-                            <Icons.dashboard color={theme.theme === 'dark' ? '#ffffff' : ''} />
-                            {!collapse && 'Dashboard'}
+                            <Icons.dashboard className='w-5 h-5' color={theme.theme === 'dark' ? '#ffffff' : ''} />
+                            {!collapse && 'Trang quản trị'}
                         </Button>
                         <Button
-                            onClick={() => handleNavitage('Group')}
-                            variant={location.pathname.includes('group') ? 'secondary' : 'ghost'}
-                            className="w-full gap-2 justify-start"
+                            onClick={() => handleNavitage('info-employee')}
+                            variant={location.pathname.includes('info-employee') ? 'secondary' : 'ghost'}
+                            className="w-full gap-3 justify-start h-10"
                         >
-                            <Icons.group color={theme.theme === 'dark' ? '#ffffff' : ''} />
-                            {!collapse && 'Group'}
+                            <Icons.group className='w-5 h-5' color={theme.theme === 'dark' ? '#ffffff' : 'black'} />
+                            {!collapse && 'Nhân viên'}
                         </Button>
                         <Button
-                            onClick={() => handleNavitage('User')}
-                            variant={location.pathname.includes('user') ? 'secondary' : 'ghost'}
-                            className="w-full gap-2 justify-start"
+                            onClick={() => handleNavitage('leave')}
+                            variant={location.pathname.includes('leave') ? 'secondary' : 'ghost'}
+                            className="w-full gap-3 justify-start h-10"
                         >
-                            <Icons.user color={theme.theme === 'dark' ? '#ffffff' : ''} />
-                            {!collapse && 'User'}
+                            <Icons.leave className='w-5 h-5' color={theme.theme === 'dark' ? '#ffffff' : 'black'} />
+                            {!collapse && 'Chấm công'}
                         </Button>
                         <Button
-                            onClick={() => handleNavitage('Time')}
-                            variant={location.pathname.includes('time') ? 'secondary' : 'ghost'}
-                            className="w-full gap-2 justify-start"
+                            onClick={() => handleNavitage('time-keep')}
+                            variant={location.pathname.includes('time-keep') ? 'secondary' : 'ghost'}
+                            className="w-full gap-3 justify-start h-10" 
                         >
-                            <Icons.time color={theme.theme === 'dark' ? '#ffffff' : ''} />
-                            {!collapse && 'Time'}
+                            <Icons.time className='w-5 h-5' color={theme.theme === 'dark' ? '#ffffff' : 'black'} />
+                            {!collapse && 'Nghỉ phép'}
                         </Button>
                     </div>
                 </div>
                 <div className="mb-4 px-[28px] gap-1 fixed bottom-[50px] flex-row flex items-center justify-center">
                     <img
-                        src="https://scontent.fhan17-1.fna.fbcdn.net/v/t39.30808-6/387096162_1010374856956433_1269973518960313897_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_ohc=4c3iUDbhTKwAX8x8TpP&_nc_ht=scontent.fhan17-1.fna&oh=00_AfA8pN-ZBScsHT5pZfUVAV2G6u2QxPTv_nn5hD5xqjaOWQ&oe=656932DF"
-                        alt="avatar default"
+                        src="#"
+                        alt="avatar"
                         className="w-8 h-8 border rounded-full"
                     />
                     {!collapse && <span>Thắng Dev Alone</span>}

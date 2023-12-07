@@ -1,10 +1,12 @@
 import { ThemeProvider } from '@/components/theme-provider';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import './app.css';
 import { LoginPage } from './features/auth/pages/LoginPage';
 import Welcome from './features/welcome';
 import Home from './features/home';
-import { Dashboard, PIM } from './features/home/components';
+import { Admin, PIM, TimeKeep } from './features/home/components';
+import { ManagerJob, ManagerEmpStatus, ManagerWorkShift, Employyee, Organization } from './features/home/components/AdminComponents';
+import { Leave } from './features/home/components/Leave';
 
 
 function App() {
@@ -15,10 +17,21 @@ function App() {
                     <Route path="/" element={<Welcome />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/home" element={<Home />} >
-                        <Route path="dashboard" element={<Dashboard />}></Route>
-                        <Route path="group" element={<PIM />}></Route>
-                        {/* <Route path="time" element={<Calendar />}></Route>
-                        <Route path="user" element={<User />}></Route> */}
+                        <Route index element={<Navigate to="admin" />} />
+                        <Route path="admin" element={<Admin />}>
+                            <Route index element={<Navigate to="employee" />} />
+                            <Route path='job-positions' element={<ManagerJob/>}/>
+                            <Route path='employee-status' element={<ManagerEmpStatus/>}/>
+                            <Route path='work-shifts' element={<ManagerWorkShift/>}/>
+                            <Route path='employee' element={<Employyee/>}/>
+                            <Route path='organization' element={<Organization/>}/>
+                        </Route>
+                        <Route path="info-employee" element={<PIM />}></Route>
+                        <Route path="leave" element={<Leave />}></Route>
+                        <Route path="time-keep" element={<TimeKeep/>}></Route>
+
+
+                      
                     </Route>
                 </Routes>
             </div>

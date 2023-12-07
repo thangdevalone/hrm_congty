@@ -1,5 +1,4 @@
-import { Navbar } from '@/components/common';
-import { Sidebar } from '@/components/common/SidebarLeft';
+import { SidebarLeft } from '@/components/common';
 import { ModeToggle } from '@/components/mode-toggle';
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
@@ -8,21 +7,18 @@ export default function Home() {
     const [collapse, setCollapse] = useState<boolean>(false);
 
     return (
-        <div className="flex-row flex">
+        <div className="flex-row h-full flex">
             <div className="fixed right-[20px] top-[20px]">
                 <ModeToggle />
             </div>
-            <Sidebar
+            <SidebarLeft
                 setCollapse={setCollapse}
                 collapse={collapse}
                 className={`${
                     collapse ? 'basis-0 animate-slide-left' : 'basis-[200px] animate-slide-right'
                 } `}
             />
-            <div className="flex-1  mt-[20px] ">
-                <div className="mb-4">
-                    <Navbar />
-                </div>
+            <div className="flex-1 flex flex-col">
                 <Outlet />
             </div>
         </div>

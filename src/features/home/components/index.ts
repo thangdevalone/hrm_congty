@@ -1,2 +1,4 @@
 export * from "./PIM"
-export * from "./Dashboard"
+export * from "./Admin"
+export * from "./Leave"
+export * from "./TimeKeep"

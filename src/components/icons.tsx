@@ -1,6 +1,7 @@
-type IconProps = React.HTMLAttributes<SVGElement>;
+import * as React from "react";
 
-export const Icons = {
+type IconProps = React.HTMLAttributes<SVGElement>;
+export const Icons= {
     logo: (props: IconProps) => (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" {...props}>
             <rect width="256" height="256" fill="none" />
@@ -232,7 +233,7 @@ export const Icons = {
             />
         </svg>
     ),
-    time: ({ color, ...props }: { color?: string } & IconProps) => (
+    leave: ({ color, ...props }: { color?: string } & IconProps) => (
         <svg
             width="24"
             height="24"
@@ -307,6 +308,71 @@ export const Icons = {
                 d="M8.29431 16.7H8.30329"
                 stroke={color || '#292D32'}
                 strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    ),
+    arrowRight: ({ color, ...props }: { color?: string } & IconProps) => (
+        <svg
+            className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 6 10"
+            {...props}
+        >
+            <path
+                stroke={color || 'currentColor'}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="m1 9 4-4-4-4"
+            />
+        </svg>
+    ),
+    filter: ({ color, ...props }: { color?: string } & IconProps) => (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            version="1.1"
+            width="15"
+            height="15"
+            x="0"
+            y="0"
+            viewBox="0 0 393 393.99"
+            xmlSpace="preserve"
+            {...props}
+        >
+            <g>
+                <path
+                    d="M368.313 0H17.05A16.5 16.5 0 0 0 2.344 8.96a16.732 16.732 0 0 0 1.3 17.415l128.688 181.281c.043.063.09.121.133.184a36.769 36.769 0 0 1 7.219 21.816v147.797a16.429 16.429 0 0 0 16.433 16.535c2.227 0 4.426-.445 6.48-1.297l72.313-27.574c6.48-1.976 10.781-8.09 10.781-15.453V229.656a36.774 36.774 0 0 1 7.215-21.816c.043-.063.09-.121.133-.184L381.723 26.367a16.717 16.717 0 0 0 1.3-17.406A16.502 16.502 0 0 0 368.313 0zM236.78 195.992a56.931 56.931 0 0 0-11.097 33.664v117.578l-66 25.164V229.656a56.909 56.909 0 0 0-11.102-33.664L23.648 20h338.07zm0 0"
+                    fill={color || 'currentColor'}
+                    opacity="1"
+                    data-original={color || 'currentColor'}
+                ></path>
+            </g>
+        </svg>
+    ),
+    time: ({ color, ...props }: { color?: string } & IconProps) => (
+        <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            {...props}
+        >
+            <path
+                d="M22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12Z"
+                stroke={color || '#292D32'}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M15.71 15.18L12.61 13.33C12.07 13.01 11.63 12.24 11.63 11.61V7.51001"
+                stroke={color || '#292D32'}
+                strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
             />
