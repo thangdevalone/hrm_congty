@@ -32,9 +32,9 @@ export const Admin = () => {
                     <NavigationMenu>
                         <NavigationMenuList>
                             <NavigationMenuItem>
-                                <Link to="./employee">
+                                <Link to="./accounts">
                                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                        Nhân viên
+                                        Tài khoản
                                     </NavigationMenuLink>
                                 </Link>
                             </NavigationMenuItem>
@@ -68,7 +68,7 @@ export const Admin = () => {
                     </NavigationMenu>
                 </div>
             </div>
-            <div className="p-5 flex-1 relative">
+            <div className="px-5 py-2 flex-1 relative">
                 <Outlet />
             </div>
         </>

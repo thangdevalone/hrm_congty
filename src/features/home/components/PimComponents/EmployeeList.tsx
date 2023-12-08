@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { EditUser } from '@/models/user';
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
@@ -46,6 +47,7 @@ import {
 import { handlePrice } from '@/utils';
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
 import { DialogTrigger } from '@radix-ui/react-dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 const data = [
     {
         id: '001',
@@ -137,7 +139,7 @@ const data = [
     },
 ];
 
- interface Props {
+interface Props {
     id: string;
     name: string;
     job: string;
@@ -155,7 +157,7 @@ const columns: ColumnDef<Props>[] = [
                     table.getIsAllPageRowsSelected() ||
                     (table.getIsSomePageRowsSelected() && 'indeterminate')
                 }
-                className="ml-2"
+                className="ml-1 "
                 onCheckedChange={(value: any) => table.toggleAllPageRowsSelected(!!value)}
                 aria-label="Select all"
             />
@@ -165,7 +167,7 @@ const columns: ColumnDef<Props>[] = [
                 checked={row.getIsSelected()}
                 onCheckedChange={(value: any) => row.toggleSelected(!!value)}
                 aria-label="Select row"
-                className="ml-2"
+                className="ml-1 "
             />
         ),
         enableSorting: false,
@@ -209,7 +211,7 @@ const columns: ColumnDef<Props>[] = [
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 p-0">
+                        <Button variant="ghost" className="h-8 w-8 p-0">
                             <DotsHorizontalIcon className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
@@ -239,7 +241,7 @@ export function EmployeeList() {
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
-
+    
     const table = useReactTable({
         data,
         columns,
@@ -280,69 +282,72 @@ export function EmployeeList() {
                     <DataTableViewOptions table={table} />
                 </div>
                 <div className="rounded-md border">
-                    <Table className='overflow-y-auto'>
-                        <TableHeader>
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => {
-                                        return (
-                                            <TableHead key={header.id}>
-                                                {header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(
-                                                          header.column.columnDef.header,
-                                                          header.getContext()
-                                                      )}
-                                            </TableHead>
-                                        );
-                                    })}
-                                </TableRow>
-                            ))}
-                        </TableHeader>
-                        <TableBody >
-                            {table.getRowModel().rows?.length ? (
-                                table.getRowModel().rows.map((row) => (
-                                    <Dialog>
-                                        <DialogContent className="sm:max-w-[425px]">
-                                            <DialogHeader>
-                                                <DialogTitle>Edit profile</DialogTitle>
-                                                <DialogDescription>
-                                                    Make changes to your profile here. Click save
-                                                    when you're done.
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                            <div className="grid gap-4 py-4"></div>
-                                            <DialogFooter>
-                                                <Button type="submit">Save changes</Button>
-                                            </DialogFooter>
-                                        </DialogContent>
-                                        <TableRow
-                                            key={row.id}
-                                            data-state={row.getIsSelected() && 'selected'}
+                    <ScrollArea  style={{"height":"calc(100vh - 220px)"}} className=" relative w-full overflow-auto">
+                        <Table>
+                            <TableHeader className="sticky top-0 bg-[hsl(var(--secondary))] z-10">
+                                {table.getHeaderGroups().map((headerGroup) => (
+                                    <TableRow key={headerGroup.id}>
+                                        {headerGroup.headers.map((header) => {
+                                            return (
+                                                <TableHead key={header.id}>
+                                                    {header.isPlaceholder
+                                                        ? null
+                                                        : flexRender(
+                                                              header.column.columnDef.header,
+                                                              header.getContext()
+                                                          )}
+                                                </TableHead>
+                                            );
+                                        })}
+                                    </TableRow>
+                                ))}
+                            </TableHeader>
+
+                            <TableBody>
+                                {table.getRowModel().rows?.length ? (
+                                    table.getRowModel().rows.map((row) => (
+                                        <Dialog>
+                                            <DialogContent className="sm:max-w-[425px]">
+                                                <DialogHeader>
+                                                    <DialogTitle>Edit profile</DialogTitle>
+                                                    <DialogDescription>
+                                                        Make changes to your profile here. Click
+                                                        save when you're done.
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <div className="grid gap-4 py-4"></div>
+                                                <DialogFooter>
+                                                    <Button type="submit">Save changes</Button>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                            <TableRow
+                                                key={row.id}
+                                                data-state={row.getIsSelected() && 'selected'}
+                                            >
+                                                {row.getVisibleCells().map((cell) => (
+                                                    <TableCell key={cell.id}>
+                                                        {flexRender(
+                                                            cell.column.columnDef.cell,
+                                                            cell.getContext()
+                                                        )}
+                                                    </TableCell>
+                                                ))}
+                                            </TableRow>
+                                        </Dialog>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={columns.length}
+                                            className="h-24 text-center"
                                         >
-                                            {row.getVisibleCells().map((cell) => (
-                                                <TableCell key={cell.id}>
-                                                    {flexRender(
-                                                        cell.column.columnDef.cell,
-                                                        cell.getContext()
-                                                    )}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                    </Dialog>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={columns.length}
-                                        className="h-24 text-center"
-                                    >
-                                        No results.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                                            No results.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </ScrollArea>
                 </div>
                 <DataTablePagination table={table} />
             </div>

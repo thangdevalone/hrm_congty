@@ -25,11 +25,11 @@ function App() {
                     <Route path="/home" element={<Home />}>
                         <Route index element={<Navigate to="admin" />} />
                         <Route path="admin" element={<Admin />}>
-                            <Route index element={<Navigate to="users" />} />
+                            <Route index element={<Navigate to="accounts" />} />
                             <Route path="job-positions" element={<ManagerJob />} />
                             <Route path="employee-status" element={<ManagerEmpStatus />} />
                             <Route path="work-shifts" element={<ManagerWorkShift />} />
-                            <Route path="users" element={<Users />} />
+                            <Route path="accounts" element={<Users />} />
                             <Route path="organization" element={<Organization />} />
                         </Route>
                         <Route path="info-employee" element={<PIM />}>
