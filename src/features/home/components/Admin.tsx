@@ -4,9 +4,9 @@ export const Admin = () => {
     return (
         <>
             <div className="nav-bs dark:border-b">
-                <Navbar />
+                <Navbar navigation={true} />
             </div>
-            <div className='p-5 flex-1'>
+            <div className="p-5 flex-1">
                 <Outlet />
             </div>
         </>
