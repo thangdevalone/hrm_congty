@@ -27,26 +27,31 @@ export function SidebarLeft({ className, collapse, setCollapse }: SidebarProps) 
                     <Button size="icon" onClick={() => setCollapse(!collapse)}>
                         <TextAlignJustifyIcon />
                     </Button>
-                    
                 </div>
                 <div className="px-3 py-2">
                     <div className="space-y-2">
                         <Button
                             onClick={() => handleNavitage('admin')}
-                            variant={
-                                location.pathname.includes('admin') ? 'secondary' : 'ghost'
-                            }
+                            variant={location.pathname.includes('admin') ? 'secondary' : 'ghost'}
                             className="w-full gap-3 justify-start h-10"
                         >
-                            <Icons.dashboard className='w-5 h-5' color={theme.theme === 'dark' ? '#ffffff' : ''} />
+                            <Icons.dashboard
+                                className="w-5 h-5"
+                                color={theme.theme === 'dark' ? '#ffffff' : ''}
+                            />
                             {!collapse && 'Trang quản trị'}
                         </Button>
                         <Button
                             onClick={() => handleNavitage('info-employee')}
-                            variant={location.pathname.includes('info-employee') ? 'secondary' : 'ghost'}
+                            variant={
+                                location.pathname.includes('info-employee') ? 'secondary' : 'ghost'
+                            }
                             className="w-full gap-3 justify-start h-10"
                         >
-                            <Icons.group className='w-5 h-5' color={theme.theme === 'dark' ? '#ffffff' : 'black'} />
+                            <Icons.group
+                                className="w-5 h-5"
+                                color={theme.theme === 'dark' ? '#ffffff' : 'black'}
+                            />
                             {!collapse && 'Nhân viên'}
                         </Button>
                         <Button
@@ -54,25 +59,29 @@ export function SidebarLeft({ className, collapse, setCollapse }: SidebarProps) 
                             variant={location.pathname.includes('leave') ? 'secondary' : 'ghost'}
                             className="w-full gap-3 justify-start h-10"
                         >
-                            <Icons.leave className='w-5 h-5' color={theme.theme === 'dark' ? '#ffffff' : 'black'} />
+                            <Icons.leave
+                                className="w-5 h-5"
+                                color={theme.theme === 'dark' ? '#ffffff' : 'black'}
+                            />
                             {!collapse && 'Chấm công'}
                         </Button>
                         <Button
                             onClick={() => handleNavitage('time-keep')}
-                            variant={location.pathname.includes('time-keep') ? 'secondary' : 'ghost'}
-                            className="w-full gap-3 justify-start h-10" 
+                            variant={
+                                location.pathname.includes('time-keep') ? 'secondary' : 'ghost'
+                            }
+                            className="w-full gap-3 justify-start h-10"
                         >
-                            <Icons.time className='w-5 h-5' color={theme.theme === 'dark' ? '#ffffff' : 'black'} />
+                            <Icons.time
+                                className="w-5 h-5"
+                                color={theme.theme === 'dark' ? '#ffffff' : 'black'}
+                            />
                             {!collapse && 'Nghỉ phép'}
                         </Button>
                     </div>
                 </div>
                 <div className="mb-4 px-[28px] gap-1 fixed bottom-[50px] flex-row flex items-center justify-center">
-                    <img
-                        src="#"
-                        alt="avatar"
-                        className="w-8 h-8 border rounded-full"
-                    />
+                    <img src="#" alt="avatar" className="w-8 h-8 border rounded-full" />
                     {!collapse && <span>Thắng Dev Alone</span>}
                 </div>
             </div>
