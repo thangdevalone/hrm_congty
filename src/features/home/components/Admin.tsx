@@ -68,7 +68,7 @@ export const Admin = () => {
                     </NavigationMenu>
                 </div>
             </div>
-            <div className="p-5 flex-1">
+            <div className="p-5 flex-1 relative">
                 <Outlet />
             </div>
         </>

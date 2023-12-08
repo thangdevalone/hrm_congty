@@ -137,7 +137,7 @@ const data = [
     },
 ];
 
-export interface Props {
+ interface Props {
     id: string;
     name: string;
     job: string;
@@ -146,7 +146,7 @@ export interface Props {
     position: string;
 }
 
-export const columns: ColumnDef<Props>[] = [
+const columns: ColumnDef<Props>[] = [
     {
         id: 'select',
         header: ({ table }) => (
@@ -209,8 +209,8 @@ export const columns: ColumnDef<Props>[] = [
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-4 p-0">
-                            <DotsHorizontalIcon className="h-3 w-3" />
+                        <Button variant="ghost" className="h-8 p-0">
+                            <DotsHorizontalIcon className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -280,7 +280,7 @@ export function EmployeeList() {
                     <DataTableViewOptions table={table} />
                 </div>
                 <div className="rounded-md border">
-                    <Table>
+                    <Table className='overflow-y-auto'>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
@@ -299,7 +299,7 @@ export function EmployeeList() {
                                 </TableRow>
                             ))}
                         </TableHeader>
-                        <TableBody>
+                        <TableBody >
                             {table.getRowModel().rows?.length ? (
                                 table.getRowModel().rows.map((row) => (
                                     <Dialog>

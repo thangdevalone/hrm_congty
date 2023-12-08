@@ -1,3 +1,6 @@
+body{
+  overflow: hidden;
+}
 .trigger-menu:active span.chevron-down-icon{
   transition: 0.5s transform;
   transform: rotate(-90deg); 
