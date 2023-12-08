@@ -17,10 +17,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { InputPassword } from '@/components/ui/inputPassword';
+import { useAppSelector } from '@/app/hooks';
+import { useEffect } from 'react';
+import { useToast } from '@/components/ui/use-toast';
 
 export function LoginPage() {
     const dispatch = useDispatch();
-    // const [isLoading, setIsLoading] = React.useState<boolean>(false)
+    const { actionAuth, logging } = useAppSelector((state) => state.auth);
+    const { toast } = useToast();
     const schema = yup.object().shape({
         username: yup.string().required('Cần nhập tên đăng nhập'),
         password: yup.string().required('Cần nhập mật khẩu'),
@@ -28,10 +32,23 @@ export function LoginPage() {
 
     const form = useForm<LoginForm>({
         resolver: yupResolver(schema),
+        defaultValues: {
+            username: '',
+            password: '',
+        },
     });
     const handleLogin: SubmitHandler<LoginForm> = (data) => {
         dispatch(authActions.login(data));
     };
+    useEffect(() => {
+        if (actionAuth == 'Failed') {
+            toast({
+                title: 'Đăng nhập thất bại',
+                description: 'Tài khoản hoặc mật khẩu không chính xác',
+                variant:'destructive'
+            });
+        }
+    }, [actionAuth, toast]);
     return (
         <>
             <div className="absolute top-[20px] right-[20px] z-20">
@@ -98,14 +115,17 @@ export function LoginPage() {
                                                     placeholder="Nhập mật khẩu"
                                                     {...field}
                                                 />
-
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-                                <p className='text-end text-sm p-y-2'><a href="/forgot-pass" className='hover:underline'><i>Quên mật khẩu?</i></a></p>
-                                <Button type="submit" className="w-full ">
+                                <p className="text-end text-sm p-y-2">
+                                    <a href="/forgot-pass" className="hover:underline">
+                                        <i>Quên mật khẩu?</i>
+                                    </a>
+                                </p>
+                                <Button type="submit" disabled={logging} className="w-full ">
                                     Đăng nhập
                                 </Button>
                             </form>

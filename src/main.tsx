@@ -6,6 +6,7 @@ import App from './App.tsx'
 import { persistor, store } from './app/store.ts'
 import './index.css'
 import NavigateSetter from './router/NavigateSetter.tsx'
+import { Toaster } from './components/ui/toaster.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
@@ -13,6 +14,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
           <NavigateSetter />
           <App />
+          <Toaster />
       </BrowserRouter>
       </PersistGate>
     </Provider>
