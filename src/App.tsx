@@ -9,11 +9,12 @@ import {
     ManagerJob,
     ManagerWorkShift,
     Organization,
-    Users
+    Users,
 } from './features/home/components/AdminComponents';
 import { Leave } from './features/home/components/Leave';
-import { EditEmployee, EmployeeList } from './features/home/components/PimComponents';
+import { EmployeeList } from './features/home/components/PimComponents';
 import Welcome from './features/welcome';
+import { EmployeeTimeSheets } from './features/home/components/LeaveComponents';
 
 function App() {
     return (
@@ -35,9 +36,11 @@ function App() {
                         <Route path="info-employee" element={<PIM />}>
                             <Route index element={<Navigate to="list-employee" />} />
                             <Route path="list-employee" element={<EmployeeList />} />
-                            <Route path="edit-employee" element={<EditEmployee />} />
                         </Route>
-                        <Route path="leave" element={<Leave />}></Route>
+                        <Route path="leave" element={<Leave />}>
+                            <Route index element={<Navigate to="employee-timesheets" />} />
+                            <Route path="employee-timesheets" element={<EmployeeTimeSheets />} />
+                        </Route>
                         <Route path="time-keep" element={<TimeKeep />}></Route>
                     </Route>
                 </Routes>

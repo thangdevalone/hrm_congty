@@ -13,7 +13,7 @@ import {
     useReactTable,
 } from '@tanstack/react-table';
 import * as React from 'react';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
 import { DataTableViewOptions } from '@/components/common';
@@ -44,8 +44,16 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { handlePrice } from '@/utils';
-import { DotsHorizontalIcon } from '@radix-ui/react-icons';
 import { DialogTrigger } from '@radix-ui/react-dialog';
+import { DotsHorizontalIcon } from '@radix-ui/react-icons';
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
 const data = [
     {
         id: '001',
@@ -57,7 +65,7 @@ const data = [
     },
     {
         id: '002',
-        name: 'Nguyễn Quang Thắng',
+        name: 'Nguyễn Quang Tiến',
         job: 'Nhân viên kĩ thuật',
         employmentStatus: 'Full-time',
         salary: 2000000,
@@ -65,7 +73,7 @@ const data = [
     },
     {
         id: '003',
-        name: 'Nguyễn Quang Thắng',
+        name: 'Nguyễn Quang Tuấn Anh',
         job: 'Nhân viên kĩ thuật',
         employmentStatus: 'Full-time',
         salary: 2000000,
@@ -73,7 +81,7 @@ const data = [
     },
     {
         id: '004',
-        name: 'Nguyễn Quang Thắng',
+        name: 'Nguyễn Quang Thưởng',
         job: 'Nhân viên kĩ thuật',
         employmentStatus: 'Full-time',
         salary: 2000000,
@@ -81,7 +89,7 @@ const data = [
     },
     {
         id: '005',
-        name: 'Nguyễn Quang Thắng',
+        name: 'Nguyễn Quang Bich',
         job: 'Nhân viên kĩ thuật',
         employmentStatus: 'Full-time',
         salary: 2000000,
@@ -89,7 +97,7 @@ const data = [
     },
     {
         id: '006',
-        name: 'Nguyễn Quang Thắng',
+        name: 'Nguyễn Quang Quỳnh',
         job: 'Nhân viên kĩ thuật',
         employmentStatus: 'Full-time',
         salary: 2000000,
@@ -97,7 +105,7 @@ const data = [
     },
     {
         id: '007',
-        name: 'Nguyễn Quang Thắng',
+        name: 'Nguyễn Quang Nghị',
         job: 'Nhân viên kĩ thuật',
         employmentStatus: 'Full-time',
         salary: 2000000,
@@ -105,7 +113,7 @@ const data = [
     },
     {
         id: '008',
-        name: 'Nguyễn Quang Thắng',
+        name: 'Nguyễn Quang Giang',
         job: 'Nhân viên kĩ thuật',
         employmentStatus: 'Full-time',
         salary: 2000000,
@@ -137,7 +145,7 @@ const data = [
     },
 ];
 
- interface Props {
+interface Props {
     id: string;
     name: string;
     job: string;
@@ -214,10 +222,8 @@ const columns: ColumnDef<Props>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem className="cursor-pointer" onClick={() => {}}>
-                            Delete User
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer" onClick={() => {}}>
+                        <DropdownMenuItem className="cursor-pointer">Delete User</DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer">
                             <DialogTrigger>Edit User</DialogTrigger>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -235,6 +241,7 @@ export function EmployeeList() {
         salary: yup.number().required('Cần nhập lương cho nhân viên'),
         position: yup.string().required('Cần nhập chức vụ cho nhân viên'),
     });
+
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -262,25 +269,18 @@ export function EmployeeList() {
     const form = useForm<EditUser>({
         resolver: yupResolver(schema),
     });
-
-    const handleOPenDialog = (idUser: string): void => {};
-
+    const handleSubmit: SubmitHandler<EditUser> = (data) => {
+        console.log(data);
+    };
     return (
         <>
             <div className="w-full space-y-4">
                 <div className="flex items-center">
-                    <Input
-                        placeholder="Filter name..."
-                        value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-                        onChange={(event) =>
-                            table.getColumn('name')?.setFilterValue(event.target.value)
-                        }
-                        className="max-w-sm"
-                    />
+                    <Input placeholder="Filter name..." className="max-w-sm" />
                     <DataTableViewOptions table={table} />
                 </div>
                 <div className="rounded-md border">
-                    <Table className='overflow-y-auto'>
+                    <Table className="overflow-y-auto">
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
@@ -299,27 +299,131 @@ export function EmployeeList() {
                                 </TableRow>
                             ))}
                         </TableHeader>
-                        <TableBody >
+                        <TableBody>
                             {table.getRowModel().rows?.length ? (
                                 table.getRowModel().rows.map((row) => (
-                                    <Dialog>
-                                        <DialogContent className="sm:max-w-[425px]">
-                                            <DialogHeader>
-                                                <DialogTitle>Edit profile</DialogTitle>
+                                    <Dialog key={row.id}>
+                                        <DialogContent className=" border-black/70">
+                                            <DialogHeader className="">
+                                                <DialogTitle>
+                                                    Edit User ID: {row.original.id}
+                                                </DialogTitle>
                                                 <DialogDescription>
-                                                    Make changes to your profile here. Click save
-                                                    when you're done.
+                                                    <Form {...form}>
+                                                        <form
+                                                            className="grid grid-cols-2 gap-3 "
+                                                            onSubmit={form.handleSubmit(
+                                                                handleSubmit
+                                                            )}
+                                                        >
+                                                            <FormField
+                                                                defaultValue={row.original.name}
+                                                                control={form.control}
+                                                                name="name"
+                                                                render={({ field }) => (
+                                                                    <FormItem className="">
+                                                                        <FormLabel className="text-black">
+                                                                            Name
+                                                                        </FormLabel>
+                                                                        <FormControl>
+                                                                            <Input
+                                                                                placeholder="Enter name"
+                                                                                {...field}
+                                                                            />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                            <FormField
+                                                                defaultValue={
+                                                                    row.original.employmentStatus
+                                                                }
+                                                                control={form.control}
+                                                                name="employmentStatus"
+                                                                render={({ field }) => (
+                                                                    <FormItem className="">
+                                                                        <FormLabel className="text-black">
+                                                                            Employment Status
+                                                                        </FormLabel>
+                                                                        <FormControl>
+                                                                            <Input
+                                                                                placeholder="Enter Employment Status"
+                                                                                {...field}
+                                                                            />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                            <FormField
+                                                                defaultValue={row.original.job}
+                                                                control={form.control}
+                                                                name="job"
+                                                                render={({ field }) => (
+                                                                    <FormItem className="">
+                                                                        <FormLabel className="text-black">
+                                                                            Job Title
+                                                                        </FormLabel>
+                                                                        <FormControl>
+                                                                            <Input
+                                                                                placeholder="Enter Job Title"
+                                                                                {...field}
+                                                                            />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                            <FormField
+                                                                defaultValue={row.original.position}
+                                                                control={form.control}
+                                                                name="position"
+                                                                render={({ field }) => (
+                                                                    <FormItem className="">
+                                                                        <FormLabel className="text-black">
+                                                                            Position
+                                                                        </FormLabel>
+                                                                        <FormControl>
+                                                                            <Input
+                                                                                placeholder="Enter Position"
+                                                                                {...field}
+                                                                            />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                            <FormField
+                                                                defaultValue={row.original.salary}
+                                                                control={form.control}
+                                                                name="salary"
+                                                                render={({ field }) => (
+                                                                    <FormItem className="">
+                                                                        <FormLabel className="text-black">
+                                                                            Salary
+                                                                        </FormLabel>
+                                                                        <FormControl>
+                                                                            <Input
+                                                                                placeholder="Enter Salary"
+                                                                                {...field}
+                                                                            />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                            <div className="grid gap-4 py-4"></div>
+                                                            <DialogFooter className=""></DialogFooter>
+                                                            <DialogFooter className="">
+                                                                <Button type="submit">Save</Button>
+                                                            </DialogFooter>
+                                                        </form>
+                                                    </Form>
                                                 </DialogDescription>
                                             </DialogHeader>
-                                            <div className="grid gap-4 py-4"></div>
-                                            <DialogFooter>
-                                                <Button type="submit">Save changes</Button>
-                                            </DialogFooter>
                                         </DialogContent>
-                                        <TableRow
-                                            key={row.id}
-                                            data-state={row.getIsSelected() && 'selected'}
-                                        >
+                                        <TableRow data-state={row.getIsSelected() && 'selected'}>
                                             {row.getVisibleCells().map((cell) => (
                                                 <TableCell key={cell.id}>
                                                     {flexRender(
