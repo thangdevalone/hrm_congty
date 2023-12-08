@@ -1,4 +1,4 @@
-export *  from "./Employee"
+export * from "./Employee"
 export * from "./ManagerJob"
 export * from "./ManagerEmpStatus"
 export * from "./ManagerWorkShift"

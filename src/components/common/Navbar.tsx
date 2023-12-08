@@ -35,7 +35,7 @@ export function Navbar() {
                     </div>
                 </div>
             </div>
-            <div className="pl-4 pr-[70px] pt-1 pb-4 flex justify-between flex-row">
+            <div className="pl-4 pr-[70px] pt-1 pb-4 flex justify-start flex-row">
                 <NavigationMenu>
                     <NavigationMenuList>
                         <NavigationMenuItem>
@@ -70,19 +70,7 @@ export function Navbar() {
                         </NavigationMenuItem>
                     </NavigationMenuList>
                 </NavigationMenu>
-                <div className='flex flex-row gap-3'>
-                    <Button className="rounded-[50%] p-0 w-9 h-9 ">
-                        <BellIcon />
-                    </Button>
-                    <Button>
-                        <PlusCircledIcon className="mr-2" />
-                        Thêm
-                    </Button>
-                    <Button>
-                        <Icons.filter className="mr-2 text-white dark:text-black" />
-                        Lọc
-                    </Button>
-                </div>
+                
             </div>
         </>
     );
