@@ -1,19 +1,19 @@
 import { ThemeProvider } from '@/components/theme-provider';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import './app.css';
 import { LoginPage } from './features/auth/pages/LoginPage';
-import Welcome from './features/welcome';
 import Home from './features/home';
 import { Admin, PIM, TimeKeep } from './features/home/components';
 import {
-    ManagerJob,
     ManagerEmpStatus,
+    ManagerJob,
     ManagerWorkShift,
-    Employyee,
     Organization,
+    Users
 } from './features/home/components/AdminComponents';
-import { EmployeeList, EditEmployee } from './features/home/components/PimComponents';
 import { Leave } from './features/home/components/Leave';
+import { EditEmployee, EmployeeList } from './features/home/components/PimComponents';
+import Welcome from './features/welcome';
 
 function App() {
     return (
@@ -25,11 +25,11 @@ function App() {
                     <Route path="/home" element={<Home />}>
                         <Route index element={<Navigate to="admin" />} />
                         <Route path="admin" element={<Admin />}>
-                            <Route index element={<Navigate to="employee" />} />
+                            <Route index element={<Navigate to="users" />} />
                             <Route path="job-positions" element={<ManagerJob />} />
                             <Route path="employee-status" element={<ManagerEmpStatus />} />
                             <Route path="work-shifts" element={<ManagerWorkShift />} />
-                            <Route path="employee" element={<Employyee />} />
+                            <Route path="users" element={<Users />} />
                             <Route path="organization" element={<Organization />} />
                         </Route>
                         <Route path="info-employee" element={<PIM />}>

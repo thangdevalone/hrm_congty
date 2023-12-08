@@ -25,11 +25,11 @@ export function EditEmployee() {
     const location = useLocation();
     const data = (location.state.data[0] as Props) || {};
     const schema = yup.object().shape({
-        name: yup.string().required(''),
-        job: yup.string().required(''),
-        employmentStatus: yup.string().required(''),
-        salary: yup.number().required(''),
-        position: yup.string().required(''),
+        name: yup.string().required('Cần nhập tên người dùng'),
+        job: yup.string().required('Cần nhập job người dùng'),
+        employmentStatus: yup.string().required('Cần nhập chức vụ'),
+        salary: yup.number().required('Cần nhập lương cho nhân viên'),
+        position: yup.string().required('Cần nhập chức vụ cho nhân viên'),
     });
 
     const form = useForm<EditUser>({
