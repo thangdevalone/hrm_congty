@@ -98,13 +98,16 @@ export function LoginPage() {
                                                     placeholder="Nhập mật khẩu"
                                                     {...field}
                                                 />
-
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-                                <p className='text-end text-sm p-y-2'><a href="/forgot-pass" className='hover:underline'><i>Quên mật khẩu?</i></a></p>
+                                <p className="text-end text-sm p-y-2">
+                                    <a href="/forgot-pass" className="hover:underline">
+                                        <i>Quên mật khẩu?</i>
+                                    </a>
+                                </p>
                                 <Button type="submit" className="w-full ">
                                     Đăng nhập
                                 </Button>
