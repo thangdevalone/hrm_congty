@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -34,77 +35,120 @@ import {
 } from '@/components/ui/table';
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
-export interface Columns {
-    id: string;
-    name: string;
-    PipelineStatus: string;
-    date: Date;
-}
 
-const data: Columns[] = [
+const data = [
     {
-        id: 'ID-1',
-        name: 'Name-1',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
+        id: '001',
+        name: 'Nguyễn Quang Thắng',
+        startDate: new Date('2023-12-08T08:57:27.930Z'),
+        job: 'Nhân viên kỹ thuật',
+        employmentStatus: 'Full-time',
+        position: 'Intern',
+        status: false,
     },
     {
-        id: 'ID-2',
-        name: 'Name-2',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
+        id: '002',
+        name: 'Nguyễn Quang Tiến',
+        startDate: new Date('2023-12-08T08:57:27.930Z'),
+        job: 'Nhân viên kỹ thuật',
+        employmentStatus: 'Full-time',
+        position: 'Intern',
+        status: false,
     },
     {
-        id: 'ID-3',
-        name: 'Name-3',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
+        id: '003',
+        name: 'Nguyễn Quang Tuấn Anh',
+        startDate: new Date('2023-12-08T08:57:27.930Z'),
+        job: 'Nhân viên kỹ thuật',
+        employmentStatus: 'Full-time',
+        position: 'Intern',
+        status: false,
     },
     {
-        id: 'ID-4',
-        name: 'Name-4',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
+        id: '004',
+        name: 'Nguyễn Quang Thưởng',
+        startDate: new Date('2023-12-08T08:57:27.930Z'),
+        job: 'Nhân viên kỹ thuật',
+        employmentStatus: 'Full-time',
+        position: 'Intern',
+        status: false,
     },
     {
-        id: 'ID-5',
-        name: 'Name-5',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
+        id: '005',
+        name: 'Nguyễn Quang Bich',
+        startDate: new Date('2023-12-08T08:57:27.930Z'),
+        job: 'Nhân viên kỹ thuật',
+        employmentStatus: 'Full-time',
+        position: 'Intern',
+        status: false,
     },
     {
-        id: 'ID-6',
-        name: 'Name-6',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
+        id: '006',
+        name: 'Nguyễn Quang Quỳnh',
+        startDate: new Date('2023-12-08T08:57:27.930Z'),
+        job: 'Nhân viên kỹ thuật',
+        employmentStatus: 'Full-time',
+        position: 'Intern',
+        status: false,
     },
     {
-        id: 'ID-7',
-        name: 'Name-7',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
+        id: '007',
+        name: 'Nguyễn Quang Nghị',
+        startDate: new Date('2023-12-08T08:57:27.930Z'),
+        job: 'Nhân viên kỹ thuật',
+        employmentStatus: 'Full-time',
+        position: 'Intern',
+        status: false,
     },
     {
-        id: 'ID-8',
-        name: 'Name-8',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
+        id: '008',
+        name: 'Nguyễn Quang Giang',
+        startDate: new Date('2023-12-08T08:57:27.930Z'),
+        job: 'Nhân viên kỹ thuật',
+        employmentStatus: 'Full-time',
+        position: 'Intern',
+        status: false,
     },
     {
-        id: 'ID-9',
-        name: 'Name-9',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
+        id: '009',
+        name: 'Nguyễn Quang Thắng',
+        startDate: new Date('2023-12-08T08:57:27.930Z'),
+        job: 'Nhân viên kỹ thuật',
+        employmentStatus: 'Full-time',
+        position: 'Intern',
+        status: false,
     },
     {
-        id: 'ID-10',
-        name: 'Name-10',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
+        id: '010',
+        name: 'Nguyễn Quang Thắng',
+        startDate: new Date('2023-12-08T08:57:27.930Z'),
+        job: 'Nhân viên kỹ thuật',
+        employmentStatus: 'Full-time',
+        position: 'Intern',
+        status: false,
+    },
+    {
+        id: '011',
+        name: 'Nguyễn Quang Thắng',
+        startDate: new Date('2023-12-08T08:57:27.930Z'),
+        job: 'Nhân viên kỹ thuật',
+        employmentStatus: 'Full-time',
+        position: 'Intern',
+        status: false,
     },
 ];
 
-const columns: ColumnDef<Columns>[] = [
+interface Props {
+    id: string;
+    name: string;
+    startDate: Date;
+    job: string;
+    employmentStatus: string;
+    position: string;
+    status: boolean;
+}
+
+const columns: ColumnDef<Props>[] = [
     {
         id: 'select',
         header: ({ table }) => (
@@ -113,7 +157,7 @@ const columns: ColumnDef<Columns>[] = [
                     table.getIsAllPageRowsSelected() ||
                     (table.getIsSomePageRowsSelected() && 'indeterminate')
                 }
-                className="ml-2"
+                className="ml-1 "
                 onCheckedChange={(value: any) => table.toggleAllPageRowsSelected(!!value)}
                 aria-label="Select all"
             />
@@ -123,7 +167,7 @@ const columns: ColumnDef<Columns>[] = [
                 checked={row.getIsSelected()}
                 onCheckedChange={(value: any) => row.toggleSelected(!!value)}
                 aria-label="Select row"
-                className="ml-2"
+                className="ml-1 "
             />
         ),
         enableSorting: false,
@@ -140,20 +184,28 @@ const columns: ColumnDef<Columns>[] = [
         cell: ({ row }) => <div className="capitalize">{row.getValue('name')}</div>,
     },
     {
-        accessorKey: 'PipelineStatus',
-        header: () => 'Pipeline Status',
+        accessorKey: 'startDate',
+        header: 'Start Date',
         cell: ({ row }) => (
-            <div className="capitalize bg-green-400 w-fit px-5 py-1 rounded-sm text-white">
-                {row.getValue('PipelineStatus')}
+            <div className="capitalize">
+                {moment(row.getValue('startDate')).format('DD-MM-YYYY')}
             </div>
         ),
     },
     {
-        accessorKey: 'date',
-        header: () => 'Date',
-        cell: ({ row }) => (
-            <div className="capitalize"> {moment(row.getValue('date')).format('DD-MM-YYYY')}</div>
-        ),
+        accessorKey: 'job',
+        header: () => 'Job',
+        cell: ({ row }) => <div className="capitalize">{row.getValue('job')}</div>,
+    },
+    {
+        accessorKey: 'employmentStatus',
+        header: () => 'Employment Status',
+        cell: ({ row }) => <div className="capitalize">{row.getValue('employmentStatus')}</div>,
+    },
+    {
+        accessorKey: 'position',
+        header: () => 'Position',
+        cell: ({ row }) => <div className="capitalize">{row.getValue('position')}</div>,
     },
     {
         id: 'actions',
@@ -162,13 +214,13 @@ const columns: ColumnDef<Columns>[] = [
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 p-0">
+                        <Button variant="ghost" className="h-8 w-8 p-0">
                             <DotsHorizontalIcon className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem className="cursor-pointer">
-                            Update Pipeline Status
+                            Update Status
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -177,7 +229,7 @@ const columns: ColumnDef<Columns>[] = [
     },
 ];
 
-export function EmployeeTimeSheets() {
+export const LeaveList = () => {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -274,4 +326,4 @@ export function EmployeeTimeSheets() {
             </div>
         </>
     );
-}
+};

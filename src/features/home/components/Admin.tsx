@@ -10,31 +10,19 @@ import {
     navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { Link, Outlet } from 'react-router-dom';
-{/* <div className="flex flex-row gap-3">
-                    <Button className="rounded-[50%] p-0 w-9 h-9 ">
-                        <BellIcon />
-                    </Button>
-                    <Button>
-                        <PlusCircledIcon className="mr-2" />
-                        Thêm
-                    </Button>
-                    <Button>
-                        <Icons.filter className="mr-2 text-white dark:text-black" />
-                        Lọc
-                    </Button> 
-            </div> */}
+
 export const Admin = () => {
     return (
         <>
             <div className="nav-bs dark:border-b">
-                <Navbar  />
+                <Navbar />
                 <div className="pl-4 pr-[70px] pt-1 pb-4 flex justify-between flex-row">
                     <NavigationMenu>
                         <NavigationMenuList>
                             <NavigationMenuItem>
-                                <Link to="./employee">
+                                <Link to="./accounts">
                                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                        Nhân viên
+                                        Tài khoản
                                     </NavigationMenuLink>
                                 </Link>
                             </NavigationMenuItem>
@@ -68,7 +56,7 @@ export const Admin = () => {
                     </NavigationMenu>
                 </div>
             </div>
-            <div className="p-5 flex-1 relative">
+            <div className="px-5 py-2 flex-1 relative">
                 <Outlet />
             </div>
         </>

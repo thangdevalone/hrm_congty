@@ -15,6 +15,7 @@ import { Leave } from './features/home/components/Leave';
 import { EmployeeList } from './features/home/components/PimComponents';
 import Welcome from './features/welcome';
 import { EmployeeTimeSheets } from './features/home/components/LeaveComponents';
+import { LeaveList } from './features/home/components/TimeKeepComponents';
 
 function App() {
     return (
@@ -26,11 +27,11 @@ function App() {
                     <Route path="/home" element={<Home />}>
                         <Route index element={<Navigate to="admin" />} />
                         <Route path="admin" element={<Admin />}>
-                            <Route index element={<Navigate to="users" />} />
+                            <Route index element={<Navigate to="accounts" />} />
                             <Route path="job-positions" element={<ManagerJob />} />
                             <Route path="employee-status" element={<ManagerEmpStatus />} />
                             <Route path="work-shifts" element={<ManagerWorkShift />} />
-                            <Route path="users" element={<Users />} />
+                            <Route path="accounts" element={<Users />} />
                             <Route path="organization" element={<Organization />} />
                         </Route>
                         <Route path="info-employee" element={<PIM />}>
@@ -41,7 +42,10 @@ function App() {
                             <Route index element={<Navigate to="employee-timesheets" />} />
                             <Route path="employee-timesheets" element={<EmployeeTimeSheets />} />
                         </Route>
-                        <Route path="time-keep" element={<TimeKeep />}></Route>
+                        <Route path="time-keep" element={<TimeKeep />}>
+                            <Route index element={<Navigate to="time-keep-list" />} />
+                            <Route path="time-keep-list" element={<LeaveList />} />
+                        </Route>
                     </Route>
                 </Routes>
             </div>

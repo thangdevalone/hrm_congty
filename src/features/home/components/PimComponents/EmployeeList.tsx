@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { EditUser } from '@/models/user';
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
@@ -54,6 +55,7 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form';
+import { ScrollArea } from '@/components/ui/scroll-area';
 const data = [
     {
         id: '001',
@@ -163,7 +165,7 @@ const columns: ColumnDef<Props>[] = [
                     table.getIsAllPageRowsSelected() ||
                     (table.getIsSomePageRowsSelected() && 'indeterminate')
                 }
-                className="ml-2"
+                className="ml-1 "
                 onCheckedChange={(value: any) => table.toggleAllPageRowsSelected(!!value)}
                 aria-label="Select all"
             />
@@ -173,7 +175,7 @@ const columns: ColumnDef<Props>[] = [
                 checked={row.getIsSelected()}
                 onCheckedChange={(value: any) => row.toggleSelected(!!value)}
                 aria-label="Select row"
-                className="ml-2"
+                className="ml-1 "
             />
         ),
         enableSorting: false,
@@ -217,7 +219,7 @@ const columns: ColumnDef<Props>[] = [
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 p-0">
+                        <Button variant="ghost" className="h-8 w-8 p-0">
                             <DotsHorizontalIcon className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
@@ -280,173 +282,187 @@ export function EmployeeList() {
                     <DataTableViewOptions table={table} />
                 </div>
                 <div className="rounded-md border">
-                    <Table className="overflow-y-auto">
-                        <TableHeader>
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => {
-                                        return (
-                                            <TableHead key={header.id}>
-                                                {header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(
-                                                          header.column.columnDef.header,
-                                                          header.getContext()
-                                                      )}
-                                            </TableHead>
-                                        );
-                                    })}
-                                </TableRow>
-                            ))}
-                        </TableHeader>
-                        <TableBody>
-                            {table.getRowModel().rows?.length ? (
-                                table.getRowModel().rows.map((row) => (
-                                    <Dialog key={row.id}>
-                                        <DialogContent className=" border-black/70">
-                                            <DialogHeader className="">
-                                                <DialogTitle>
-                                                    Edit User ID: {row.original.id}
-                                                </DialogTitle>
-                                                <DialogDescription>
-                                                    <Form {...form}>
-                                                        <form
-                                                            className="grid grid-cols-2 gap-3 "
-                                                            onSubmit={form.handleSubmit(
-                                                                handleSubmit
-                                                            )}
-                                                        >
-                                                            <FormField
-                                                                defaultValue={row.original.name}
-                                                                control={form.control}
-                                                                name="name"
-                                                                render={({ field }) => (
-                                                                    <FormItem className="">
-                                                                        <FormLabel className="text-black">
-                                                                            Name
-                                                                        </FormLabel>
-                                                                        <FormControl>
-                                                                            <Input
-                                                                                placeholder="Enter name"
-                                                                                {...field}
-                                                                            />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
+                    <ScrollArea
+                        style={{ height: 'calc(100vh - 220px)' }}
+                        className=" relative w-full overflow-auto"
+                    >
+                        <Table className="overflow-y-auto">
+                            <TableHeader>
+                                {table.getHeaderGroups().map((headerGroup) => (
+                                    <TableRow key={headerGroup.id}>
+                                        {headerGroup.headers.map((header) => {
+                                            return (
+                                                <TableHead key={header.id}>
+                                                    {header.isPlaceholder
+                                                        ? null
+                                                        : flexRender(
+                                                              header.column.columnDef.header,
+                                                              header.getContext()
+                                                          )}
+                                                </TableHead>
+                                            );
+                                        })}
+                                    </TableRow>
+                                ))}
+                            </TableHeader>
+                            <TableBody>
+                                {table.getRowModel().rows?.length ? (
+                                    table.getRowModel().rows.map((row) => (
+                                        <Dialog key={row.id}>
+                                            <DialogContent className=" border-black/70">
+                                                <DialogHeader className="">
+                                                    <DialogTitle>
+                                                        Edit User ID: {row.original.id}
+                                                    </DialogTitle>
+                                                    <DialogDescription>
+                                                        <Form {...form}>
+                                                            <form
+                                                                className="grid grid-cols-2 gap-3 "
+                                                                onSubmit={form.handleSubmit(
+                                                                    handleSubmit
                                                                 )}
-                                                            />
-                                                            <FormField
-                                                                defaultValue={
-                                                                    row.original.employmentStatus
-                                                                }
-                                                                control={form.control}
-                                                                name="employmentStatus"
-                                                                render={({ field }) => (
-                                                                    <FormItem className="">
-                                                                        <FormLabel className="text-black">
-                                                                            Employment Status
-                                                                        </FormLabel>
-                                                                        <FormControl>
-                                                                            <Input
-                                                                                placeholder="Enter Employment Status"
-                                                                                {...field}
-                                                                            />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <FormField
-                                                                defaultValue={row.original.job}
-                                                                control={form.control}
-                                                                name="job"
-                                                                render={({ field }) => (
-                                                                    <FormItem className="">
-                                                                        <FormLabel className="text-black">
-                                                                            Job Title
-                                                                        </FormLabel>
-                                                                        <FormControl>
-                                                                            <Input
-                                                                                placeholder="Enter Job Title"
-                                                                                {...field}
-                                                                            />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <FormField
-                                                                defaultValue={row.original.position}
-                                                                control={form.control}
-                                                                name="position"
-                                                                render={({ field }) => (
-                                                                    <FormItem className="">
-                                                                        <FormLabel className="text-black">
-                                                                            Position
-                                                                        </FormLabel>
-                                                                        <FormControl>
-                                                                            <Input
-                                                                                placeholder="Enter Position"
-                                                                                {...field}
-                                                                            />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <FormField
-                                                                defaultValue={row.original.salary}
-                                                                control={form.control}
-                                                                name="salary"
-                                                                render={({ field }) => (
-                                                                    <FormItem className="">
-                                                                        <FormLabel className="text-black">
-                                                                            Salary
-                                                                        </FormLabel>
-                                                                        <FormControl>
-                                                                            <Input
-                                                                                placeholder="Enter Salary"
-                                                                                {...field}
-                                                                            />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <div className="grid gap-4 py-4"></div>
-                                                            <DialogFooter className=""></DialogFooter>
-                                                            <DialogFooter className="">
-                                                                <Button type="submit">Save</Button>
-                                                            </DialogFooter>
-                                                        </form>
-                                                    </Form>
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                        </DialogContent>
-                                        <TableRow data-state={row.getIsSelected() && 'selected'}>
-                                            {row.getVisibleCells().map((cell) => (
-                                                <TableCell key={cell.id}>
-                                                    {flexRender(
-                                                        cell.column.columnDef.cell,
-                                                        cell.getContext()
-                                                    )}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                    </Dialog>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={columns.length}
-                                        className="h-24 text-center"
-                                    >
-                                        No results.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                                                            >
+                                                                <FormField
+                                                                    defaultValue={row.original.name}
+                                                                    control={form.control}
+                                                                    name="name"
+                                                                    render={({ field }) => (
+                                                                        <FormItem className="">
+                                                                            <FormLabel className="text-black">
+                                                                                Name
+                                                                            </FormLabel>
+                                                                            <FormControl>
+                                                                                <Input
+                                                                                    placeholder="Enter name"
+                                                                                    {...field}
+                                                                                />
+                                                                            </FormControl>
+                                                                            <FormMessage />
+                                                                        </FormItem>
+                                                                    )}
+                                                                />
+                                                                <FormField
+                                                                    defaultValue={
+                                                                        row.original
+                                                                            .employmentStatus
+                                                                    }
+                                                                    control={form.control}
+                                                                    name="employmentStatus"
+                                                                    render={({ field }) => (
+                                                                        <FormItem className="">
+                                                                            <FormLabel className="text-black">
+                                                                                Employment Status
+                                                                            </FormLabel>
+                                                                            <FormControl>
+                                                                                <Input
+                                                                                    placeholder="Enter Employment Status"
+                                                                                    {...field}
+                                                                                />
+                                                                            </FormControl>
+                                                                            <FormMessage />
+                                                                        </FormItem>
+                                                                    )}
+                                                                />
+                                                                <FormField
+                                                                    defaultValue={row.original.job}
+                                                                    control={form.control}
+                                                                    name="job"
+                                                                    render={({ field }) => (
+                                                                        <FormItem className="">
+                                                                            <FormLabel className="text-black">
+                                                                                Job Title
+                                                                            </FormLabel>
+                                                                            <FormControl>
+                                                                                <Input
+                                                                                    placeholder="Enter Job Title"
+                                                                                    {...field}
+                                                                                />
+                                                                            </FormControl>
+                                                                            <FormMessage />
+                                                                        </FormItem>
+                                                                    )}
+                                                                />
+                                                                <FormField
+                                                                    defaultValue={
+                                                                        row.original.position
+                                                                    }
+                                                                    control={form.control}
+                                                                    name="position"
+                                                                    render={({ field }) => (
+                                                                        <FormItem className="">
+                                                                            <FormLabel className="text-black">
+                                                                                Position
+                                                                            </FormLabel>
+                                                                            <FormControl>
+                                                                                <Input
+                                                                                    placeholder="Enter Position"
+                                                                                    {...field}
+                                                                                />
+                                                                            </FormControl>
+                                                                            <FormMessage />
+                                                                        </FormItem>
+                                                                    )}
+                                                                />
+                                                                <FormField
+                                                                    defaultValue={
+                                                                        row.original.salary
+                                                                    }
+                                                                    control={form.control}
+                                                                    name="salary"
+                                                                    render={({ field }) => (
+                                                                        <FormItem className="">
+                                                                            <FormLabel className="text-black">
+                                                                                Salary
+                                                                            </FormLabel>
+                                                                            <FormControl>
+                                                                                <Input
+                                                                                    placeholder="Enter Salary"
+                                                                                    {...field}
+                                                                                />
+                                                                            </FormControl>
+                                                                            <FormMessage />
+                                                                        </FormItem>
+                                                                    )}
+                                                                />
+                                                                <div className="grid gap-4 py-4"></div>
+                                                                <DialogFooter className=""></DialogFooter>
+                                                                <DialogFooter className="">
+                                                                    <Button type="submit">
+                                                                        Save
+                                                                    </Button>
+                                                                </DialogFooter>
+                                                            </form>
+                                                        </Form>
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                            </DialogContent>
+                                            <TableRow
+                                                data-state={row.getIsSelected() && 'selected'}
+                                            >
+                                                {row.getVisibleCells().map((cell) => (
+                                                    <TableCell key={cell.id}>
+                                                        {flexRender(
+                                                            cell.column.columnDef.cell,
+                                                            cell.getContext()
+                                                        )}
+                                                    </TableCell>
+                                                ))}
+                                            </TableRow>
+                                        </Dialog>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={columns.length}
+                                            className="h-24 text-center"
+                                        >
+                                            No results.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </ScrollArea>
                 </div>
                 <DataTablePagination table={table} />
             </div>

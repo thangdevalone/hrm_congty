@@ -1,8 +1,6 @@
 import { Navbar } from '@/components/common';
 import { Outlet } from 'react-router-dom';
 
-
-
 export const PIM = () => {
     return (
         <>
