@@ -5,17 +5,17 @@ import { LoginPage } from './features/auth/pages/LoginPage';
 import Home from './features/home';
 import { Admin, PIM, TimeKeep } from './features/home/components';
 import {
+    Accounts,
     ManagerEmpStatus,
     ManagerJob,
     ManagerWorkShift,
-    Organization,
-    Users,
+    Organization
 } from './features/home/components/AdminComponents';
 import { Leave } from './features/home/components/Leave';
-import { EmployeeList } from './features/home/components/PimComponents';
-import Welcome from './features/welcome';
 import { EmployeeTimeSheets } from './features/home/components/LeaveComponents';
+import { EmployeeList } from './features/home/components/PimComponents';
 import { LeaveList } from './features/home/components/TimeKeepComponents';
+import Welcome from './features/welcome';
 
 function App() {
     return (
@@ -31,7 +31,7 @@ function App() {
                             <Route path="job-positions" element={<ManagerJob />} />
                             <Route path="employee-status" element={<ManagerEmpStatus />} />
                             <Route path="work-shifts" element={<ManagerWorkShift />} />
-                            <Route path="accounts" element={<Users />} />
+                            <Route path="accounts" element={<Accounts />} />
                             <Route path="organization" element={<Organization />} />
                         </Route>
                         <Route path="info-employee" element={<PIM />}>

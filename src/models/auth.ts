@@ -1,9 +1,7 @@
-
 export interface LoginForm{
     username:string
     password:string
 }
-
 export interface RegisterForm{
     fullName:string
     username:string
@@ -11,3 +9,15 @@ export interface RegisterForm{
     password:string
     rePassword:string
 }
+
+export interface LoginRes {
+    response: string
+    userID: string
+    token: Token
+    status: number
+  }
+  
+  export interface Token {
+    refresh: string
+    access: string
+  }

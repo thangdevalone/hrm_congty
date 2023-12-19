@@ -16,15 +16,16 @@ export const Admin = () => {
         <>
             <div className="nav-bs dark:border-b">
                 <Navbar />
-                <div className="pl-4 pr-[70px] pt-1 pb-4 flex justify-between flex-row">
+                <div className="pl-4 pr-[70px] relative z-10 pt-1 pb-4 flex justify-between flex-row">
                     <NavigationMenu>
                         <NavigationMenuList>
                             <NavigationMenuItem>
-                                <Link to="./accounts">
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                        Tài khoản
-                                    </NavigationMenuLink>
-                                </Link>
+                                <NavigationMenuLink
+                                    href="./accounts"
+                                    className={navigationMenuTriggerStyle()}
+                                >
+                                    Tài khoản
+                                </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
                                 <NavigationMenuTrigger>Công việc</NavigationMenuTrigger>
@@ -46,17 +47,18 @@ export const Admin = () => {
                                 </NavigationMenuContent>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <Link to="./organization">
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                        Tổ chức
-                                    </NavigationMenuLink>
-                                </Link>
+                                <NavigationMenuLink
+                                    href="./organization"
+                                    className={navigationMenuTriggerStyle()}
+                                >
+                                    Tổ chức
+                                </NavigationMenuLink>
                             </NavigationMenuItem>
                         </NavigationMenuList>
                     </NavigationMenu>
                 </div>
             </div>
-            <div className="px-5 py-2 flex-1 relative">
+            <div className="px-5 py-3 flex-1 relative">
                 <Outlet />
             </div>
         </>

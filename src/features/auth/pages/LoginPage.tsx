@@ -25,6 +25,7 @@ export function LoginPage() {
     const dispatch = useDispatch();
     const { actionAuth, logging } = useAppSelector((state) => state.auth);
     const { toast } = useToast();
+   
     const schema = yup.object().shape({
         username: yup.string().required('Cần nhập tên đăng nhập'),
         password: yup.string().required('Cần nhập mật khẩu'),
@@ -64,7 +65,7 @@ export function LoginPage() {
                             className="w-[300px]"
                         />
                     </div>
-                    <div className="relative z-20 mt-auto">
+                    <div className="relative z-20 mt-auto"> 
                         <blockquote className="space-y-2">
                             <p className="text-lg">
                                 &ldquo;Welcome to White Neuron Smart Technology & IT Solutions,

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { EditUser } from '@/models/user';
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
     ColumnDef,
@@ -44,7 +43,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { handlePrice } from '@/utils';
+import { handleNumber } from '@/utils';
 import { DialogTrigger } from '@radix-ui/react-dialog';
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
 import {
@@ -56,6 +55,8 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { InforAccount } from '@/models';
+import { adminApi } from '@/api/adminApi';
 const data = [
     {
         id: '001',
@@ -205,7 +206,7 @@ const columns: ColumnDef<Props>[] = [
     {
         accessorKey: 'salary',
         header: () => 'Salary',
-        cell: ({ row }) => <div className="capitalize">{handlePrice(row.getValue('salary'))}</div>,
+        cell: ({ row }) => <div className="capitalize">{handleNumber(row.getValue('salary'))}</div>,
     },
     {
         accessorKey: 'position',
@@ -225,9 +226,11 @@ const columns: ColumnDef<Props>[] = [
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem className="cursor-pointer">Delete User</DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer">
-                            <DialogTrigger>Edit User</DialogTrigger>
-                        </DropdownMenuItem>
+                        <DialogTrigger className='w-full'>
+                            <DropdownMenuItem className="cursor-pointer">
+                                Edit User
+                            </DropdownMenuItem>
+                        </DialogTrigger>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );
@@ -268,12 +271,17 @@ export function EmployeeList() {
         },
     });
 
-    const form = useForm<EditUser>({
+    const form = useForm<InforAccount>({
         resolver: yupResolver(schema),
     });
-    const handleSubmit: SubmitHandler<EditUser> = (data) => {
+    const handleSubmit: SubmitHandler<InforAccount> = (data) => {
         console.log(data);
     };
+    React.useEffect(()=>{
+       const emp=adminApi.getListEmployee()
+       console.log(emp)
+
+    },[])
     return (
         <>
             <div className="w-full space-y-4">
@@ -309,13 +317,16 @@ export function EmployeeList() {
                                 {table.getRowModel().rows?.length ? (
                                     table.getRowModel().rows.map((row) => (
                                         <Dialog key={row.id}>
-                                            <DialogContent className=" border-black/70">
+                                            <DialogContent >
                                                 <DialogHeader className="">
-                                                    <DialogTitle>
+                                                    <DialogTitle className='mb-2'>
                                                         Edit User ID: {row.original.id}
                                                     </DialogTitle>
                                                     <DialogDescription>
-                                                        <Form {...form}>
+                                                    
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <Form {...form}>
                                                             <form
                                                                 className="grid grid-cols-2 gap-3 "
                                                                 onSubmit={form.handleSubmit(
@@ -433,8 +444,6 @@ export function EmployeeList() {
                                                                 </DialogFooter>
                                                             </form>
                                                         </Form>
-                                                    </DialogDescription>
-                                                </DialogHeader>
                                             </DialogContent>
                                             <TableRow
                                                 data-state={row.getIsSelected() && 'selected'}

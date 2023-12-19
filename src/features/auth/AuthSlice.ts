@@ -1,11 +1,11 @@
-import { LoginForm, RegisterForm, User } from "@/models"
+import { LoginForm, RegisterForm } from "@/models"
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 
 export interface AuthState {
   logging?: boolean
   registering?: boolean
   actionAuth: "No action" | "Success" | "Failed"
-  currentUser?: User
+  currentUser?: string,
 }
 
 const initialState: AuthState = {

@@ -1,29 +1,21 @@
 import History from "@/router/History"
 import authApi from "@/api/authApi"
 import StorageKeys from "@/constants/storage-keys"
-import { LoginForm, RegisterForm } from "@/models"
+import { LoginForm, LoginRes, RegisterForm } from "@/models"
 
 import { PayloadAction } from "@reduxjs/toolkit"
 import { call, delay, put, takeLatest } from "redux-saga/effects"
 import { authActions } from "./AuthSlice"
 
-type ApiResAuth = {
-  status: boolean
-  type: string
-  message: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data:any
-}
 
 function* handleLogin(action: PayloadAction<LoginForm>) {
   try {
-    const res: ApiResAuth = yield call(authApi.login, action.payload)
-    const user = res.data
+    const res: LoginRes = yield call(authApi.login, action.payload)
+    const user = res.userID
     yield put(authActions.loginSuccess(user))
-    // localStorage.setItem(StorageKeys.TOKEN, user.token)
-    // localStorage.setItem(StorageKeys.NAMEUSER, user.accountName)
-    // localStorage.setItem(StorageKeys.USER, JSON.stringify(user))
-    History.push("/")
+    localStorage.setItem(StorageKeys.TOKEN, res.token.access)
+    localStorage.setItem(StorageKeys.NAMEUSER, user)
+    History.push("/home")
   } catch (error) {
     // Handle the error here
     yield put(authActions.loginFailed())
@@ -33,9 +25,9 @@ function* handleLogin(action: PayloadAction<LoginForm>) {
 }
 function* handleRegister(action: PayloadAction<RegisterForm>) {
   try {
-    const res: ApiResAuth = yield call(authApi.register, action.payload)
-    const user = res.data
-    yield put(authActions.registerSuccess(user))
+    // const res: ApiResAuth = yield call(authApi.register, action.payload)
+    // const user = res.data
+    // yield put(authActions.registerSuccess(user))
     // localStorage.setItem(StorageKeys.TOKEN, user.token)
     // localStorage.setItem(StorageKeys.NAMEUSER, user.accountName)
     // localStorage.setItem(StorageKeys.USER, JSON.stringify(user))
