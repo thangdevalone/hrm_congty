@@ -2,7 +2,7 @@ import { DataTablePagination, DataTableViewOptions } from '@/components/common';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CaretSortIcon, DotsHorizontalIcon, PlusCircledIcon } from '@radix-ui/react-icons';
+import { DotsHorizontalIcon, PlusCircledIcon } from '@radix-ui/react-icons';
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -17,6 +17,23 @@ import {
 } from '@tanstack/react-table';
 import * as React from 'react';
 
+import { adminApi } from '@/api/adminApi';
+import authApi from '@/api/authApi';
+import { Icons } from '@/components/icons';
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+} from '@/components/ui/command';
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -26,23 +43,6 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Icons } from '@/components/icons';
-import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import {
     Form,
     FormControl,
     FormField,
@@ -50,15 +50,36 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import { useToast } from '@/components/ui/use-toast';
+import { cn } from '@/lib/utils';
+import { CreateAccount, InfoAccount, User, UserAccount } from '@/models';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { InforAccount } from '@/models';
-import * as yup from 'yup';
 import { DialogTrigger } from '@radix-ui/react-dialog';
-const data: InforAccount[] = [];
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import * as yup from 'yup';
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const columns: ColumnDef<InforAccount>[] = [
+export const columns: ColumnDef<UserAccount>[] = [
     {
         id: 'select',
         header: ({ table }) => (
@@ -84,50 +105,70 @@ export const columns: ColumnDef<InforAccount>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: 'username',
+        accessorKey: 'UserID',
         header: 'Tên tài khoản',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('username')}</div>,
+        cell: ({ row }) => <div className="capitalize">{row.getValue('UserID')}</div>,
     },
     {
         accessorKey: 'password',
         header: 'Mật khẩu',
         cell: ({ row }) => <div className="lowercase">{row.getValue('password')}</div>,
     },
-    {
-        id: 'actions',
-        enableHiding: false,
-        cell: () => {
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <DotsHorizontalIcon className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(payment.id)}>
-                            Copy payment ID
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>View customer</DropdownMenuItem>
-                        <DropdownMenuItem>View payment details</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            );
-        },
-    },
+    // {
+    //     id: 'actions',
+    //     enableHiding: false,
+    //     cell: () => {
+    //         return (
+    //             <DropdownMenu>
+    //                 <DropdownMenuTrigger asChild>
+    //                     <Button variant="ghost" className="h-8 w-8 p-0">
+    //                         <span className="sr-only">Open menu</span>
+    //                         <DotsHorizontalIcon className="h-4 w-4" />
+    //                     </Button>
+    //                 </DropdownMenuTrigger>
+    //                 <DropdownMenuContent align="end">
+    //                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
+    //                     <DropdownMenuSeparator />
+    //                     <DropdownMenuItem>View customer</DropdownMenuItem>
+    //                     <DropdownMenuItem>View payment details</DropdownMenuItem>
+    //                 </DropdownMenuContent>
+    //             </DropdownMenu>
+    //         );
+    //     },
+    // },
 ];
 
 export function Accounts() {
     const [sorting, setSorting] = React.useState<SortingState>([]);
+    const [listEmployess, setListEmployess] = React.useState<User[]>([]);
+    const [listAccount, setListAccount] = React.useState<UserAccount[]>([]);
+    const [open, setOpen] = React.useState<boolean>(false);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
+    const [openDialog, setOpenDialog] = React.useState<boolean>(false);
+    const { toast } = useToast();
+
+    React.useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [empResponse, accResponse] = await Promise.all([
+                    await adminApi.getListEmployee(),
+                    await adminApi.getUserAccount(),
+                ]);
+                if (empResponse.status && accResponse.data) {
+                    setListAccount(accResponse.data);
+                    setListEmployess(empResponse.data);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchData();
+    }, []);
 
     const table = useReactTable({
-        data,
+        data: listAccount,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -145,18 +186,47 @@ export function Accounts() {
         },
     });
     const schema_create = yup.object().shape({
-        name: yup.string().required('Cần nhập tên người dùng'),
-        job: yup.string().required('Cần nhập job người dùng'),
-        employmentStatus: yup.string().required('Cần nhập chức vụ'),
-        salary: yup.number().required('Cần nhập lương cho nhân viên'),
-        position: yup.string().required('Cần nhập chức vụ cho nhân viên'),
+        UserID: yup.string().required('Cần nhập tên tài khoản'),
+        UserStatus: yup.string().required('Cần nhập trạng thái của nhân viên'),
+        password: yup.string().required('Cần nhập mật khẩu'),
+        EmpID: yup.string().required('Cần chọn tài khoản cho một nhân viên'),
     });
-    const formCreate = useForm<InforAccount>({
+    const formCreate = useForm<InfoAccount>({
         resolver: yupResolver(schema_create),
     });
-    const handleCreate: SubmitHandler<InforAccount> = (data) => {
-        console.log(data);
+
+    const handleCreateAccount = async (data: InfoAccount) => {
+        try {
+            const newData = {
+                UserID: data.UserID,
+                password: data.password,
+                UserStatus: Number(data.UserStatus),
+                EmpID: Number(data.EmpID),
+            };
+            const response = await authApi.createAccount(newData as CreateAccount);
+            if (response.status === 201) {
+                toast({
+                    title: 'Tạo thành công !',
+                    description: 'Bạn đã tạo thành công cho nhân viên !',
+                });
+                setTimeout(function () {
+                    setOpenDialog(false);
+                }, 1000);
+            }
+        } catch (error) {
+            toast({
+                title: 'Tạo thất bại !',
+                description: 'Có lỗi khi tạo tài khoản cho nhân viên!',
+                variant: 'destructive',
+            });
+            console.log(error);
+        }
     };
+
+    const handleCreate: SubmitHandler<InfoAccount> = (data) => {
+        handleCreateAccount(data);
+    };
+
     return (
         <div className="w-full space-y-4">
             <div className="flex items-center">
@@ -172,7 +242,7 @@ export function Accounts() {
                         <Icons.filter />
                         Lọc
                     </Button>
-                    <Dialog>
+                    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
                         <DialogTrigger asChild>
                             <Button className="btn flex gap-2" variant="default">
                                 <PlusCircledIcon />
@@ -189,15 +259,15 @@ export function Accounts() {
                                         <FormField
                                             defaultValue=""
                                             control={formCreate.control}
-                                            name="name"
+                                            name="UserID"
                                             render={({ field }) => (
                                                 <FormItem className="">
                                                     <FormLabel className="text-black">
-                                                        Name
+                                                        Tài khoản đăng nhập
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input
-                                                            placeholder="Enter name"
+                                                            placeholder="Enter UserID"
                                                             {...field}
                                                         />
                                                     </FormControl>
@@ -208,15 +278,15 @@ export function Accounts() {
                                         <FormField
                                             defaultValue=""
                                             control={formCreate.control}
-                                            name="employmentStatus"
+                                            name="password"
                                             render={({ field }) => (
                                                 <FormItem className="">
                                                     <FormLabel className="text-black">
-                                                        Employment Status
+                                                        Password
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input
-                                                            placeholder="Enter Employment Status"
+                                                            placeholder="Enter Password"
                                                             {...field}
                                                         />
                                                     </FormControl>
@@ -226,53 +296,123 @@ export function Accounts() {
                                         />
                                         <FormField
                                             control={formCreate.control}
-                                            name="job"
+                                            name="UserStatus"
                                             render={({ field }) => (
                                                 <FormItem className="">
                                                     <FormLabel className="text-black">
-                                                        Job Title
+                                                        User Status
                                                     </FormLabel>
                                                     <FormControl>
-                                                        <Input
-                                                            placeholder="Enter Job Title"
-                                                            {...field}
-                                                        />
+                                                        <Select
+                                                            onValueChange={field.onChange}
+                                                            value={field.value}
+                                                        >
+                                                            <SelectTrigger {...field} className="">
+                                                                <SelectValue placeholder="Select a status" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectGroup>
+                                                                    <SelectLabel>
+                                                                        Hãy chọn trạng thái cho tài
+                                                                        khoản
+                                                                    </SelectLabel>
+                                                                    <SelectItem value={'1'}>
+                                                                        Activate
+                                                                    </SelectItem>
+                                                                    <SelectItem value={'0'}>
+                                                                        Not Activate
+                                                                    </SelectItem>
+                                                                </SelectGroup>
+                                                            </SelectContent>
+                                                        </Select>
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
                                         <FormField
+                                            defaultValue=""
                                             control={formCreate.control}
-                                            name="position"
+                                            name="EmpID"
                                             render={({ field }) => (
                                                 <FormItem className="">
                                                     <FormLabel className="text-black">
-                                                        Position
+                                                        EmpID
                                                     </FormLabel>
                                                     <FormControl>
-                                                        <Input
-                                                            placeholder="Enter Position"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={formCreate.control}
-                                            name="salary"
-                                            render={({ field }) => (
-                                                <FormItem className="">
-                                                    <FormLabel className="text-black">
-                                                        Salary
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="Enter Salary"
-                                                            {...field}
-                                                        />
+                                                        <FormControl>
+                                                            <Popover
+                                                                open={open}
+                                                                onOpenChange={setOpen}
+                                                                {...field}
+                                                            >
+                                                                <PopoverTrigger asChild>
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        role="combobox"
+                                                                        // aria-expanded={open}
+                                                                        className="w-full justify-between"
+                                                                    >
+                                                                        {field.value
+                                                                            ? listEmployess.find(
+                                                                                  (epl) =>
+                                                                                      `${epl.EmpID}` ===
+                                                                                      field.value
+                                                                              )?.EmpName
+                                                                            : 'Select a job...'}
+                                                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                                    </Button>
+                                                                </PopoverTrigger>
+                                                                <PopoverContent className="w-[200px] p-0">
+                                                                    <Command>
+                                                                        <CommandInput placeholder="Search ..." />
+                                                                        <CommandEmpty>
+                                                                            No job found.
+                                                                        </CommandEmpty>
+                                                                        <CommandGroup {...field}>
+                                                                            {listEmployess.map(
+                                                                                (epl) => (
+                                                                                    <CommandItem
+                                                                                        key={
+                                                                                            epl.EmpID
+                                                                                        }
+                                                                                        value={`${epl.EmpID}`}
+                                                                                        onSelect={(
+                                                                                            currentValue
+                                                                                        ) => {
+                                                                                            formCreate.setValue(
+                                                                                                'EmpID',
+                                                                                                (field.value =
+                                                                                                    currentValue ===
+                                                                                                    `${field.value}`
+                                                                                                        ? currentValue
+                                                                                                        : currentValue)
+                                                                                            );
+                                                                                            setOpen(
+                                                                                                false
+                                                                                            );
+                                                                                        }}
+                                                                                    >
+                                                                                        <Check
+                                                                                            className={cn(
+                                                                                                'mr-2 h-4 w-4',
+                                                                                                field.value ===
+                                                                                                    `${epl.EmpID}`
+                                                                                                    ? 'opacity-100'
+                                                                                                    : 'opacity-0'
+                                                                                            )}
+                                                                                        />
+                                                                                        {
+                                                                                            epl.EmpName
+                                                                                        }
+                                                                                    </CommandItem>
+                                                                                )
+                                                                            )}
+                                                                        </CommandGroup>
+                                                                    </Command>
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                        </FormControl>
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

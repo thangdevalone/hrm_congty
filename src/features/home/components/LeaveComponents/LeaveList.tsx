@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -12,6 +13,7 @@ import {
 } from '@tanstack/react-table';
 import * as React from 'react';
 
+import { adminApi } from '@/api/adminApi';
 import { DataTableViewOptions } from '@/components/common';
 import { DataTablePagination } from '@/components/common/DataTablePagination';
 import { Button } from '@/components/ui/button';
@@ -32,79 +34,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { LeaveUser } from '@/models';
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
-import moment from 'moment';
-export interface Columns {
-    id: string;
-    name: string;
-    PipelineStatus: string;
-    date: Date;
-}
 
-const data: Columns[] = [
-    {
-        id: 'ID-1',
-        name: 'Name-1',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
-    },
-    {
-        id: 'ID-2',
-        name: 'Name-2',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
-    },
-    {
-        id: 'ID-3',
-        name: 'Name-3',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
-    },
-    {
-        id: 'ID-4',
-        name: 'Name-4',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
-    },
-    {
-        id: 'ID-5',
-        name: 'Name-5',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
-    },
-    {
-        id: 'ID-6',
-        name: 'Name-6',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
-    },
-    {
-        id: 'ID-7',
-        name: 'Name-7',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
-    },
-    {
-        id: 'ID-8',
-        name: 'Name-8',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
-    },
-    {
-        id: 'ID-9',
-        name: 'Name-9',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
-    },
-    {
-        id: 'ID-10',
-        name: 'Name-10',
-        PipelineStatus: 'Success',
-        date: new Date('2023-12-08T08:57:27.930Z'),
-    },
-];
-
-const columns: ColumnDef<Columns>[] = [
+const columns: ColumnDef<LeaveUser>[] = [
     {
         id: 'select',
         header: ({ table }) => (
@@ -113,7 +46,7 @@ const columns: ColumnDef<Columns>[] = [
                     table.getIsAllPageRowsSelected() ||
                     (table.getIsSomePageRowsSelected() && 'indeterminate')
                 }
-                className="ml-2"
+                className="ml-1 "
                 onCheckedChange={(value: any) => table.toggleAllPageRowsSelected(!!value)}
                 aria-label="Select all"
             />
@@ -123,37 +56,36 @@ const columns: ColumnDef<Columns>[] = [
                 checked={row.getIsSelected()}
                 onCheckedChange={(value: any) => row.toggleSelected(!!value)}
                 aria-label="Select row"
-                className="ml-2"
+                className="ml-1 "
             />
         ),
         enableSorting: false,
         enableHiding: false,
     },
     {
-        accessorKey: 'id',
+        accessorKey: 'EmpID',
         header: 'ID',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('id')}</div>,
+        cell: ({ row }) => <div className="capitalize">{row.getValue('EmpID')}</div>,
     },
     {
-        accessorKey: 'name',
+        accessorKey: 'EmpName',
         header: 'Name',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('name')}</div>,
+        cell: ({ row }) => <div className="capitalize">{row.getValue('EmpName')}</div>,
     },
     {
-        accessorKey: 'PipelineStatus',
-        header: () => 'Pipeline Status',
-        cell: ({ row }) => (
-            <div className="capitalize bg-green-400 w-fit px-5 py-1 rounded-sm text-white">
-                {row.getValue('PipelineStatus')}
-            </div>
-        ),
+        accessorKey: 'Email',
+        header: 'Email',
+        cell: ({ row }) => <div className="capitalize">{row.getValue('Email')}</div>,
     },
     {
-        accessorKey: 'date',
-        header: () => 'Date',
-        cell: ({ row }) => (
-            <div className="capitalize"> {moment(row.getValue('date')).format('DD-MM-YYYY')}</div>
-        ),
+        accessorKey: 'LeaveStartDate',
+        header: () => 'Leave Start Date',
+        cell: ({ row }) => <div className="capitalize">{row.getValue('LeaveStartDate')}</div>,
+    },
+    {
+        accessorKey: 'LeaveEndDate',
+        header: () => 'Leave End Date',
+        cell: ({ row }) => <div className="capitalize">{row.getValue('LeaveEndDate')}</div>,
     },
     {
         id: 'actions',
@@ -162,13 +94,13 @@ const columns: ColumnDef<Columns>[] = [
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 p-0">
+                        <Button variant="ghost" className="h-8 w-8 p-0">
                             <DotsHorizontalIcon className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem className="cursor-pointer">
-                            Update Pipeline Status
+                            Update Status
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -177,11 +109,26 @@ const columns: ColumnDef<Columns>[] = [
     },
 ];
 
-export function EmployeeTimeSheets() {
+export const LeaveList = () => {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
+    const [data, setData] = React.useState<LeaveUser[]>([]);
+
+    React.useEffect(() => {
+        try {
+            const fetchData = async () => {
+                const response = await adminApi.getListLeave();
+                if (response.status) {
+                    setData(response.data);
+                }
+            };
+            fetchData();
+        } catch (err) {
+            console.log(err);
+        }
+    }, []);
 
     const table = useReactTable({
         data,
@@ -201,13 +148,14 @@ export function EmployeeTimeSheets() {
             rowSelection,
         },
     });
+
     return (
         <>
             <div className="w-full space-y-4">
                 <div className="flex items-center">
                     <Input
                         placeholder="Filter emails..."
-                        value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
+                        // value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
                         onChange={(event) =>
                             table.getColumn('email')?.setFilterValue(event.target.value)
                         }
@@ -274,4 +222,4 @@ export function EmployeeTimeSheets() {
             </div>
         </>
     );
-}
+};

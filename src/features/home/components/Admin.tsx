@@ -9,7 +9,7 @@ import {
     NavigationMenuTrigger,
     navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
-import { Link, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 export const Admin = () => {
     return (
@@ -18,7 +18,7 @@ export const Admin = () => {
                 <Navbar />
                 <div className="pl-4 pr-[70px] relative z-10 pt-1 pb-4 flex justify-between flex-row">
                     <NavigationMenu>
-                        <NavigationMenuList>
+                        <NavigationMenuList> 
                             <NavigationMenuItem>
                                 <NavigationMenuLink
                                     href="./accounts"

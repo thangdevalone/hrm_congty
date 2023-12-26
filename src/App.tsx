@@ -9,12 +9,12 @@ import {
     ManagerEmpStatus,
     ManagerJob,
     ManagerWorkShift,
-    Organization
+    Organization,
 } from './features/home/components/AdminComponents';
 import { Leave } from './features/home/components/Leave';
-import { EmployeeTimeSheets } from './features/home/components/LeaveComponents';
+import { LeaveList } from './features/home/components/LeaveComponents';
 import { EmployeeList } from './features/home/components/PimComponents';
-import { LeaveList } from './features/home/components/TimeKeepComponents';
+import { EmployeeTimeSheets } from './features/home/components/TimeKeepComponents';
 import Welcome from './features/welcome';
 
 function App() {
@@ -38,13 +38,13 @@ function App() {
                             <Route index element={<Navigate to="list-employee" />} />
                             <Route path="list-employee" element={<EmployeeList />} />
                         </Route>
-                        <Route path="leave" element={<Leave />}>
+                        <Route path="time-keep" element={<TimeKeep />}>
                             <Route index element={<Navigate to="employee-timesheets" />} />
                             <Route path="employee-timesheets" element={<EmployeeTimeSheets />} />
                         </Route>
-                        <Route path="time-keep" element={<TimeKeep />}>
-                            <Route index element={<Navigate to="time-keep-list" />} />
-                            <Route path="time-keep-list" element={<LeaveList />} />
+                        <Route path="leave" element={<Leave />}>
+                            <Route index element={<Navigate to="time-leave-list" />} />
+                            <Route path="time-leave-list" element={<LeaveList />} />
                         </Route>
                     </Route>
                 </Routes>

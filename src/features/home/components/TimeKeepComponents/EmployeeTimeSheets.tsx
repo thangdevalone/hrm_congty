@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -33,122 +32,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { TimeSheetUser } from '@/models';
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
-import moment from 'moment';
+import { adminApi } from '@/api/adminApi';
 
-const data = [
-    {
-        id: '001',
-        name: 'Nguyễn Quang Thắng',
-        startDate: new Date('2023-12-08T08:57:27.930Z'),
-        job: 'Nhân viên kỹ thuật',
-        employmentStatus: 'Full-time',
-        position: 'Intern',
-        status: false,
-    },
-    {
-        id: '002',
-        name: 'Nguyễn Quang Tiến',
-        startDate: new Date('2023-12-08T08:57:27.930Z'),
-        job: 'Nhân viên kỹ thuật',
-        employmentStatus: 'Full-time',
-        position: 'Intern',
-        status: false,
-    },
-    {
-        id: '003',
-        name: 'Nguyễn Quang Tuấn Anh',
-        startDate: new Date('2023-12-08T08:57:27.930Z'),
-        job: 'Nhân viên kỹ thuật',
-        employmentStatus: 'Full-time',
-        position: 'Intern',
-        status: false,
-    },
-    {
-        id: '004',
-        name: 'Nguyễn Quang Thưởng',
-        startDate: new Date('2023-12-08T08:57:27.930Z'),
-        job: 'Nhân viên kỹ thuật',
-        employmentStatus: 'Full-time',
-        position: 'Intern',
-        status: false,
-    },
-    {
-        id: '005',
-        name: 'Nguyễn Quang Bich',
-        startDate: new Date('2023-12-08T08:57:27.930Z'),
-        job: 'Nhân viên kỹ thuật',
-        employmentStatus: 'Full-time',
-        position: 'Intern',
-        status: false,
-    },
-    {
-        id: '006',
-        name: 'Nguyễn Quang Quỳnh',
-        startDate: new Date('2023-12-08T08:57:27.930Z'),
-        job: 'Nhân viên kỹ thuật',
-        employmentStatus: 'Full-time',
-        position: 'Intern',
-        status: false,
-    },
-    {
-        id: '007',
-        name: 'Nguyễn Quang Nghị',
-        startDate: new Date('2023-12-08T08:57:27.930Z'),
-        job: 'Nhân viên kỹ thuật',
-        employmentStatus: 'Full-time',
-        position: 'Intern',
-        status: false,
-    },
-    {
-        id: '008',
-        name: 'Nguyễn Quang Giang',
-        startDate: new Date('2023-12-08T08:57:27.930Z'),
-        job: 'Nhân viên kỹ thuật',
-        employmentStatus: 'Full-time',
-        position: 'Intern',
-        status: false,
-    },
-    {
-        id: '009',
-        name: 'Nguyễn Quang Thắng',
-        startDate: new Date('2023-12-08T08:57:27.930Z'),
-        job: 'Nhân viên kỹ thuật',
-        employmentStatus: 'Full-time',
-        position: 'Intern',
-        status: false,
-    },
-    {
-        id: '010',
-        name: 'Nguyễn Quang Thắng',
-        startDate: new Date('2023-12-08T08:57:27.930Z'),
-        job: 'Nhân viên kỹ thuật',
-        employmentStatus: 'Full-time',
-        position: 'Intern',
-        status: false,
-    },
-    {
-        id: '011',
-        name: 'Nguyễn Quang Thắng',
-        startDate: new Date('2023-12-08T08:57:27.930Z'),
-        job: 'Nhân viên kỹ thuật',
-        employmentStatus: 'Full-time',
-        position: 'Intern',
-        status: false,
-    },
-];
-
-interface Props {
-    id: string;
-    name: string;
-    startDate: Date;
-    job: string;
-    employmentStatus: string;
-    position: string;
-    status: boolean;
-}
-
-const columns: ColumnDef<Props>[] = [
+const columns: ColumnDef<TimeSheetUser>[] = [
     {
         id: 'select',
         header: ({ table }) => (
@@ -157,7 +45,7 @@ const columns: ColumnDef<Props>[] = [
                     table.getIsAllPageRowsSelected() ||
                     (table.getIsSomePageRowsSelected() && 'indeterminate')
                 }
-                className="ml-1 "
+                className="ml-2"
                 onCheckedChange={(value: any) => table.toggleAllPageRowsSelected(!!value)}
                 aria-label="Select all"
             />
@@ -167,45 +55,36 @@ const columns: ColumnDef<Props>[] = [
                 checked={row.getIsSelected()}
                 onCheckedChange={(value: any) => row.toggleSelected(!!value)}
                 aria-label="Select row"
-                className="ml-1 "
+                className="ml-2"
             />
         ),
         enableSorting: false,
         enableHiding: false,
     },
     {
-        accessorKey: 'id',
+        accessorKey: 'EmpID',
         header: 'ID',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('id')}</div>,
+        cell: ({ row }) => <div className="capitalize">{row.getValue('EmpID')}</div>,
     },
     {
-        accessorKey: 'name',
+        accessorKey: 'EmpName',
         header: 'Name',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('name')}</div>,
+        cell: ({ row }) => <div className="capitalize">{row.getValue('EmpName')}</div>,
     },
     {
-        accessorKey: 'startDate',
-        header: 'Start Date',
-        cell: ({ row }) => (
-            <div className="capitalize">
-                {moment(row.getValue('startDate')).format('DD-MM-YYYY')}
-            </div>
-        ),
+        accessorKey: 'Email',
+        header: 'Email',
+        cell: ({ row }) => <div className="capitalize">{row.getValue('Email')}</div>,
     },
     {
-        accessorKey: 'job',
-        header: () => 'Job',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('job')}</div>,
+        accessorKey: 'TimeIn',
+        header: 'Time In',
+        cell: ({ row }) => <div className="capitalize">{row.getValue('TimeIn')}</div>,
     },
     {
-        accessorKey: 'employmentStatus',
-        header: () => 'Employment Status',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('employmentStatus')}</div>,
-    },
-    {
-        accessorKey: 'position',
-        header: () => 'Position',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('position')}</div>,
+        accessorKey: 'TimeOut',
+        header: 'Time Out',
+        cell: ({ row }) => <div className="capitalize">{row.getValue('TimeOut')}</div>,
     },
     {
         id: 'actions',
@@ -214,13 +93,13 @@ const columns: ColumnDef<Props>[] = [
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button variant="ghost" className="h-8 p-0">
                             <DotsHorizontalIcon className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem className="cursor-pointer">
-                            Update Status
+                            Update Pipeline Status
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -229,11 +108,24 @@ const columns: ColumnDef<Props>[] = [
     },
 ];
 
-export const LeaveList = () => {
+export function EmployeeTimeSheets() {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
+    const [data, setData] = React.useState<TimeSheetUser[]>([]);
+
+    React.useEffect(() => {
+        try {
+            const fetchData = async () => {
+                const response = await adminApi.getListTimeSheet();
+                if (response.status) setData(response.data);
+            };
+            fetchData();
+        } catch (err) {
+            console.log(err);
+        }
+    }, []);
 
     const table = useReactTable({
         data,
@@ -259,7 +151,7 @@ export const LeaveList = () => {
                 <div className="flex items-center">
                     <Input
                         placeholder="Filter emails..."
-                        value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
+                        // value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
                         onChange={(event) =>
                             table.getColumn('email')?.setFilterValue(event.target.value)
                         }
@@ -326,4 +218,4 @@ export const LeaveList = () => {
             </div>
         </>
     );
-};
+}

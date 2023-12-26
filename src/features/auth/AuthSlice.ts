@@ -1,64 +1,65 @@
-import { LoginForm, RegisterForm } from "@/models"
-import { PayloadAction, createSlice } from "@reduxjs/toolkit"
+import { LoginForm, RegisterForm } from '@/models';
+import { Data, User } from '@/models/user';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 export interface AuthState {
-  logging?: boolean
-  registering?: boolean
-  actionAuth: "No action" | "Success" | "Failed"
-  currentUser?: string,
+    logging?: boolean;
+    registering?: boolean;
+    actionAuth: 'No action' | 'Success' | 'Failed';
+    currentUser?: Data;
 }
 
 const initialState: AuthState = {
-  logging: false,
-  registering: false,
-  actionAuth: "No action",
-  currentUser: undefined,
-}
+    logging: false,
+    registering: false,
+    actionAuth: 'No action',
+    currentUser: undefined,
+};
 
 export const authSlice = createSlice({
-  name: "auth",
-  initialState,
-  reducers: {
-    login(state, action: PayloadAction<LoginForm>) {
-      state.logging = true
-      state.actionAuth = "No action"
-    },
+    name: 'auth',
+    initialState,
+    reducers: {
+        login(state, action: PayloadAction<LoginForm>) {
+            state.logging = true;
+            state.actionAuth = 'No action';
+        },
 
-    loginSuccess(state, action: PayloadAction<User>) {
-      state.logging = false
-      state.actionAuth = "Success"
-      state.currentUser = action.payload
+        loginSuccess(state, action: PayloadAction<User>) {
+            state.logging = false;
+            state.actionAuth = 'Success';
+            state.currentUser = action.payload.data;
+        },
+        loginFailed(state) {
+            state.logging = false;
+            state.actionAuth = 'Failed';
+        },
+        register(state, action: PayloadAction<RegisterForm>) {
+            state.registering = true;
+            state.actionAuth = 'No action';
+        },
+        registerSuccess(state, action: PayloadAction<User>) {
+            state.registering = false;
+            state.actionAuth = 'Success';
+            state.currentUser = action.payload.data;
+        },
+        registerFailed(state) {
+            state.registering = false;
+            state.actionAuth = 'Failed';
+        },
+        logout(state) {
+            state.logging = false;
+            state.registering = false;
+            state.actionAuth = 'No action';
+            state.currentUser = undefined;
+        },
+        resetAction(state) {
+            state.actionAuth = 'No action';
+        },
+        // ...các action khác
     },
-    loginFailed(state) {
-      state.logging = false
-      state.actionAuth = "Failed"
-    },
-    register(state, action: PayloadAction<RegisterForm>) {
-      state.registering = true
-      state.actionAuth = "No action"
-    },
-    registerSuccess(state, action: PayloadAction<User>) {
-      state.registering = false
-      state.actionAuth = "Success"
-      state.currentUser = action.payload
-    },
-    registerFailed(state) {
-      state.registering = false
-      state.actionAuth = "Failed"
-    },
-    logout(state) {
-      state.logging = false
-      state.registering = false
-      state.actionAuth = "No action"
-      state.currentUser = undefined
-    },
-    resetAction(state) {
-      state.actionAuth = "No action"
-    },
-    // ...các action khác
-  },
-})
+});
 
-export const authActions = authSlice.actions
-const authReducer = authSlice.reducer
-export default authReducer
+export const authActions = authSlice.actions;
+const authReducer = authSlice.reducer;
+export default authReducer;

@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Icons } from '../icons';
 import { Button } from '../ui/button';
+import { useAppSelector } from '@/app/hooks';
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     collapse: boolean;
@@ -19,6 +20,7 @@ export function SidebarLeft({ className, collapse, setCollapse }: SidebarProps) 
         if (location.pathname.includes(router)) return;
         navitage(`/home/${router}`);
     };
+    const { currentUser } = useAppSelector((state) => state.auth);
 
     return (
         <div className={cn('pb-12 dark:border-r side-bs', className)}>
@@ -55,8 +57,10 @@ export function SidebarLeft({ className, collapse, setCollapse }: SidebarProps) 
                             {!collapse && 'Nhân viên'}
                         </Button>
                         <Button
-                            onClick={() => handleNavitage('leave')}
-                            variant={location.pathname.includes('leave') ? 'secondary' : 'ghost'}
+                            onClick={() => handleNavitage('time-keep')}
+                            variant={
+                                location.pathname.includes('time-keep') ? 'secondary' : 'ghost'
+                            }
                             className="w-full gap-3 justify-start h-10"
                         >
                             <Icons.leave
@@ -66,10 +70,8 @@ export function SidebarLeft({ className, collapse, setCollapse }: SidebarProps) 
                             {!collapse && 'Chấm công'}
                         </Button>
                         <Button
-                            onClick={() => handleNavitage('time-keep')}
-                            variant={
-                                location.pathname.includes('time-keep') ? 'secondary' : 'ghost'
-                            }
+                            onClick={() => handleNavitage('leave')}
+                            variant={location.pathname.includes('leave') ? 'secondary' : 'ghost'}
                             className="w-full gap-3 justify-start h-10"
                         >
                             <Icons.time
@@ -82,7 +84,7 @@ export function SidebarLeft({ className, collapse, setCollapse }: SidebarProps) 
                 </div>
                 <div className="mb-4 px-[28px] gap-1 fixed bottom-[50px] flex-row flex items-center justify-center">
                     <img src="#" alt="avatar" className="w-8 h-8 border rounded-full" />
-                    {!collapse && <span>Thắng Dev Alone</span>}
+                    {!collapse && <span>{currentUser?.EmpName}</span>}
                 </div>
             </div>
         </div>

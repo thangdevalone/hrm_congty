@@ -16,7 +16,6 @@ export default function Welcome() {
         await loadSlim(engine);
     }, []);
 
-
     useEffect(() => {
         // Set a timeout to show the Typed component after 2 seconds
         const timeoutId = setTimeout(() => {
@@ -65,7 +64,6 @@ export default function Welcome() {
             <Particles
                 id="tsparticles"
                 init={particlesInit}
-           
                 options={{
                     fpsLimit: 120,
                     interactivity: {
