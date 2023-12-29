@@ -5,11 +5,18 @@ export interface InfoCompany {
     phone: string;
     email: string;
 }
-export interface InforAccount {
-    name: string;
-    job: string;
-    employmentStatus: string;
-    department: string;
+export interface InforUser {
+    EmpID: number;
+    EmpName: string;
+    Phone: string;
+    HireDate: string;
+    BirthDate: string;
+    Address: string;
+    PhotoPath: string;
+    Email: string;
+    EmpStatus: boolean;
+    DepID: number;
+    JobID: number;
 }
 
 export interface CreateEmloyess {
@@ -23,7 +30,7 @@ export interface InfoAccount {
     UserID: string;
     password: string;
     UserStatus: string;
-    EmpID: string;
+    EmpID:  string;
 }
 
 export interface CreateAccount {

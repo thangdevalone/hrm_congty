@@ -11,6 +11,10 @@ export const adminApi = {
         const url = `timesheet/list-timesheet${ConvertQueryParam(param)}`;
         return axiosClient.get(url);
     },
+    getListAccount(param?: QueryParam) {
+        const url = `employee/list-account${ConvertQueryParam(param)}`;
+        return axiosClient.get(url);
+    },
     getUserAccount(param?: QueryParam) {
         const url = `employee/list-username${ConvertQueryParam(param)}`;
         return axiosClient.get(url);

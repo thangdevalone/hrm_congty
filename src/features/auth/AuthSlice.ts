@@ -1,12 +1,12 @@
-import { LoginForm, RegisterForm } from '@/models';
-import { Data, User } from '@/models/user';
+import { InforUser, RegisterForm } from '@/models';
+import { User } from '@/models/user';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 export interface AuthState {
     logging?: boolean;
     registering?: boolean;
     actionAuth: 'No action' | 'Success' | 'Failed';
-    currentUser?: Data;
+    currentUser?: InforUser;
 }
 
 const initialState: AuthState = {
@@ -20,7 +20,7 @@ export const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        login(state, action: PayloadAction<LoginForm>) {
+        login(state) {
             state.logging = true;
             state.actionAuth = 'No action';
         },
@@ -34,7 +34,8 @@ export const authSlice = createSlice({
             state.logging = false;
             state.actionAuth = 'Failed';
         },
-        register(state, action: PayloadAction<RegisterForm>) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        register(state, action) {
             state.registering = true;
             state.actionAuth = 'No action';
         },

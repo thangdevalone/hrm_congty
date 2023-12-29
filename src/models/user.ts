@@ -5,28 +5,7 @@ export interface ListUser<T> {
     status: number;
 }
 
-export interface User {
-    EmpID: number;
-    EmpName: string;
-    Phone: string | null;
-    HireDate: string | null;
-    BirthDate: string | null;
-    Address: string | null;
-    PhotoPath: string | null;
-    Email: string | null;
-    EmpStatus: boolean;
-    DepID: number;
-    JobID: number;
-    JobName: string;
-    DepName: string;
-    UserID: string;
-    password: string;
-}
 
-export interface UserAccount {
-    UserID: string;
-    password: string;
-}
 
 export interface LeaveUser {
     EmpID: number;

@@ -1,3 +1,5 @@
+import { InforUser} from "."
+
 export interface LoginForm{
     username:string
     password:string
@@ -11,8 +13,8 @@ export interface RegisterForm{
 }
 
 export interface LoginRes {
-    response: string
-    userID: string
+    data: InforUser
+    response:string
     token: Token
     status: number
   }

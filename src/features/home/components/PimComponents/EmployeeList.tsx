@@ -52,7 +52,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { CreateEmloyess, InfoDepartment, InfoJob, InforAccount, User } from '@/models';
+import { CreateEmloyess, InfoDepartment, InfoJob } from '@/models';
 import { DialogTrigger } from '@radix-ui/react-dialog';
 import { DotsHorizontalIcon, PlusCircledIcon } from '@radix-ui/react-icons';
 import {
@@ -534,12 +534,15 @@ export function EmployeeList() {
                                                 data-state={row.getIsSelected() && 'selected'}
                                             >
                                                 {row.getVisibleCells().map((cell) => (
+
                                                     <TableCell key={cell.id}>
                                                         {flexRender(
                                                             cell.column.columnDef.cell,
                                                             cell.getContext()
                                                         )}
                                                     </TableCell>
+                                              
+
                                                 ))}
                                             </TableRow>
                                         </Dialog>
