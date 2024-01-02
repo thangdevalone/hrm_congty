@@ -21,16 +21,16 @@ export interface InforUser {
 
 export interface CreateEmloyess {
     EmpName: string;
-    job: number;
-    employmentStatus: number;
-    department: number;
+    job: string;
+    employmentStatus: string;
+    department: string;
 }
 
 export interface InfoAccount {
     UserID: string;
     password: string;
     UserStatus: string;
-    EmpID:  string;
+    EmpID: string;
 }
 
 export interface CreateAccount {

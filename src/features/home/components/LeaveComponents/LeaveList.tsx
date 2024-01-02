@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/table';
 import { LeaveUser } from '@/models';
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
+import dayjs from 'dayjs';
 
 const columns: ColumnDef<LeaveUser>[] = [
     {
@@ -62,30 +63,38 @@ const columns: ColumnDef<LeaveUser>[] = [
         enableSorting: false,
         enableHiding: false,
     },
-    {
-        accessorKey: 'EmpID',
-        header: 'ID',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('EmpID')}</div>,
-    },
+    // {
+    //     accessorKey: 'EmpID',
+    //     header: 'ID',
+    //     cell: ({ row }) => <div className="capitalize">{row.getValue('EmpID')}</div>,
+    // },
     {
         accessorKey: 'EmpName',
-        header: 'Name',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('EmpName')}</div>,
+        header: 'Tên nhân viên',
+        cell: ({ row }) => <div className="">{row.getValue('EmpName')}</div>,
     },
     {
         accessorKey: 'Email',
         header: 'Email',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('Email')}</div>,
+        cell: ({ row }) => <div className="">{row.getValue('Email')}</div>,
     },
     {
         accessorKey: 'LeaveStartDate',
-        header: () => 'Leave Start Date',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('LeaveStartDate')}</div>,
+        header: () => 'Ngày bắt đầu nghỉ',
+        cell: ({ row }) => (
+            <div className="capitalize">
+                {dayjs(row.getValue('LeaveStartDate')).format('M/D/YYYY')}
+            </div>
+        ),
     },
     {
         accessorKey: 'LeaveEndDate',
-        header: () => 'Leave End Date',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('LeaveEndDate')}</div>,
+        header: () => 'Ngày đi làm trở lại',
+        cell: ({ row }) => (
+            <div className="capitalize">
+                {dayjs(row.getValue('LeaveEndDate')).format('M/D/YYYY')}
+            </div>
+        ),
     },
     {
         id: 'actions',
@@ -169,7 +178,7 @@ export const LeaveList = () => {
                         className=" relative w-full overflow-auto"
                     >
                         <Table>
-                            <TableHeader>
+                            <TableHeader className="sticky top-0 z-[2] bg-[hsl(var(--secondary))]">
                                 {table.getHeaderGroups().map((headerGroup) => (
                                     <TableRow key={headerGroup.id}>
                                         {headerGroup.headers.map((header) => {

@@ -35,78 +35,7 @@ import {
 import { TimeSheetUser } from '@/models';
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
 import { adminApi } from '@/api/adminApi';
-
-const columns: ColumnDef<TimeSheetUser>[] = [
-    {
-        id: 'select',
-        header: ({ table }) => (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && 'indeterminate')
-                }
-                className="ml-2"
-                onCheckedChange={(value: any) => table.toggleAllPageRowsSelected(!!value)}
-                aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value: any) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-                className="ml-2"
-            />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
-    {
-        accessorKey: 'EmpID',
-        header: 'ID',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('EmpID')}</div>,
-    },
-    {
-        accessorKey: 'EmpName',
-        header: 'Name',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('EmpName')}</div>,
-    },
-    {
-        accessorKey: 'Email',
-        header: 'Email',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('Email')}</div>,
-    },
-    {
-        accessorKey: 'TimeIn',
-        header: 'Time In',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('TimeIn')}</div>,
-    },
-    {
-        accessorKey: 'TimeOut',
-        header: 'Time Out',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('TimeOut')}</div>,
-    },
-    {
-        id: 'actions',
-        enableHiding: false,
-        cell: ({ row }) => {
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 p-0">
-                            <DotsHorizontalIcon className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem className="cursor-pointer">
-                            Update Pipeline Status
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            );
-        },
-    },
-];
+import dayjs from 'dayjs';
 
 export function EmployeeTimeSheets() {
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -114,6 +43,86 @@ export function EmployeeTimeSheets() {
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
     const [data, setData] = React.useState<TimeSheetUser[]>([]);
+
+    const columns: ColumnDef<TimeSheetUser>[] = [
+        {
+            id: 'select',
+            header: ({ table }) => (
+                <Checkbox
+                    checked={
+                        table.getIsAllPageRowsSelected() ||
+                        (table.getIsSomePageRowsSelected() && 'indeterminate')
+                    }
+                    className="ml-2"
+                    onCheckedChange={(value: any) => table.toggleAllPageRowsSelected(!!value)}
+                    aria-label="Select all"
+                />
+            ),
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value: any) => row.toggleSelected(!!value)}
+                    aria-label="Select row"
+                    className="ml-2"
+                />
+            ),
+            enableSorting: false,
+            enableHiding: false,
+        },
+        // {
+        //     accessorKey: 'EmpID',
+        //     header: 'ID',
+        //     cell: ({ row }) => <div className="capitalize">{row.getValue('EmpID')}</div>,
+        // },
+        {
+            accessorKey: 'EmpName',
+            header: 'Tên nhân viên',
+            cell: ({ row }) => <div className="">{row.getValue('EmpName')}</div>,
+        },
+        {
+            accessorKey: 'Email',
+            header: 'Email',
+            cell: ({ row }) => <div className="">{row.getValue('Email')}</div>,
+        },
+        {
+            accessorKey: 'TimeIn',
+            header: 'Thời gian đến',
+            cell: ({ row }) => (
+                <div className="capitalize">
+                    {dayjs(row.getValue('TimeIn')).format('dddd, MMMM D, YYYY h:mm A')}
+                </div>
+            ),
+        },
+        {
+            accessorKey: 'TimeOut',
+            header: 'Thời gian về',
+            cell: ({ row }) => (
+                <div className="capitalize">
+                    {dayjs(row.getValue('TimeOut')).format('dddd, MMMM D, YYYY h:mm A')}
+                </div>
+            ),
+        },
+        {
+            id: 'actions',
+            enableHiding: false,
+            cell: ({ row }) => {
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 p-0">
+                                <DotsHorizontalIcon className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem className="cursor-pointer">
+                                Update Pipeline Status
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
+            },
+        },
+    ];
 
     React.useEffect(() => {
         try {
@@ -165,7 +174,7 @@ export function EmployeeTimeSheets() {
                         className=" relative w-full overflow-auto"
                     >
                         <Table>
-                            <TableHeader>
+                            <TableHeader className="sticky top-0 z-[2] bg-[hsl(var(--secondary))]">
                                 {table.getHeaderGroups().map((headerGroup) => (
                                     <TableRow key={headerGroup.id}>
                                         {headerGroup.headers.map((header) => {

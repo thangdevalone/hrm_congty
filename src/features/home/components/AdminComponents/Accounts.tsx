@@ -22,12 +22,7 @@ import { adminApi } from '@/api/adminApi';
 import authApi from '@/api/authApi';
 import { Icons } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandItem
-} from '@/components/ui/command';
+import { Command, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
 import {
     Dialog,
     DialogContent,
@@ -39,7 +34,7 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuTrigger
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
     Form,
@@ -85,15 +80,15 @@ export function Accounts() {
     const [listAccount, setListAccount] = React.useState<InfoAccount[]>([]);
     const [listEmployees, setListEmployees] = React.useState<ListAccount[]>([]);
     const [open, setOpen] = React.useState<boolean>(false);
-    const [chooseEmp, setChooseEmp] = React.useState<string>("");
-    const [editEmp, setEditEmp] = React.useState<string>("");
+    const [chooseEmp, setChooseEmp] = React.useState<string>('');
+    const [editEmp, setEditEmp] = React.useState<string>('');
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
     const [searchEmp, setSearchEmp] = React.useState<string>('');
     const { toast } = useToast();
-  
+
     const columns: ColumnDef<InfoAccount>[] = [
         {
             id: 'select',
@@ -119,7 +114,7 @@ export function Accounts() {
             enableSorting: false,
             enableHiding: false,
         },
-        
+
         {
             accessorKey: 'UserID',
             header: 'Tên đăng nhập',
@@ -130,7 +125,7 @@ export function Accounts() {
             header: 'Mật khẩu',
             cell: ({ row }) => <div>{row.getValue('password')}</div>,
         },
- 
+
         {
             accessorKey: 'EmpName',
             header: 'Thuộc về',
@@ -160,15 +155,11 @@ export function Accounts() {
                             <DropdownMenuItem className="cursor-pointer">
                                 Delete User
                             </DropdownMenuItem>
-                                <DialogTrigger
-                                    onClick={() => setDataEdit(row)}
-                                    className="w-full"
-                                >
-                                    <DropdownMenuItem className="cursor-pointer">
-                                        Edit User
-                                    </DropdownMenuItem>
-                                </DialogTrigger>
-                               
+                            <DialogTrigger onClick={() => setDataEdit(row)} className="w-full">
+                                <DropdownMenuItem className="cursor-pointer">
+                                    Edit User
+                                </DropdownMenuItem>
+                            </DialogTrigger>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 );
@@ -212,14 +203,17 @@ export function Accounts() {
             rowSelection,
         },
     });
-    const setDataEdit=(data:Row<InfoAccount>)=>{
+    const setDataEdit = (data: Row<InfoAccount>) => {
         // formEdit.setValue("EmpID",EmpID)
-        formEdit.setValue("UserID",data.original.UserID)
-        formEdit.setValue("UserStatus",`${Boolean(data.original.UserStatus)===true?"1":"0"}`)
-        formEdit.setValue("password",data.original.password)
-        formEdit.setValue("EmpID",data.original.EmpID)
-        setEditEmp(data.getValue("EmpName"))
-    }
+        formEdit.setValue('UserID', data.original.UserID);
+        formEdit.setValue(
+            'UserStatus',
+            `${Boolean(data.original.UserStatus) === true ? '1' : '0'}`
+        );
+        formEdit.setValue('password', data.original.password);
+        formEdit.setValue('EmpID', data.original.EmpID);
+        setEditEmp(data.getValue('EmpName'));
+    };
 
     const schema_create = yup.object().shape({
         UserID: yup.string().required('Cần nhập tên tài khoản'),
@@ -260,7 +254,7 @@ export function Accounts() {
         }
     };
     const handleEditAccount = async (data: InfoAccount) => {
-        alert("Chưa có api")
+        alert('Chưa có api');
     };
     const handleSearchEmp = async (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchEmp(e.target.value);
@@ -317,7 +311,6 @@ export function Accounts() {
                                                             placeholder="Nhập tên đăng nhập"
                                                             autoComplete="true"
                                                             {...field}
-                                                          
                                                         />
                                                     </FormControl>
                                                     <FormMessage />
@@ -515,241 +508,238 @@ export function Accounts() {
                             </TableHeader>
                             <TableBody>
                                 <Dialog>
-                                {table.getRowModel().rows?.length ? (
-                                    table.getRowModel().rows.map((row) => (
-                                        
-                                        <TableRow
-                                            key={row.id}
-                                            data-state={row.getIsSelected() && 'selected'}
-                                        >
-                                            
-                                            {row.getVisibleCells().map((cell) => (
-                                                <TableCell key={cell.id}>
-                                                    {flexRender(
-                                                        cell.column.columnDef.cell,
-                                                        cell.getContext()
-                                                    )}
-                                                </TableCell>
-                                            ))}
-                                            
-                                        </TableRow>
-                                    ))
+                                    {table.getRowModel().rows?.length ? (
+                                        table.getRowModel().rows.map((row) => (
+                                            <TableRow
+                                                key={row.id}
+                                                data-state={row.getIsSelected() && 'selected'}
+                                            >
+                                                {row.getVisibleCells().map((cell) => (
+                                                    <TableCell key={cell.id}>
+                                                        {flexRender(
+                                                            cell.column.columnDef.cell,
+                                                            cell.getContext()
+                                                        )}
+                                                    </TableCell>
+                                                ))}
+                                            </TableRow>
+                                        ))
                                     ) : (
                                         <TableRow>
-                                        <TableCell
-                                            colSpan={columns.length}
-                                            className="h-24 text-center"
+                                            <TableCell
+                                                colSpan={columns.length}
+                                                className="h-24 text-center"
                                             >
-                                            No results.
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                                 <DialogContent>
-                                    <DialogHeader className="">
-                                        <DialogTitle className="mb-2">
-                                            Sửa mới tài khoản
-                                        </DialogTitle>
-                                    </DialogHeader>
-                                    <Form {...formEdit}>
-                                        <form onSubmit={formEdit.handleSubmit(handleEdit)}>
-                                            <div className="grid grid-cols-2 gap-3 ">
-                                                <FormField
-                                                    control={formEdit.control}
-                                                    name="UserID"
-                                                    render={({ field }) => {
-                                             
-                                                        return (
+                                                No results.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                    <DialogContent>
+                                        <DialogHeader className="">
+                                            <DialogTitle className="mb-2">
+                                                Sửa mới tài khoản
+                                            </DialogTitle>
+                                        </DialogHeader>
+                                        <Form {...formEdit}>
+                                            <form onSubmit={formEdit.handleSubmit(handleEdit)}>
+                                                <div className="grid grid-cols-2 gap-3 ">
+                                                    <FormField
+                                                        control={formEdit.control}
+                                                        name="UserID"
+                                                        render={({ field }) => {
+                                                            return (
+                                                                <FormItem className="">
+                                                                    <FormLabel className="text-black">
+                                                                        Tên đăng nhập
+                                                                    </FormLabel>
+                                                                    <FormControl>
+                                                                        <Input
+                                                                            placeholder="Nhập tên đăng nhập"
+                                                                            autoComplete="true"
+                                                                            {...field}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            );
+                                                        }}
+                                                    />
+                                                    <FormField
+                                                        control={formEdit.control}
+                                                        name="password"
+                                                        disabled
+                                                        render={({ field }) => (
                                                             <FormItem className="">
                                                                 <FormLabel className="text-black">
-                                                                    Tên đăng nhập
+                                                                    Mật khẩu
                                                                 </FormLabel>
                                                                 <FormControl>
-                                                                    <Input
-                                                                    
-                                                                        placeholder="Nhập tên đăng nhập"
+                                                                    <InputPassword
+                                                                        placeholder="Nhập mật khẩu"
                                                                         autoComplete="true"
                                                                         {...field}
                                                                     />
                                                                 </FormControl>
                                                                 <FormMessage />
                                                             </FormItem>
-                                                        )
-                                                    }}
-                                                />
-                                                <FormField
-                                                    control={formEdit.control}
-                                                    name="password"
-                                                    disabled
-                                                    render={({ field }) => (
-                                                        <FormItem className="">
-                                                            <FormLabel className="text-black">
-                                                                Mật khẩu
-                                                            </FormLabel>
-                                                            <FormControl>
-                                                                <InputPassword
-                                                                    
-                                                                    placeholder="Nhập mật khẩu"
-                                                                    autoComplete="true"
-                                                                    {...field}
-                                                                    
-                                                                />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                                <FormField
-                                                    control={formEdit.control}
-                                                    name="UserStatus"
-                                                    render={({ field }) => (
-                                                        <FormItem className="">
-                                                            <FormLabel className="text-black">
-                                                                Trạng thái
-                                                            </FormLabel>
-                                                            <FormControl>
-                                                                <Select
-                                                                    onValueChange={field.onChange}
-                                                                    value={field.value}
-                                                                >
-                                                                    <SelectTrigger
-                                                                        {...field}
-                                                                    
-                                                                    >
-                                                                        <SelectValue placeholder="Chọn trạng thái" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        <SelectGroup>
-                                                                            <SelectItem value={'1'}>
-                                                                                <Badge className="bg-[green]">
-                                                                                    Hoạt động
-                                                                                </Badge>
-                                                                            </SelectItem>
-                                                                            <SelectItem value={'0'}>
-                                                                                <Badge className="bg-[red]">
-                                                                                    Ngưng hoạt động
-                                                                                </Badge>
-                                                                            </SelectItem>
-                                                                        </SelectGroup>
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                                <FormField
-                                                    control={formEdit.control}
-                                                    name="EmpID"
-                                                    render={({ field }) => (
-                                                        <FormItem className="">
-                                                            <FormLabel className="text-black">
-                                                                Nhân viên
-                                                            </FormLabel>
-                                                            <FormControl>
+                                                        )}
+                                                    />
+                                                    <FormField
+                                                        control={formEdit.control}
+                                                        name="UserStatus"
+                                                        render={({ field }) => (
+                                                            <FormItem className="">
+                                                                <FormLabel className="text-black">
+                                                                    Trạng thái
+                                                                </FormLabel>
                                                                 <FormControl>
-                                                                    <Popover
-                                                                        open={open}
-                                                                        onOpenChange={setOpen}
-                                                                        {...field}
+                                                                    <Select
+                                                                        onValueChange={
+                                                                            field.onChange
+                                                                        }
+                                                                        value={field.value}
                                                                     >
-                                                                        <PopoverTrigger asChild>
-                                                                            <Button
-                                                                                variant="outline"
-                                                                                role="combobox"
-                                                                                className="w-full justify-between"
-                                                                            >
-                                                                                {editEmp
-                                                                                    ? editEmp
-                                                                                    : 'Chọn nhân viên'}
-                                                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                                            </Button>
-                                                                        </PopoverTrigger>
-                                                                        <PopoverContent className="w-[200px] p-0">
-                                                                            <Command>
-                                                                                <SearchSelection
-                                                                                    value={
-                                                                                        searchEmp
-                                                                                    }
-                                                                                    onChange={
-                                                                                        handleSearchEmp
-                                                                                    }
-                                                                                    placeholder="Search ..."
-                                                                                />
-                                                                                <ScrollArea className=" max-h-[200px]">
-                                                                                    {listEmployees.length >
-                                                                                    0 ? (
-                                                                                        <CommandGroup
-                                                                                            {...field}
-                                                                                        >
-                                                                                            {listEmployees.map(
-                                                                                                (
-                                                                                                    epl
-                                                                                                ) => (
-                                                                                                    <CommandItem
-                                                                                                        key={
-                                                                                                            epl.EmpID
-                                                                                                        }
-                                                                                                        value={`${epl.EmpID}`}
-                                                                                                        onSelect={(
-                                                                                                            currentValue
-                                                                                                        ) => {
-                                                                                                            formEdit.setValue(
-                                                                                                                'EmpID',
-                                                                                                                currentValue
-                                                                                                            );
-                                                                                                            setEditEmp(
-                                                                                                                epl.EmpName
-                                                                                                            );
-
-                                                                                                            setOpen(
-                                                                                                                false
-                                                                                                            );
-                                                                                                        }}
-                                                                                                    >
-                                                                                                        <Check
-                                                                                                            className={cn(
-                                                                                                                'mr-2 h-4 w-4',
-                                                                                                                field.value ===
-                                                                                                                    String(
-                                                                                                                        epl.EmpID
-                                                                                                                    )
-                                                                                                                    ? 'opacity-100'
-                                                                                                                    : 'opacity-0'
-                                                                                                            )}
-                                                                                                        />
-                                                                                                        {
-                                                                                                            epl.EmpName
-                                                                                                        }
-                                                                                                    </CommandItem>
-                                                                                                )
-                                                                                            )}
-                                                                                        </CommandGroup>
-                                                                                    ) : (
-                                                                                        <CommandEmpty>
-                                                                                            Không
-                                                                                            tìm thấy
-                                                                                            nhân
-                                                                                            viên
-                                                                                        </CommandEmpty>
-                                                                                    )}
-                                                                                </ScrollArea>
-                                                                            </Command>
-                                                                        </PopoverContent>
-                                                                    </Popover>
+                                                                        <SelectTrigger {...field}>
+                                                                            <SelectValue placeholder="Chọn trạng thái" />
+                                                                        </SelectTrigger>
+                                                                        <SelectContent>
+                                                                            <SelectGroup>
+                                                                                <SelectItem
+                                                                                    value={'1'}
+                                                                                >
+                                                                                    <Badge className="bg-[green]">
+                                                                                        Hoạt động
+                                                                                    </Badge>
+                                                                                </SelectItem>
+                                                                                <SelectItem
+                                                                                    value={'0'}
+                                                                                >
+                                                                                    <Badge className="bg-[red]">
+                                                                                        Ngưng hoạt
+                                                                                        động
+                                                                                    </Badge>
+                                                                                </SelectItem>
+                                                                            </SelectGroup>
+                                                                        </SelectContent>
+                                                                    </Select>
                                                                 </FormControl>
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                            </div>
-                                            <DialogFooter className="w-full mt-4">
-                                                <Button type="submit">Lưu</Button>
-                                            </DialogFooter>
-                                        </form>
-                                    </Form>
-                                </DialogContent>
-                         
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                    <FormField
+                                                        control={formEdit.control}
+                                                        name="EmpID"
+                                                        render={({ field }) => (
+                                                            <FormItem className="">
+                                                                <FormLabel className="text-black">
+                                                                    Nhân viên
+                                                                </FormLabel>
+                                                                <FormControl>
+                                                                    <FormControl>
+                                                                        <Popover
+                                                                            open={open}
+                                                                            onOpenChange={setOpen}
+                                                                            {...field}
+                                                                        >
+                                                                            <PopoverTrigger asChild>
+                                                                                <Button
+                                                                                    variant="outline"
+                                                                                    role="combobox"
+                                                                                    className="w-full justify-between"
+                                                                                >
+                                                                                    {editEmp
+                                                                                        ? editEmp
+                                                                                        : 'Chọn nhân viên'}
+                                                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                                                </Button>
+                                                                            </PopoverTrigger>
+                                                                            <PopoverContent className="w-[200px] p-0">
+                                                                                <Command>
+                                                                                    <SearchSelection
+                                                                                        value={
+                                                                                            searchEmp
+                                                                                        }
+                                                                                        onChange={
+                                                                                            handleSearchEmp
+                                                                                        }
+                                                                                        placeholder="Search ..."
+                                                                                    />
+                                                                                    <ScrollArea className=" max-h-[200px]">
+                                                                                        {listEmployees.length >
+                                                                                        0 ? (
+                                                                                            <CommandGroup
+                                                                                                {...field}
+                                                                                            >
+                                                                                                {listEmployees.map(
+                                                                                                    (
+                                                                                                        epl
+                                                                                                    ) => (
+                                                                                                        <CommandItem
+                                                                                                            key={
+                                                                                                                epl.EmpID
+                                                                                                            }
+                                                                                                            value={`${epl.EmpID}`}
+                                                                                                            onSelect={(
+                                                                                                                currentValue
+                                                                                                            ) => {
+                                                                                                                formEdit.setValue(
+                                                                                                                    'EmpID',
+                                                                                                                    currentValue
+                                                                                                                );
+                                                                                                                setEditEmp(
+                                                                                                                    epl.EmpName
+                                                                                                                );
+
+                                                                                                                setOpen(
+                                                                                                                    false
+                                                                                                                );
+                                                                                                            }}
+                                                                                                        >
+                                                                                                            <Check
+                                                                                                                className={cn(
+                                                                                                                    'mr-2 h-4 w-4',
+                                                                                                                    field.value ===
+                                                                                                                        String(
+                                                                                                                            epl.EmpID
+                                                                                                                        )
+                                                                                                                        ? 'opacity-100'
+                                                                                                                        : 'opacity-0'
+                                                                                                                )}
+                                                                                                            />
+                                                                                                            {
+                                                                                                                epl.EmpName
+                                                                                                            }
+                                                                                                        </CommandItem>
+                                                                                                    )
+                                                                                                )}
+                                                                                            </CommandGroup>
+                                                                                        ) : (
+                                                                                            <CommandEmpty>
+                                                                                                Không
+                                                                                                tìm
+                                                                                                thấy
+                                                                                                nhân
+                                                                                                viên
+                                                                                            </CommandEmpty>
+                                                                                        )}
+                                                                                    </ScrollArea>
+                                                                                </Command>
+                                                                            </PopoverContent>
+                                                                        </Popover>
+                                                                    </FormControl>
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                </div>
+                                                <DialogFooter className="w-full mt-4">
+                                                    <Button type="submit">Lưu</Button>
+                                                </DialogFooter>
+                                            </form>
+                                        </Form>
+                                    </DialogContent>
                                 </Dialog>
                             </TableBody>
                         </Table>

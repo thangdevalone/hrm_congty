@@ -16,8 +16,10 @@ import { LeaveList } from './features/home/components/LeaveComponents';
 import { EmployeeList } from './features/home/components/PimComponents';
 import { EmployeeTimeSheets } from './features/home/components/TimeKeepComponents';
 import Welcome from './features/welcome';
-
+import dayjs from 'dayjs';
+import vi from 'dayjs/locale/vi';
 function App() {
+    dayjs.locale(vi);
     return (
         <ThemeProvider defaultTheme="light" storageKey="theme">
             <div className="w-screen h-screen relative">
