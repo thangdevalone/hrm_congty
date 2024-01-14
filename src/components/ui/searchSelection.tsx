@@ -14,7 +14,7 @@ const SearchSelection = React.forwardRef<HTMLInputElement, InputProps>(
                     type={type}
                     ref={ref}
                     className={cn(
-                        'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
+                        'flex h-9 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
                         className
                     )}
                     {...props}

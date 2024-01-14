@@ -1,5 +1,4 @@
 export * from "./Accounts"
 export * from "./ManagerJob"
-export * from "./ManagerEmpStatus"
-export * from "./ManagerWorkShift"
+export * from "./ManagerDepartment"
 export * from "./Organization"

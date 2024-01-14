@@ -28,20 +28,17 @@ export const Admin = () => {
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <NavigationMenuTrigger>Công việc</NavigationMenuTrigger>
+                                <NavigationMenuTrigger>Quản lý</NavigationMenuTrigger>
                                 <NavigationMenuContent>
-                                    <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                                        <ListItem href="./job-positions" title="Chức vụ nhân viên">
-                                            Quản lý thêm sửa xóa chức vụ trong công ty.
+                                    <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-2">
+                                        <ListItem href="./job" title="Quản lý chức vụ">
+                                            Thêm sửa xóa chức vụ trong công ty.
                                         </ListItem>
                                         <ListItem
-                                            href="./employee-status"
-                                            title="Trạng thái nhân viên"
+                                            href="./department"
+                                            title="Quản lý phòng ban"
                                         >
-                                            Quản lý trạng thái của nhân viên.
-                                        </ListItem>
-                                        <ListItem href="./work-shifts" title="Ca làm việc">
-                                            Quản lý ca làm việc của nhân viên.
+                                             Thêm sửa xóa phòng ban trong công ty.
                                         </ListItem>
                                     </ul>
                                 </NavigationMenuContent>

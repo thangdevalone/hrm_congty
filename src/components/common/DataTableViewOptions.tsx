@@ -16,6 +16,7 @@ interface DataTableViewOptionsProps<TData> {
 }
 
 export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps<TData>) {
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -33,7 +34,7 @@ export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps
                         (column) => typeof column.accessorFn !== 'undefined' && column.getCanHide()
                     )
                     .map((column) => {
-                        // console.log(column)
+
                         return (
                             <DropdownMenuCheckboxItem
                                 key={column.id}

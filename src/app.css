@@ -5,6 +5,12 @@ body{
   transition: 0.5s transform;
   transform: rotate(-90deg); 
 }
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+}
+
 .nav-bs{
   box-shadow: 0 4px 4px -1px rgba(0, 0, 0, 0.2);
 }

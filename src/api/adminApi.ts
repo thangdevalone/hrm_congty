@@ -3,10 +3,7 @@ import { ConvertQueryParam } from '@/utils';
 import axiosClient from './axiosClient';
 
 export const adminApi = {
-    getListEmployee(param?: QueryParam) {
-        const url = `employee/list-employee${ConvertQueryParam(param)}`;
-        return axiosClient.get(url);
-    },
+   
     getListTimeSheet(param?: QueryParam) {
         const url = `timesheet/list-timesheet${ConvertQueryParam(param)}`;
         return axiosClient.get(url);

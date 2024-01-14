@@ -20,6 +20,7 @@ import { InputPassword } from '@/components/ui/inputPassword';
 import { useAppSelector } from '@/app/hooks';
 import { useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 export function LoginPage() {
     const dispatch = useDispatch();
@@ -99,6 +100,7 @@ export function LoginPage() {
                                                 <Input
                                                     placeholder="Nhập tên đăng nhập"
                                                     {...field}
+                                                    autoComplete="username"
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -115,6 +117,7 @@ export function LoginPage() {
                                                 <InputPassword
                                                     placeholder="Nhập mật khẩu"
                                                     {...field}
+                                                    autoComplete="password"
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -127,6 +130,9 @@ export function LoginPage() {
                                     </a>
                                 </p>
                                 <Button type="submit" disabled={logging} className="w-full ">
+                                    {logging && (
+                                        <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                                    )}{' '}
                                     Đăng nhập
                                 </Button>
                             </form>

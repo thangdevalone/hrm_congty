@@ -1,30 +1,23 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { yupResolver } from '@hookform/resolvers/yup';
+import employeeApi from '@/api/employeeApi';
 import {
-    ColumnDef,
-    ColumnFiltersState,
-    Row,
-    SortingState,
-    VisibilityState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
-} from '@tanstack/react-table';
-import * as React from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import * as yup from 'yup';
-
-import { adminApi } from '@/api/adminApi';
-import { DataTableViewOptions } from '@/components/common';
-import { DataTablePagination } from '@/components/common/DataTablePagination';
+    BankField,
+    CalendarField,
+    SearchField,
+    SelectionField,
+    TextField,
+} from '@/components/FormControls';
+import { DataTablePagination, DataTableViewOptions } from '@/components/common';
+import { DataTableColumnHeader } from '@/components/common/DataTableColumnHeader';
+import { DataTableFilter } from '@/components/common/DataTableFilter';
+import QRCodeScanner from '@/components/common/QRCodeScanner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+
 import {
     Dialog,
+    DialogClose,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -35,16 +28,10 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { SelectItem } from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -53,35 +40,62 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { CreateEmloyess, InfoAccount, InfoDepartment, InfoJob, InforUser } from '@/models';
-import { DialogTrigger } from '@radix-ui/react-dialog';
-import { DotsHorizontalIcon, PlusCircledIcon } from '@radix-ui/react-icons';
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-} from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { Check, ChevronsUpDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
-import authApi from '@/api/authApi';
 import { useToast } from '@/components/ui/use-toast';
+import { EmployeeCreateForm, InfoAccount, InforEmployee, ListResponse, QueryParam } from '@/models';
+import { ConvertQueryParam, colorBucket } from '@/utils';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { DialogTrigger } from '@radix-ui/react-dialog';
+import { DotsHorizontalIcon, PlusCircledIcon, ReloadIcon } from '@radix-ui/react-icons';
+import {
+    ColumnDef,
+    ColumnFiltersState,
+    PaginationState,
+    Row,
+    SortingState,
+    VisibilityState,
+    flexRender,
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable,
+} from '@tanstack/react-table';
+import dayjs from 'dayjs';
+import { debounce } from 'lodash';
+import queryString from 'query-string';
+import * as React from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useLocation, useNavigate } from 'react-router-dom';
+import * as yup from 'yup';
+
+// eslint-disable-next-line react-refresh/only-export-components
 
 export function EmployeeList() {
-    const columns: ColumnDef<CreateEmloyess>[] = [
+    const [sorting, setSorting] = React.useState<SortingState>([{ id: 'EmpID', desc: false }]);
+    const [listEmployees, setListEmployees] = React.useState<InforEmployee[]>([]);
+    const [editEmp, setEditEmp] = React.useState<string>('');
+    const [totalRow, setTotalRow] = React.useState<number>();
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+    const [rowSelection, setRowSelection] = React.useState({});
+    const [query, setQuery] = React.useState<string>('');
+    const [pageCount, setPageCount] = React.useState<number>(1);
+    const { toast } = useToast();
+    const [dialogState, setDialogState] = React.useState<number>(1);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [loading, setLoading] = React.useState(false);
+    const [loadingTable, setLoadingTable] = React.useState(false);
+
+    const param = queryString.parse(location.search);
+    const [pagination, setPagination] = React.useState<PaginationState>({
+        pageIndex: Number(param?.pageIndex || 1) - 1,
+        pageSize: Number(param?.pageSize || 10),
+    });
+    const phoneRegExp =
+        /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+
+    const columns: ColumnDef<InforEmployee>[] = [
         {
             id: 'select',
             header: ({ table }) => (
@@ -90,51 +104,55 @@ export function EmployeeList() {
                         table.getIsAllPageRowsSelected() ||
                         (table.getIsSomePageRowsSelected() && 'indeterminate')
                     }
-                    className="ml-1 "
-                    onCheckedChange={(value: any) => table.toggleAllPageRowsSelected(!!value)}
+                    className="ml-2"
+                    onCheckedChange={(value: boolean) => table.toggleAllPageRowsSelected(!!value)}
                     aria-label="Select all"
                 />
             ),
             cell: ({ row }) => (
                 <Checkbox
                     checked={row.getIsSelected()}
-                    onCheckedChange={(value: any) => row.toggleSelected(!!value)}
+                    onCheckedChange={(value: boolean) => row.toggleSelected(!!value)}
                     aria-label="Select row"
-                    className="ml-1 "
+                    className="ml-2"
                 />
             ),
-            enableSorting: false,
             enableHiding: false,
         },
-        // {
-        //     accessorKey: 'EmpID',
-        //     header: 'ID',
-        //     cell: ({ row }) => <div className="capitalize">{row.getValue('EmpID')}</div>,
-        // },
+
         {
-            accessorKey: 'EmpName',
-            header: 'Tên nhân viên',
-            cell: ({ row }) => <div className="">{row.getValue('EmpName')}</div>,
+            accessorKey: 'EmpID',
+            header: ({ column }) => <DataTableColumnHeader column={column} title="Mã nhân viên" />,
+            cell: ({ row }) => <div>{row.getValue('EmpID')}</div>,
         },
         {
-            accessorKey: 'Email',
-            header: 'Email',
-            cell: ({ row }) => <div className="">{row.getValue('Email')}</div>,
+            accessorKey: 'EmpName',
+            header: ({ column }) => <DataTableColumnHeader column={column} title="Tên nhân viên" />,
+            cell: ({ row }) => <div>{row.getValue('EmpName')}</div>,
+        },
+        {
+            accessorKey: 'Gender',
+            header: 'Giới tính',
+            cell: ({ row }) => <div>{row.getValue('Gender')}</div>,
         },
         {
             accessorKey: 'JobName',
-            header: () => 'Job',
-            cell: ({ row }) => <div className="">{row.getValue('JobName')}</div>,
+            header: 'Công việc',
+            cell: ({ row }) => <div>{row.getValue('JobName')}</div>,
         },
         {
             accessorKey: 'DepName',
-            header: () => 'Phòng ban',
-            cell: ({ row }) => <div className="">{row.getValue('DepName')}</div>,
+            header: 'Phòng ban',
+            cell: ({ row }) => <div>{row.getValue('DepName')}</div>,
+        },
+        {
+            accessorKey: 'Phone',
+            header: 'Số điện thoại',
+            cell: ({ row }) => <div>{row.getValue('Phone')}</div>,
         },
         {
             accessorKey: 'EmpStatus',
-            header: () => 'Trạng thái',
-            // cell: ({ row }) => <div className="">{row.getValue('EmpStatus') ? '123' : 'abc'}</div>,
+            header: 'Trạng thái',
             cell: ({ row }) => (
                 <Badge className={`${row.getValue('EmpStatus') == 1 ? 'bg-[green]' : 'bg-[red]'}`}>
                     {row.getValue('EmpStatus') == 1 ? 'Hoạt động' : 'Ngưng hoạt động'}
@@ -153,12 +171,9 @@ export function EmployeeList() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="cursor-pointer">
-                                Delete User
-                            </DropdownMenuItem>
                             <DialogTrigger onClick={() => setDataEdit(row)} className="w-full">
                                 <DropdownMenuItem className="cursor-pointer">
-                                    Edit User
+                                    Chỉnh sửa nhân viên
                                 </DropdownMenuItem>
                             </DialogTrigger>
                         </DropdownMenuContent>
@@ -167,21 +182,23 @@ export function EmployeeList() {
             },
         },
     ];
-    const [data, setData] = React.useState<CreateEmloyess[]>([]);
-    const [listJob, setListJob] = React.useState<InfoJob[]>([]);
-    const [listDepartment, setListDepartment] = React.useState<InfoDepartment[]>([]);
-    const [openJob, setOpenJob] = React.useState<boolean>(false);
-    const [sorting, setSorting] = React.useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-    const [rowSelection, setRowSelection] = React.useState({});
-    const { toast } = useToast();
+    const debouncedSetQuery = debounce((value) => {
+        setQuery(value);
+        // You can perform additional actions here, like making an API call with the debounced query.
+    }, 500);
+    console.log(columnFilters);
     const table = useReactTable({
-        data,
+        data: listEmployees,
         columns,
+        pageCount,
+        manualPagination: true,
+        autoResetPageIndex: false,
+        manualSorting: true,
+        manualFiltering: true,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
+        onPaginationChange: setPagination,
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -189,302 +206,394 @@ export function EmployeeList() {
         onRowSelectionChange: setRowSelection,
         state: {
             sorting,
+            pagination,
             columnFilters,
             columnVisibility,
             rowSelection,
         },
     });
-
-    const setDataEdit = (data: Row<CreateEmloyess>) => {
-        formEdit.setValue('EmpName', data.original.EmpName);
-        formEdit.setValue(
-            'employmentStatus',
-            `${Boolean(data.original.employmentStatus) === true ? '1' : '0'}`
-        );
-        formEdit.setValue('job', data.original.job);
-        formEdit.setValue('department', data.original.department);
-    };
-    const schema = yup.object().shape({
-        EmpName: yup.string().required('Cần nhập tên người dùng'),
-        job: yup.string().required('Cần nhập job người dùng'),
-        employmentStatus: yup.string().required('Cần chọn chức vụ'),
-        department: yup.string().required('Cần chọn phòng ban'),
-    });
-    const form = useForm<CreateEmloyess>({
-        resolver: yupResolver(schema),
-    });
-
-    const createEmployee = async (data: CreateEmloyess) => {
-        const newData: unknown = {
-            EmpName: data.EmpName,
-            depStatus: data.employmentStatus === 'hoạt động' ? 1 : 0,
-            JobID: Number(data.job),
-            DepID: Number(data.department),
+    const handleNavigateQuery = () => {
+        const paramObject: QueryParam = {
+            query: query,
+            pageIndex: pagination.pageIndex + 1,
+            pageSize: pagination.pageSize,
+            sort_by: sorting[0].id,
+            asc: !sorting[0].desc,
+            filters: columnFilters,
         };
-        const response = await authApi.createEmployee(newData as CreateEmloyess);
-        if (!response.status) {
-            toast({
-                title: 'Tạo thất bại !',
-                description: 'Có lỗi khi tạo !',
-                variant: 'destructive',
-            });
-        } else {
-            toast({
-                title: 'Tạo thành công !',
-                description: 'Tạo thành công nhân viên!',
-                variant: 'destructive',
-            });
-        }
+        console.log(paramObject);
+        const newSearch = ConvertQueryParam(paramObject);
+        navigate({ search: newSearch });
+        location.search = newSearch;
     };
-
-    const editEmployee = async (data: CreateEmloyess) => {
-        console.log(data);
-    };
-
-    const schemaEdit = yup.object().shape({
-        EmpName: yup.string().required('Cần nhập tên người dùng'),
-        job: yup.string().required('Cần nhập job người dùng'),
-        employmentStatus: yup.string().required('Cần chọn chức vụ'),
-        department: yup.string().required('Cần chọn phòng ban'),
-    });
-    const formEdit = useForm<CreateEmloyess>({
-        resolver: yupResolver(schemaEdit),
-    });
-
-    const handleSubmit: SubmitHandler<CreateEmloyess> = (data) => {
-        createEmployee(data);
-    };
-
-    const handleEditEmp: SubmitHandler<CreateEmloyess> = (data) => {
-        editEmployee(data);
-    };
-
     React.useEffect(() => {
-        try {
-            const fetchData = async () => {
-                const [empResponse, jobResponse, departmentResponse] = await Promise.all([
-                    adminApi.getListEmployee(),
-                    adminApi.getJob(),
-                    adminApi.getDepartment(),
-                ]);
-                if (empResponse.status && jobResponse.status && departmentResponse.status) {
-                    setData(empResponse.data);
-                    setListJob(jobResponse.data);
-                    setListDepartment(departmentResponse.data);
-                }
-            };
-            fetchData();
-        } catch (err) {
-            console.log(err);
-        }
-    }, []);
+        handleNavigateQuery();
+        const fetchData = async () => {
+            try {
+                setLoadingTable(true);
+                const parsed = queryString.parse(
+                    location.search ? location.search : '?pageIndex=1&pageSize=10&query='
+                ) as unknown as QueryParam;
+                console.log(parsed);
+                const empData = (await employeeApi.getListEmployee(
+                    parsed
+                )) as unknown as ListResponse;
+                setListEmployees(empData.data);
+                setTotalRow(empData.total_rows);
+                setPageCount(Math.ceil(empData.total_rows / table.getState().pagination.pageSize));
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setLoadingTable(false);
+            }
+        };
+        fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [query, pagination, sorting, columnFilters]);
+
+    const setDataEdit = (data: Row<InforEmployee>) => {
+        // formEdit.setValue("EmpID",EmpID)
+        
+    };
+
+    const schema_edit = yup.object().shape({
+        UserID: yup.string().required('Cần nhập tên tài khoản'),
+        UserStatus: yup.string().required('Cần nhập trạng thái của nhân viên'),
+        password: yup.string().required('Cần nhập mật khẩu'),
+        EmpID: yup.string().required('Cần chọn tài khoản cho một nhân viên'),
+    });
+    const schema_create = yup.object().shape({
+        EmpName: yup.string().required('Cần nhập tên tài khoản'),
+        Email: yup.string().email('Gmail không hợp lệ').required('Cần nhập gmail'),
+        CCCD: yup
+            .string()
+            .required('Cần nhận căn cước công dân')
+            .test(
+                'is-valid-length',
+                'CCCD/CMND phải có độ dài 12 ký tự',
+                (value) => value.length === 12
+            ),
+        DepID: yup.number().required('Cần nhập tên phòng ban'),
+        JobID: yup.number().required('Cần nhập tên công việc'),
+        RoleID: yup.number().required('Cần nhập vị trí'),
+        EmpStatus: yup.string(),
+        BankAccountNumber: yup.string(), // Corrected typo here
+        BankName: yup.string(),
+        Gender: yup.string(),
+        TaxCode: yup.string(),
+        Phone: yup
+            .string()
+            .matches(phoneRegExp, 'Số điện thoại không hợp lệ')
+            .min(9, 'Quá ngắn')
+            .max(11, 'Quá dài'),
+        BirthDate: yup.string(),
+        HireDate: yup.string(),
+        Address: yup.string(),
+    });
+    const formEdit = useForm<InfoAccount>({
+        resolver: yupResolver(schema_edit),
+    });
+    const formCreate = useForm<EmployeeCreateForm>({
+        resolver: yupResolver(schema_create),
+    });
+
+    const handleEdit: SubmitHandler<InfoAccount> = (data) => {
+        handleEditAccount(data);
+    };
+    const handleCreate: SubmitHandler<EmployeeCreateForm> = (data) => {
+        console.log(data);
+        //call api
+        (async () => {
+            try {
+                setLoading(true);
+                const newData: EmployeeCreateForm = {
+                    ...data,
+                    BirthDate: dayjs(data.BirthDate).format('DD/MM/YYYY'),
+                    HireDate: dayjs(data.HireDate).format('DD/MM/YYYY'),
+                };
+                const res = await employeeApi.createEmployee(newData);
+                console.log(res);
+                toast({
+                    title: 'Thành công',
+                    description: 'Tạo nhân viên thành công',
+                });
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } catch (error:any) {
+                toast({
+                    variant: "destructive",
+                    title: 'Có lỗi xảy ra',
+                    description: error.error,
+                });
+            } finally {
+                setLoading(false);
+            }
+        })();
+    };
 
     return (
-        <>
-            <div className="w-full space-y-4">
-                <div className="flex items-center gap-4">
-                    <Input placeholder="Filter name..." className="max-w-sm" />
-                    <Dialog>
+        <div className="w-full space-y-4">
+            <div className="flex items-center">
+                <div className="flex flex-row gap-4">
+                    <Input
+                        placeholder="Tìm kiếm trên bảng..."
+                        value={query}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                            const { value } = event.target;
+                            debouncedSetQuery(value);
+                        }}
+                    />
+                    {table.getColumn('Gender') && (
+                        <DataTableFilter
+                            column={table.getColumn('Gender')}
+                            title="Giới tính"
+                            options={[
+                                {
+                                    value: 'Nam',
+                                    id: 'Nam',
+                                },
+                                {
+                                    value: 'Nữ',
+                                    id: 'Nữ',
+                                },
+                                {
+                                    value: 'Không xác định',
+                                    id: 'Không xác định',
+                                },
+                            ]}
+                            api=""
+                        />
+                    )}
+                    {table.getColumn('DepName') && (
+                        <DataTableFilter
+                            column={table.getColumn('DepName')}
+                            title="Phòng ban"
+                            options={null}
+                            api="department"
+                        />
+                    )}
+                    {table.getColumn('JobName') && (
+                        <DataTableFilter
+                            column={table.getColumn('JobName')}
+                            title="Công việc"
+                            options={null}
+                            api="job"
+                        />
+                    )}
+                    {table.getColumn('EmpStatus') && (
+                        <DataTableFilter
+                            column={table.getColumn('EmpStatus')}
+                            title="Trạng thái"
+                            options={[
+                                {
+                                    value: 'Hoạt động',
+                                    id: '1',
+                                },
+                                {
+                                    value: 'Ngừng hoạt động',
+                                    id: '0',
+                                },
+                            ]}
+                            api=""
+                        />
+                    )}
+                    <Dialog >
                         <DialogTrigger asChild>
-                            <Button className="btn flex gap-2" variant="default">
+                            <Button className="btn flex gap-2">
                                 <PlusCircledIcon />
-                                Tạo mới
+                                Tạo
                             </Button>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="max-w-3xl">
                             <DialogHeader className="">
-                                <DialogTitle className="mb-2">
-                                    Tạo mới thông tin nhân viên
+                                <DialogTitle className="text-xl uppercase">
+                                    Tạo mới nhân viên
                                 </DialogTitle>
                             </DialogHeader>
-                            <Form {...form}>
-                                <form onSubmit={form.handleSubmit(handleSubmit)}>
-                                    <div className="grid grid-cols-2 gap-3 ">
-                                        <FormField
-                                            defaultValue=""
-                                            control={form.control}
-                                            name="EmpName"
-                                            render={({ field }) => (
-                                                <FormItem className="">
-                                                    <FormLabel className="text-black">
-                                                        Tên nhân viên
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="Enter name"
-                                                            {...field}
+                            {dialogState === 1 && (
+                                <Form {...formCreate}>
+                                    <QRCodeScanner setDialogState={setDialogState} />
+                                </Form>
+                            )}
+                            {dialogState === 2 && (
+                                <Form {...formCreate}>
+                                    <form onSubmit={formCreate.handleSubmit(handleCreate)}>
+                                        <ScrollArea className="h-[400px] ">
+                                            <div className="ml-1 mr-3">
+                                                <div className="mb-3">
+                                                    <p className="mb-2 text-lg font-semibold">
+                                                        Thông tin cá nhân
+                                                    </p>
+                                                    <div className="grid grid-cols-3 gap-3 mb-3">
+                                                        <TextField
+                                                            name="EmpName"
+                                                            label="Tên nhân viên"
+                                                            placeholder="Nhập tên nhân viên"
+                                                            require={true}
                                                         />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            defaultValue="0"
-                                            control={form.control}
-                                            name="employmentStatus"
-                                            render={({ field }) => (
-                                                <FormItem className="">
-                                                    <FormLabel className="text-black">
-                                                        Trạng thái nhân viên
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Select
-                                                            defaultValue="1"
-                                                            onValueChange={field.onChange}
-                                                            value={field.value}
+                                                        <TextField
+                                                            name="Email"
+                                                            label="Email"
+                                                            placeholder="Nhập email"
+                                                            require={true}
+                                                            type="email"
+                                                        />
+                                                        <TextField
+                                                            name="CCCD"
+                                                            label="Số CCCD/CMND"
+                                                            placeholder="Nhập CCCD/CMND"
+                                                            require={true}
+                                                        />
+                                                        <SelectionField
+                                                            name="Gender"
+                                                            label="Giới tính"
+                                                            placeholder="Chọn giới tính"
                                                         >
-                                                            <SelectTrigger {...field} className="">
-                                                                <SelectValue placeholder="Select a fruit" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                <SelectGroup>
-                                                                    <SelectItem value="1">
-                                                                        Hoạt động
-                                                                    </SelectItem>
-                                                                    <SelectItem value="0">
-                                                                        Ngừng hoạt động
-                                                                    </SelectItem>
-                                                                </SelectGroup>
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="job"
-                                            render={({ field }) => (
-                                                <FormItem className="">
-                                                    <FormLabel className="text-black">
-                                                        Job Title
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Popover
-                                                            open={openJob}
-                                                            onOpenChange={setOpenJob}
-                                                            {...field}
-                                                        >
-                                                            <PopoverTrigger asChild>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    role="combobox"
-                                                                    // aria-expanded={open}
-                                                                    className="w-full justify-between"
-                                                                >
-                                                                    {field.value
-                                                                        ? listJob.find(
-                                                                              (job) =>
-                                                                                  `${job.JobID}` ===
-                                                                                  field.value
-                                                                          )?.JobName
-                                                                        : 'Select a job...'}
-                                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                                </Button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-[200px] p-0">
-                                                                <Command>
-                                                                    <CommandInput placeholder="Search ..." />
-                                                                    <CommandEmpty>
-                                                                        No job found.
-                                                                    </CommandEmpty>
-                                                                    <CommandGroup {...field}>
-                                                                        {listJob.map((job) => (
-                                                                            <CommandItem
-                                                                                key={job.JobID}
-                                                                                value={`${job.JobID}`}
-                                                                                onSelect={(
-                                                                                    currentValue
-                                                                                ) => {
-                                                                                    form.setValue(
-                                                                                        'job',
-                                                                                        (field.value =
-                                                                                            currentValue ===
-                                                                                            `${field.value}`
-                                                                                                ? currentValue
-                                                                                                : currentValue)
-                                                                                    );
-                                                                                    setOpenJob(
-                                                                                        false
-                                                                                    );
-                                                                                }}
-                                                                            >
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        'mr-2 h-4 w-4',
-                                                                                        field.value ===
-                                                                                            `${job.JobID}`
-                                                                                            ? 'opacity-100'
-                                                                                            : 'opacity-0'
-                                                                                    )}
-                                                                                />
-                                                                                {job.JobName}
-                                                                            </CommandItem>
-                                                                        ))}
-                                                                    </CommandGroup>
-                                                                </Command>
-                                                            </PopoverContent>
-                                                        </Popover>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="department"
-                                            render={({ field }) => (
-                                                <FormItem className="">
-                                                    <FormLabel className="text-black">
-                                                        Phòng ban
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Select
-                                                            onValueChange={field.onChange}
-                                                            value={field.value}
-                                                        >
-                                                            <SelectTrigger {...field} className="">
-                                                                <SelectValue placeholder="Select a fruit" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                <SelectGroup>
-                                                                    {listDepartment.map(
-                                                                        (department, index) => (
-                                                                            <SelectItem
-                                                                                value={`${department.DepID}`}
-                                                                                key={index}
-                                                                            >
-                                                                                {department.DepName}
-                                                                            </SelectItem>
-                                                                        )
-                                                                    )}
-                                                                </SelectGroup>
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                    <DialogFooter className="w-full mt-2">
-                                        <Button type="submit">Lưu</Button>
-                                    </DialogFooter>
-                                </form>
-                            </Form>
+                                                            <SelectItem value="Nam">Nam</SelectItem>
+                                                            <SelectItem value="Nữ">Nữ</SelectItem>
+                                                            <SelectItem value="Không xác định">
+                                                                Không xác định
+                                                            </SelectItem>
+                                                        </SelectionField>
+
+                                                        <TextField
+                                                            name="Phone"
+                                                            label="Số điện thoại"
+                                                            placeholder="Nhập điện thoại"
+                                                        />
+
+                                                        <TextField
+                                                            name="Address"
+                                                            label="Địa chỉ"
+                                                            placeholder="Nhập địa chỉ"
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <BankField
+                                                            name="BankName"
+                                                            label="Tên ngân hàng"
+                                                            placeholder="Chọn ngân hàng"
+                                                        />
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <TextField
+                                                                name="BankAccountNumber"
+                                                                label="Số tài khoản"
+                                                                placeholder="Nhập số tài khoản"
+                                                            />
+                                                            <SelectionField
+                                                                label="Hình thức"
+                                                                name="EmpStatus"
+                                                                placeholder="Chọn hình thức"
+                                                            >
+                                                                <SelectItem value="Toàn thời gian">
+                                                                    <Badge
+                                                                        className={`${colorBucket['Toàn thời gian']} hover:${colorBucket['Toàn thời gian']}`}
+                                                                    >
+                                                                        Toàn thời gian
+                                                                    </Badge>
+                                                                </SelectItem>
+                                                                <SelectItem value="Bán thời gian">
+                                                                    <Badge
+                                                                        className={`${colorBucket['Bán thời gian']} hover:${colorBucket['Bán thời gian']}`}
+                                                                    >
+                                                                        Bán thời gian
+                                                                    </Badge>
+                                                                </SelectItem>
+                                                                <SelectItem value="Thực tập sinh">
+                                                                    <Badge
+                                                                        className={`${colorBucket['Thực tập sinh']} hover:${colorBucket['Thực tập sinh']}]`}
+                                                                    >
+                                                                        Thực tập sinh
+                                                                    </Badge>
+                                                                </SelectItem>
+                                                                <SelectItem value="Ngưng làm việc">
+                                                                    <Badge
+                                                                        className={`${colorBucket['Ngưng làm việc']} hover:${colorBucket['Ngưng làm việc']}`}
+                                                                    >
+                                                                        Ngưng làm việc
+                                                                    </Badge>
+                                                                </SelectItem>
+                                                            </SelectionField>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p className="mb-2 text-lg font-semibold">
+                                                        Thông tin công việc
+                                                    </p>
+                                                    <div className="grid grid-cols-3 gap-3 ">
+                                                        <SearchField
+                                                            name="DepID"
+                                                            label="Phòng ban"
+                                                            placeholder="Chọn phòng ban"
+                                                            typeApi="department"
+                                                            require={true}
+                                                        />
+                                                        <SearchField
+                                                            name="JobID"
+                                                            label="Chức vụ"
+                                                            placeholder="Chọn chức vụ"
+                                                            typeApi="job"
+                                                            require={true}
+                                                        />
+                                                        <SearchField
+                                                            name="RoleID"
+                                                            label="Vai trò"
+                                                            placeholder="Vai trò"
+                                                            typeApi="role"
+                                                            require={true}
+                                                        />
+
+                                                        <CalendarField
+                                                            name="HireDate"
+                                                            label="Ngày bắt đầu"
+                                                            placeholder="DD/MM/YYYY"
+                                                        />
+                                                        <CalendarField
+                                                            disabledDate={false}
+                                                            name="BirthDate"
+                                                            label="Ngày sinh"
+                                                            placeholder="DD/MM/YYYY"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </ScrollArea>
+                                        <DialogFooter className="w-full sticky mt-4">
+                                            <DialogClose asChild>
+                                                <Button
+                                                    onClick={() => {
+                                                        setDialogState(1);
+                                                        formCreate.reset();
+                                                    }}
+                                                    type="button"
+                                                    variant="outline"
+                                                >
+                                                    Hủy
+                                                </Button>
+                                            </DialogClose>
+                                            <Button type="submit" disabled={loading}>
+                                                {loading && (
+                                                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                                                )}{' '}
+                                                Lưu
+                                            </Button>
+                                        </DialogFooter>
+                                    </form>
+                                </Form>
+                            )}
                         </DialogContent>
                     </Dialog>
-                    <DataTableViewOptions table={table} />
                 </div>
+                <DataTableViewOptions table={table} />
+            </div>
+            <Dialog>
                 <div className="rounded-md border">
                     <ScrollArea
                         style={{ height: 'calc(100vh - 220px)' }}
-                        className=" relative w-full overflow-auto"
+                        className=" relative w-full"
                     >
                         <Table>
-                            <TableHeader className="sticky top-0 z-[2] bg-[hsl(var(--secondary))]">
+                            <TableHeader className="sticky top-0 z-[2] bg-[hsl(var(--background))]">
                                 {table.getHeaderGroups().map((headerGroup) => (
                                     <TableRow key={headerGroup.id}>
                                         {headerGroup.headers.map((header) => {
@@ -502,294 +611,12 @@ export function EmployeeList() {
                                     </TableRow>
                                 ))}
                             </TableHeader>
-                            <TableBody>
-                                {table.getRowModel().rows?.length ? (
-                                    table.getRowModel().rows.map((row) => (
-                                        <Dialog key={row.id}>
-                                            <DialogContent>
-                                                <DialogHeader className="">
-                                                    <DialogTitle className="mb-2">
-                                                        Sửa mới thông tin nhân viên
-                                                    </DialogTitle>
-                                                    <DialogDescription></DialogDescription>
-                                                </DialogHeader>
-                                                <Form {...formEdit}>
-                                                    <form
-                                                        className="grid grid-cols-2 gap-3 "
-                                                        onSubmit={formEdit.handleSubmit(
-                                                            handleEditEmp
-                                                        )}
-                                                    >
-                                                        <FormField
-                                                            defaultValue={row.original.EmpName}
-                                                            control={formEdit.control}
-                                                            name="EmpName"
-                                                            render={({ field }) => (
-                                                                <FormItem className="">
-                                                                    <FormLabel className="text-black">
-                                                                        Tên nhân viên
-                                                                    </FormLabel>
-                                                                    <FormControl>
-                                                                        <Input
-                                                                            defaultValue={
-                                                                                field.name
-                                                                            }
-                                                                            placeholder="Enter name"
-                                                                            {...field}
-                                                                        />
-                                                                    </FormControl>
-                                                                    <FormMessage />
-                                                                </FormItem>
-                                                            )}
-                                                        />
-                                                        <FormField
-                                                            control={formEdit.control}
-                                                            name="employmentStatus"
-                                                            render={({ field }) => (
-                                                                <FormItem className="">
-                                                                    <FormLabel className="text-black">
-                                                                        Trạng thái
-                                                                    </FormLabel>
-                                                                    <FormControl>
-                                                                        <Select
-                                                                            onValueChange={
-                                                                                field.onChange
-                                                                            }
-                                                                            value={field.value}
-                                                                        >
-                                                                            <SelectTrigger
-                                                                                {...field}
-                                                                                className=""
-                                                                            >
-                                                                                <SelectValue placeholder="Chọn trạng thái" />
-                                                                            </SelectTrigger>
-                                                                            <SelectContent>
-                                                                                <SelectGroup>
-                                                                                    <SelectItem
-                                                                                        value={'1'}
-                                                                                    >
-                                                                                        <Badge className="bg-[green]">
-                                                                                            Hoạt
-                                                                                            động
-                                                                                        </Badge>
-                                                                                    </SelectItem>
-                                                                                    <SelectItem
-                                                                                        value={'0'}
-                                                                                    >
-                                                                                        <Badge className="bg-[red]">
-                                                                                            Ngưng
-                                                                                            hoạt
-                                                                                            động
-                                                                                        </Badge>
-                                                                                    </SelectItem>
-                                                                                </SelectGroup>
-                                                                            </SelectContent>
-                                                                        </Select>
-                                                                    </FormControl>
-                                                                    <FormMessage />
-                                                                </FormItem>
-                                                            )}
-                                                        />
-                                                        {/* <FormField
-                                                            control={formEdit.control}
-                                                            name="job"
-                                                            render={({ field }) => (
-                                                                <FormItem className="">
-                                                                    <FormLabel className="text-black">
-                                                                        Job Title
-                                                                    </FormLabel>
-                                                                    <FormControl>
-                                                                        <Popover
-                                                                            open={openJob}
-                                                                            onOpenChange={
-                                                                                setOpenJob
-                                                                            }
-                                                                            {...field}
-                                                                        >
-                                                                            <PopoverTrigger asChild>
-                                                                                <Button
-                                                                                    variant="outline"
-                                                                                    role="combobox"
-                                                                                    // aria-expanded={open}
-                                                                                    className="w-full justify-between"
-                                                                                >
-                                                                                    {field.value
-                                                                                        ? listJob.find(
-                                                                                              (
-                                                                                                  job
-                                                                                              ) =>
-                                                                                                  `${job.JobID}` ===
-                                                                                                  field.value
-                                                                                          )?.JobName
-                                                                                        : 'Select a job...'}
-                                                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                                                </Button>
-                                                                            </PopoverTrigger>
-                                                                            <PopoverContent className="w-[200px] p-0">
-                                                                                <Command>
-                                                                                    <CommandInput placeholder="Search ..." />
-                                                                                    <CommandEmpty>
-                                                                                        No job
-                                                                                        found.
-                                                                                    </CommandEmpty>
-                                                                                    <CommandGroup
-                                                                                        {...field}
-                                                                                    >
-                                                                                        {listJob.map(
-                                                                                            (
-                                                                                                job
-                                                                                            ) => (
-                                                                                                <CommandItem
-                                                                                                    key={
-                                                                                                        job.JobID
-                                                                                                    }
-                                                                                                    value={`${job.JobID}`}
-                                                                                                    onSelect={(
-                                                                                                        currentValue
-                                                                                                    ) => {
-                                                                                                        form.setValue(
-                                                                                                            'job',
-                                                                                                            (field.value =
-                                                                                                                currentValue ===
-                                                                                                                `${field.value}`
-                                                                                                                    ? currentValue
-                                                                                                                    : currentValue)
-                                                                                                        );
-                                                                                                        setOpenJob(
-                                                                                                            false
-                                                                                                        );
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <Check
-                                                                                                        className={cn(
-                                                                                                            'mr-2 h-4 w-4',
-                                                                                                            field.value ===
-                                                                                                                `${job.JobID}`
-                                                                                                                ? 'opacity-100'
-                                                                                                                : 'opacity-0'
-                                                                                                        )}
-                                                                                                    />
-                                                                                                    {
-                                                                                                        job.JobName
-                                                                                                    }
-                                                                                                </CommandItem>
-                                                                                            )
-                                                                                        )}
-                                                                                    </CommandGroup>
-                                                                                </Command>
-                                                                            </PopoverContent>
-                                                                        </Popover>
-                                                                    </FormControl>
-                                                                    <FormMessage />
-                                                                </FormItem>
-                                                            )}
-                                                        /> */}
-                                                        <FormField
-                                                            control={formEdit.control}
-                                                            name="job"
-                                                            render={({ field }) => (
-                                                                <FormItem className="">
-                                                                    <FormLabel className="text-black">
-                                                                        Job
-                                                                    </FormLabel>
-                                                                    <FormControl>
-                                                                        <Select
-                                                                            onValueChange={
-                                                                                field.onChange
-                                                                            }
-                                                                            value={field.value}
-                                                                        >
-                                                                            <SelectTrigger
-                                                                                {...field}
-                                                                                className=""
-                                                                            >
-                                                                                <SelectValue placeholder="Select a fruit" />
-                                                                            </SelectTrigger>
-                                                                            <SelectContent>
-                                                                                <SelectGroup>
-                                                                                    {listJob.map(
-                                                                                        (
-                                                                                            job,
-                                                                                            index
-                                                                                        ) => (
-                                                                                            <SelectItem
-                                                                                                value={`${job.JobID}`}
-                                                                                                key={
-                                                                                                    index
-                                                                                                }
-                                                                                            >
-                                                                                                {
-                                                                                                    job.JobName
-                                                                                                }
-                                                                                            </SelectItem>
-                                                                                        )
-                                                                                    )}
-                                                                                </SelectGroup>
-                                                                            </SelectContent>
-                                                                        </Select>
-                                                                    </FormControl>
-                                                                    <FormMessage />
-                                                                </FormItem>
-                                                            )}
-                                                        />
-                                                        <FormField
-                                                            control={formEdit.control}
-                                                            name="department"
-                                                            render={({ field }) => (
-                                                                <FormItem className="">
-                                                                    <FormLabel className="text-black">
-                                                                        Phòng ban
-                                                                    </FormLabel>
-                                                                    <FormControl>
-                                                                        <Select
-                                                                            onValueChange={
-                                                                                field.onChange
-                                                                            }
-                                                                            value={field.value}
-                                                                        >
-                                                                            <SelectTrigger
-                                                                                {...field}
-                                                                                className=""
-                                                                            >
-                                                                                <SelectValue placeholder="Select a fruit" />
-                                                                            </SelectTrigger>
-                                                                            <SelectContent>
-                                                                                <SelectGroup>
-                                                                                    {listDepartment.map(
-                                                                                        (
-                                                                                            department,
-                                                                                            index
-                                                                                        ) => (
-                                                                                            <SelectItem
-                                                                                                value={`${department.DepID}`}
-                                                                                                key={
-                                                                                                    index
-                                                                                                }
-                                                                                            >
-                                                                                                {
-                                                                                                    department.DepName
-                                                                                                }
-                                                                                            </SelectItem>
-                                                                                        )
-                                                                                    )}
-                                                                                </SelectGroup>
-                                                                            </SelectContent>
-                                                                        </Select>
-                                                                    </FormControl>
-                                                                    <FormMessage />
-                                                                </FormItem>
-                                                            )}
-                                                        />
-
-                                                        <div className="grid gap-4 py-4"></div>
-                                                        <DialogFooter className=""></DialogFooter>
-                                                        <DialogFooter className="">
-                                                            <Button type="submit">Save</Button>
-                                                        </DialogFooter>
-                                                    </form>
-                                                </Form>
-                                            </DialogContent>
+                            {!loadingTable && (
+                                <TableBody>
+                                    {table.getRowModel().rows?.length ? (
+                                        table.getRowModel().rows.map((row) => (
                                             <TableRow
+                                                key={row.id}
                                                 data-state={row.getIsSelected() && 'selected'}
                                             >
                                                 {row.getVisibleCells().map((cell) => (
@@ -801,24 +628,47 @@ export function EmployeeList() {
                                                     </TableCell>
                                                 ))}
                                             </TableRow>
-                                        </Dialog>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell
-                                            colSpan={columns.length}
-                                            className="h-24 text-center"
-                                        >
-                                            No results.
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell
+                                                colSpan={columns.length}
+                                                className="h-24 text-center"
+                                            >
+                                                No results.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                    <DialogContent>
+                                        <DialogHeader className="">
+                                            <DialogTitle className="mb-2">
+                                                Sửa mới tài khoản
+                                            </DialogTitle>
+                                        </DialogHeader>
+                                        <Form {...formEdit}>
+                                            <form onSubmit={formEdit.handleSubmit(handleEdit)}>
+                                                <div className="grid grid-cols-2 gap-3 "></div>
+                                                <DialogFooter className="w-full mt-4">
+                                                    <Button type="submit">Lưu</Button>
+                                                </DialogFooter>
+                                            </form>
+                                        </Form>
+                                    </DialogContent>
+                                </TableBody>
+                            )}
                         </Table>
+                        {loadingTable && (
+                            <div
+                                style={{ height: 'calc(100vh - 220px)' }}
+                                className="w-full flex items-center justify-center"
+                            >
+                                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> Đang tải
+                            </div>
+                        )}
                     </ScrollArea>
                 </div>
-                <DataTablePagination table={table} />
-            </div>
-        </>
+            </Dialog>
+            <DataTablePagination table={table} totalRow={totalRow || 0} />
+        </div>
     );
 }

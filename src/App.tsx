@@ -1,4 +1,6 @@
 import { ThemeProvider } from '@/components/theme-provider';
+import dayjs from 'dayjs';
+import vi from 'dayjs/locale/vi';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import './app.css';
 import { LoginPage } from './features/auth/pages/LoginPage';
@@ -6,18 +8,15 @@ import Home from './features/home';
 import { Admin, PIM, TimeKeep } from './features/home/components';
 import {
     Accounts,
-    ManagerEmpStatus,
+    ManagerDepartment,
     ManagerJob,
-    ManagerWorkShift,
-    Organization,
+    Organization
 } from './features/home/components/AdminComponents';
 import { Leave } from './features/home/components/Leave';
 import { LeaveList } from './features/home/components/LeaveComponents';
 import { EmployeeList } from './features/home/components/PimComponents';
 import { EmployeeTimeSheets } from './features/home/components/TimeKeepComponents';
 import Welcome from './features/welcome';
-import dayjs from 'dayjs';
-import vi from 'dayjs/locale/vi';
 function App() {
     dayjs.locale(vi);
     return (
@@ -30,9 +29,8 @@ function App() {
                         <Route index element={<Navigate to="admin" />} />
                         <Route path="admin" element={<Admin />}>
                             <Route index element={<Navigate to="accounts" />} />
-                            <Route path="job-positions" element={<ManagerJob />} />
-                            <Route path="employee-status" element={<ManagerEmpStatus />} />
-                            <Route path="work-shifts" element={<ManagerWorkShift />} />
+                            <Route path="job" element={<ManagerJob />} />
+                            <Route path="department" element={<ManagerDepartment />} />
                             <Route path="accounts" element={<Accounts />} />
                             <Route path="organization" element={<Organization />} />
                         </Route>

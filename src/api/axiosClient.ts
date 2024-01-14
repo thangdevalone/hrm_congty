@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios"
 import { STATIC_HOST } from "../constants/common"
 

@@ -2,30 +2,33 @@ import { QueryParam } from "@/models";
 
 export const ConvertQueryParam = (param?: QueryParam): string => {
     if (!param) return "";
-    const { pageSize, pageIndex, sort_by, asc, query } = param;
+    const { filters, ...rest } = param;
 
     // Tạo một đối tượng mới chỉ chứa các trường có giá trị
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const queryParams: { [key: string]: any } = {};
 
-    if (pageSize !== undefined) {
-        queryParams.pageSize = pageSize;
+    for (const key in rest) {
+        if (Object.prototype.hasOwnProperty.call(rest, key)) {
+            const value = rest[key];
+
+            if (value !== undefined) {
+                queryParams[key] = value;
+            }
+        }
     }
 
-    if (pageIndex !== undefined) {
-        queryParams.pageIndex = pageIndex;
-    }
-
-    if (sort_by !== undefined) {
-        queryParams.sort_by = sort_by;
-    }
-
-    if (asc !== undefined) {
-        queryParams.asc = asc;
-    }
-
-    if (query !== undefined) {
-        queryParams.query = query;
+    if (filters !== undefined) {
+        // Xử lý filters dựa trên cấu trúc ColumnFilter
+        filters.forEach((filter) => {
+            if (Array.isArray(filter.value)) {
+                // Nếu giá trị là một mảng, chuyển nó thành chuỗi và nối các giá trị bằng dấu phẩy
+                queryParams[filter.id] = filter.value.join(",");
+            } else {
+                // Nếu giá trị là một chuỗi, sử dụng nó trực tiếp
+                queryParams[filter.id] = filter.value;
+            }
+        });
     }
 
     // Tạo chuỗi truy vấn từ đối tượng queryParams

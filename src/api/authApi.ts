@@ -1,4 +1,4 @@
-import { CreateAccount, LoginForm, CreateEmloyess } from '@/models';
+import { CreateAccount, LoginForm } from '@/models';
 import axiosClient from './axiosClient';
 
 const authApi = {
@@ -9,10 +9,6 @@ const authApi = {
     hello() {
         const url = 'auth/hello';
         return axiosClient.get(url);
-    },
-    createEmployee(data: CreateEmloyess) {
-        const url = 'employee/create-employee';
-        return axiosClient.post(url, data);
     },
     createAccount(data: CreateAccount) {
         const url = 'employee/create-useraccount';
