@@ -61,7 +61,7 @@ import {
     useReactTable,
 } from '@tanstack/react-table';
 import dayjs from 'dayjs';
-import { debounce } from 'lodash';
+import { debounce, throttle } from 'lodash';
 import queryString from 'query-string';
 import * as React from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -79,6 +79,7 @@ export function EmployeeList() {
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
     const [query, setQuery] = React.useState<string>('');
+    const [queryLodash, setQueryLodash] = React.useState<string | undefined>(undefined);
     const [pageCount, setPageCount] = React.useState<number>(1);
     const { toast } = useToast();
     const [dialogState, setDialogState] = React.useState<number>(1);
@@ -119,7 +120,6 @@ export function EmployeeList() {
             ),
             enableHiding: false,
         },
-
         {
             accessorKey: 'EmpID',
             header: ({ column }) => <DataTableColumnHeader column={column} title="Mã nhân viên" />,
@@ -182,11 +182,11 @@ export function EmployeeList() {
             },
         },
     ];
-    const debouncedSetQuery = debounce((value) => {
-        setQuery(value);
-        // You can perform additional actions here, like making an API call with the debounced query.
-    }, 500);
-    console.log(columnFilters);
+    const debouncedSetQuery = React.useCallback(
+        debounce((value) => setQuery(value), 500),
+        []
+    );
+
     const table = useReactTable({
         data: listEmployees,
         columns,
@@ -253,7 +253,6 @@ export function EmployeeList() {
 
     const setDataEdit = (data: Row<InforEmployee>) => {
         // formEdit.setValue("EmpID",EmpID)
-        
     };
 
     const schema_edit = yup.object().shape({
@@ -298,7 +297,7 @@ export function EmployeeList() {
     });
 
     const handleEdit: SubmitHandler<InfoAccount> = (data) => {
-        handleEditAccount(data);
+        // handleEditAccount(data);z
     };
     const handleCreate: SubmitHandler<EmployeeCreateForm> = (data) => {
         console.log(data);
@@ -317,10 +316,10 @@ export function EmployeeList() {
                     title: 'Thành công',
                     description: 'Tạo nhân viên thành công',
                 });
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            } catch (error:any) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } catch (error: any) {
                 toast({
-                    variant: "destructive",
+                    variant: 'destructive',
                     title: 'Có lỗi xảy ra',
                     description: error.error,
                 });
@@ -336,9 +335,10 @@ export function EmployeeList() {
                 <div className="flex flex-row gap-4">
                     <Input
                         placeholder="Tìm kiếm trên bảng..."
-                        value={query}
+                        value={queryLodash}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                             const { value } = event.target;
+                            setQueryLodash(value);
                             debouncedSetQuery(value);
                         }}
                     />
@@ -396,7 +396,7 @@ export function EmployeeList() {
                             api=""
                         />
                     )}
-                    <Dialog >
+                    <Dialog>
                         <DialogTrigger asChild>
                             <Button className="btn flex gap-2">
                                 <PlusCircledIcon />

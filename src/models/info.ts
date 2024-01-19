@@ -20,27 +20,27 @@ export interface InforUser {
 }
 
 export interface InforEmployee {
-    EmpID: number
-    EmpName: string
-    Phone: string
-    HireDate: string
-    BirthDate: string
-    Address: string
-    PhotoPath: string
-    Email: string
-    EmpStatus: string 
-    Gender: string
-    TaxCode: string
-    CCCD: string
-    BankAccountNumer: string
-    BankName: string
-    DepID: number
-    JobID: number
-    RoleID: number
-    UserID: string
-    password: string
-    JobName: string
-    DepName: string
+    EmpID: number;
+    EmpName: string;
+    Phone: string;
+    HireDate: string;
+    BirthDate: string;
+    Address: string;
+    PhotoPath: string;
+    Email: string;
+    EmpStatus: string;
+    Gender: string;
+    TaxCode: string;
+    CCCD: string;
+    BankAccountNumer: string;
+    BankName: string;
+    DepID: number;
+    JobID: number;
+    RoleID: number;
+    UserID: string;
+    password: string;
+    JobName: string;
+    DepName: string;
 }
 
 export interface InfoAccount {
@@ -74,6 +74,9 @@ export interface InfoJob {
 }
 
 export interface InfoDepartment {
+    employee_count: number;
     DepID: number;
     DepName: string;
+    DepShortName: string;
+    ManageID?: number;
 }

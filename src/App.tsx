@@ -10,7 +10,7 @@ import {
     Accounts,
     ManagerDepartment,
     ManagerJob,
-    Organization
+    Organization,
 } from './features/home/components/AdminComponents';
 import { Leave } from './features/home/components/Leave';
 import { LeaveList } from './features/home/components/LeaveComponents';

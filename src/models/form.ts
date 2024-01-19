@@ -21,3 +21,15 @@ export interface EmployeeCreateForm {
     BirthDate?: string;
     Address?: string;
 }
+
+export interface DepartmentCreateForm {
+    DepName: string;
+    DepShortName: string;
+    ManageID: number;
+}
+
+export interface JobCreateForm {
+    DepID: number;
+    JobName: string;
+    Descriptions: string;
+}
