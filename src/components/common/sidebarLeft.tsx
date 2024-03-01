@@ -2,17 +2,17 @@ import { useTheme } from '@/components/theme-provider';
 import { useInfoUser } from '@/hooks';
 import { cn } from '@/lib/utils';
 import { TextAlignJustifyIcon } from '@radix-ui/react-icons';
-import * as React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Icons } from '../icons';
 import { Button } from '../ui/button';
 
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
+interface SidebarProps {
     collapse: boolean;
+    className:string;
     setCollapse: (newCollapse: boolean) => void;
 }
 
-export function SidebarLeft({ className, collapse, setCollapse }: SidebarProps) {
+export const SidebarLeft=({ className, collapse, setCollapse }: SidebarProps)=> {
     const navitage = useNavigate();
     const theme = useTheme();
     const location = useLocation();

@@ -1,4 +1,5 @@
 
+import { SidebarLeft } from '@/components/common';
 import { ModeToggle } from '@/components/mode-toggle';
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
@@ -11,7 +12,7 @@ export default function Home() {
             <div className="fixed right-[20px] top-[20px]">
                 <ModeToggle />
             </div>
-            <Sidebar
+            <SidebarLeft
                 setCollapse={setCollapse}
                 collapse={collapse}
                 className={`${
