@@ -12,7 +12,7 @@ interface SidebarProps {
     setCollapse: (newCollapse: boolean) => void;
 }
 
-export const SidebarLeft=({ className, collapse, setCollapse }: SidebarProps)=> {
+export const SidebarLeft = ({ className, collapse, setCollapse }: SidebarProps)=> {
     const navitage = useNavigate();
     const theme = useTheme();
     const location = useLocation();

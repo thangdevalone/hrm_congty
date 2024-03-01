@@ -1,4 +1,4 @@
-import { QueryParam, JobCreateForm, DepartmentCreateForm, InfoAccount, InfoJob, JobEditForm, DepartmentEditForm, RoleEditForm, RoleCreateForm } from '@/models';
+import { DepartmentCreateForm, DepartmentEditForm, InfoAccount, JobCreateForm, JobEditForm, QueryParam, RoleCreateForm, RoleEditForm } from '@/models';
 import { ConvertQueryParam } from '@/utils';
 import axiosClient from './axiosClient';
 
