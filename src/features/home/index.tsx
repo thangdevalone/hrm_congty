@@ -1,5 +1,5 @@
 
-import { SidebarLeft } from '@/components/common/SidebarLeft';
+import { SidebarLeft } from '@/components/SidebarLeft';
 import { ModeToggle } from '@/components/mode-toggle';
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';

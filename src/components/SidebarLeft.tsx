@@ -3,8 +3,8 @@ import { useInfoUser } from '@/hooks';
 import { cn } from '@/lib/utils';
 import { TextAlignJustifyIcon } from '@radix-ui/react-icons';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Icons } from '../icons';
-import { Button } from '../ui/button';
+import { Icons } from './icons';
+import { Button } from './ui/button';
 
 interface SidebarProps {
     collapse: boolean;
