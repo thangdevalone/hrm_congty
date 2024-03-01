@@ -42,6 +42,11 @@ export const Admin = () => {
                                                 Thêm sửa xóa phòng ban trong công ty.
                                             </ListItem>
                                         </Link>
+                                        <Link to="./role">
+                                            <ListItem title="Quản lý vai trò">
+                                                Thêm sửa xóa vai trò trong công ty.
+                                            </ListItem>
+                                        </Link>
                                     </ul>
                                 </NavigationMenuContent>
                             </NavigationMenuItem>

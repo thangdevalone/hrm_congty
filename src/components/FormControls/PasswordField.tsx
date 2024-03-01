@@ -18,11 +18,12 @@ export const PasswordField = (props:PasswordFieldProps) => {
             defaultValue=""
             control={form.control}
             name={name}
+            disabled={disabled}
             render={({ field }) => (
                 <FormItem className="">
                     <FormLabel className="relative">{label}{require&& <span className="text-xl absolute top-[-5px] right-[-10px] text-[red]"> *</span>}</FormLabel>
                     <FormControl>
-                        <InputPassword placeholder={placeholder} disabled={disabled} autoComplete={autoComplete} {...field} />
+                        <InputPassword placeholder={placeholder} autoComplete={autoComplete} {...field} />
                     </FormControl>
                     <FormMessage />
                 </FormItem>

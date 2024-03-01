@@ -8,9 +8,17 @@ interface TextFieldProps {
     autoComplete?: string;
     require?: boolean;
     type?: string;
+    placeholder: string;
 }
 export const TextareaField = (props: TextFieldProps) => {
-    const { name, label, disabled = false, autoComplete = 'false', require = false } = props;
+    const {
+        name,
+        label,
+        disabled = false,
+        autoComplete = 'false',
+        placeholder,
+        require = false,
+    } = props;
     const form = useFormContext();
 
     return (
@@ -18,6 +26,7 @@ export const TextareaField = (props: TextFieldProps) => {
             defaultValue=""
             control={form.control}
             name={name}
+            disabled={disabled}
             render={({ field }) => (
                 <FormItem className="w-full">
                     <FormLabel className="relative">
@@ -31,7 +40,7 @@ export const TextareaField = (props: TextFieldProps) => {
                     </FormLabel>
                     <FormControl>
                         <Textarea
-                            disabled={disabled}
+                            placeholder={placeholder}
                             className="min-h-[140px]"
                             autoComplete={autoComplete}
                             {...field}

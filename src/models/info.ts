@@ -1,3 +1,5 @@
+import { ColorKey } from "@/utils";
+
 export interface InfoCompany {
     company_name: string;
     number_emp: number;
@@ -6,20 +8,6 @@ export interface InfoCompany {
     email: string;
 }
 export interface InforUser {
-    EmpID: number;
-    EmpName: string;
-    Phone: string;
-    HireDate: string;
-    BirthDate: string;
-    Address: string;
-    PhotoPath: string;
-    Email: string;
-    EmpStatus: boolean;
-    DepID: number;
-    JobID: number;
-}
-
-export interface InforEmployee {
     EmpID: number;
     EmpName: string;
     Phone: string;
@@ -37,6 +25,29 @@ export interface InforEmployee {
     DepID: number;
     JobID: number;
     RoleID: number;
+    RoleName: string;
+    DepName: string;
+    JobName: string;
+}
+
+export interface InforEmployee {
+    EmpID: number;
+    EmpName: string;
+    Phone: string;
+    HireDate: string;
+    BirthDate: string;
+    Address: string;
+    PhotoPath: string;
+    Email: string;
+    EmpStatus: ColorKey;
+    Gender: string;
+    TaxCode: string;
+    CCCD: string;
+    BankAccountNumer: string;
+    BankName: string;
+    DepID: number;
+    JobID: number;
+    RoleID: number;
     UserID: string;
     password: string;
     JobName: string;
@@ -44,10 +55,10 @@ export interface InforEmployee {
 }
 
 export interface InfoAccount {
-    UserID: string;
-    password: string;
-    UserStatus: string;
-    EmpID: string;
+    UserID?: string;
+    password?: string;
+    UserStatus?: boolean | 0 | 1;
+    EmpID?: string;
 }
 
 export interface CreateAccount {
@@ -68,15 +79,91 @@ export interface InforUser {
 export interface InfoJob {
     JobID: number;
     JobName: string;
-    JobChangeHour: string;
+    Descriptions: string;
     DepID: number;
     DepName: string;
 }
-
+export interface InfoRole {
+    RoleName:string;
+    RoleID:number;
+}
 export interface InfoDepartment {
     employee_count: number;
     DepID: number;
     DepName: string;
     DepShortName: string;
-    ManageID?: number;
+    ManageID: number;
+    EmpName: string;
+}
+
+export interface InfoLeave {
+    EmpID: number;
+    EmpName: string;
+    Phone: string;
+    HireDate: string;
+    BirthDate: string;
+    Address: string;
+    PhotoPath: string;
+    Email: string;
+    EmpStatus: string;
+    Gender: string;
+    TaxCode: string;
+    CCCD: string;
+    BankAccountNumer: string;
+    BankName: string;
+    DepID: number;
+    JobID: number;
+    RoleID: number;
+    LeaveRequestID: number;
+    LeaveStartDate: string;
+    LeaveEndDate: string;
+    Reason: string;
+    LeaveStatus: string;
+    Duration: number;
+    LeaveTypeID: number;
+    LeaveTypeName: string;
+}
+export interface InfoLeaveType {
+    LeaveTypeID: number;
+    LeaveTypeName: string;
+    LeaveTypeDescription: string;
+    LimitedDuration: number;
+}
+export interface InfoWorkShift {
+    id: number;
+    WorkShiftName: string;
+    StartTime: string;
+    EndTime: string;
+    Color: string;
+}
+
+export interface InfoConfigSchedule {
+    id: number;
+    TimeBlock: string;
+    DateMin: number;
+    Using: boolean;
+}
+
+export interface InfoSchedule {
+    EmpID: number;
+    Date: string;
+    WorkShift: number;
+    WorkShiftDetail: InfoWorkShift;
+}
+export interface InfoScheduleAll {
+    EmpID: number;
+    EmployeeName: string;
+    PhotoPath: string;
+    DepName: string;
+    Email: string;
+    Date: string;
+    WorkShift: number;
+    WorkShiftDetail: InfoWorkShift;
+}
+export interface InfoTimeKeep {
+    EmpID: number;
+    EmpName: string;
+    id: number;
+    TimeIn: string;
+    TimeOut: string|null;
 }

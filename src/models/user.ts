@@ -1,14 +1,9 @@
-import { InforUser, Token } from ".";
 
 export interface ListUser<T> {
     total_rows: number;
     current_page: number;
     data: T[];
     status: number;
-}
-export interface UserResponse{
-    data:InforUser;
-    token:Token
 }
 export interface LeaveUser {
     EmpID: number;

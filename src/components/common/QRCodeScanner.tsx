@@ -95,7 +95,9 @@ const QRCodeScanner = (props: QRCodeScannerProps) => {
         form.setValue("CCCD",data?.code.replace(/\s/g, ""))
         form.setValue("Gender",data?.sex)
         form.setValue("Address",data?.address)
-        form.setValue("BirthDate",dayjs(convertDateFormat(data?.birth)))
+        if(data?.birth){
+            form.setValue("BirthDate",dayjs(convertDateFormat(data?.birth)))
+        }
         setDialogState(2)
     }
     return (
@@ -165,7 +167,7 @@ const QRCodeScanner = (props: QRCodeScannerProps) => {
                 <Button onClick={()=>{setDialogState(2)}} variant="outline" type="submit">
                     Bỏ qua
                 </Button>
-                <Button onClick={handleUploadCCCD} type="submit">Tiếp tục</Button>
+                <Button onClick={handleUploadCCCD} disabled={Boolean(data)}  type="submit">Tiếp tục</Button>
             </DialogFooter>
         </>
     );

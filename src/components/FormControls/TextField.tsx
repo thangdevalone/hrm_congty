@@ -27,6 +27,7 @@ export const TextField = (props: TextFieldProps) => {
             defaultValue=""
             control={form.control}
             name={name}
+            disabled={disabled}
             render={({ field }) => (
                 <FormItem className="">
                     <FormLabel className="relative">
@@ -42,7 +43,6 @@ export const TextField = (props: TextFieldProps) => {
                         <Input
                             type={type}
                             placeholder={placeholder}
-                            disabled={disabled}
                             autoComplete={autoComplete}
                             {...field}
                         />

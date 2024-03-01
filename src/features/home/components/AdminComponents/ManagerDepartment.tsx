@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { adminApi } from '@/api/adminApi';
+import employeeApi from '@/api/employeeApi';
+import { SearchField, SelectionField, TextField, TextareaField } from '@/components/FormControls';
 import { DataTablePagination, DataTableViewOptions } from '@/components/common';
 import { DataTableColumnHeader } from '@/components/common/DataTableColumnHeader';
 import { Button } from '@/components/ui/button';
@@ -20,6 +23,7 @@ import {
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { SelectItem } from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -31,6 +35,7 @@ import {
 import { useToast } from '@/components/ui/use-toast';
 import {
     DepartmentCreateForm,
+    DepartmentEditForm,
     InfoDepartment,
     InforUser,
     ListResponse,
@@ -38,6 +43,7 @@ import {
 } from '@/models';
 import { ConvertQueryParam } from '@/utils';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { DialogTrigger } from '@radix-ui/react-dialog';
 import { DotsHorizontalIcon, PlusCircledIcon, ReloadIcon } from '@radix-ui/react-icons';
 import {
     ColumnDef,
@@ -58,11 +64,6 @@ import * as React from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
-import { DialogTrigger } from '@radix-ui/react-dialog';
-import { SelectionField, TextField } from '@/components/FormControls';
-import { SelectItem } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import employeeApi from '@/api/employeeApi';
 
 export const ManagerDepartment = () => {
     const location = useLocation();
@@ -80,8 +81,11 @@ export const ManagerDepartment = () => {
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = React.useState({});
     const [selectRowDelete, setSelectRowDelete] = React.useState<InfoDepartment | null>(null);
-    const [listUser, setListUser] = React.useState<InforUser[]>([]);
     const [sorting, setSorting] = React.useState<SortingState>([{ id: 'DepID', desc: false }]);
+    const [openEditForm, setOpenEditForm] = React.useState(false);
+    const [openCreateForm, setOpenCreateForm] = React.useState(false);
+    const [openDeleteForm, setOpenDeleteForm] = React.useState(false);
+
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: Number(param?.pageIndex || 1) - 1,
         pageSize: Number(param?.pageSize || 10),
@@ -109,7 +113,7 @@ export const ManagerDepartment = () => {
             const response = (await adminApi.getDepartment(parsed)) as unknown as ListResponse;
             setListDepartment(response.data);
             setTotalRow(response.total_rows);
-            setPageCount(response.current_page);
+            setPageCount(Math.ceil(response.total_rows / table.getState().pagination.pageSize));
         } catch (error) {
             console.log(error);
         } finally {
@@ -155,6 +159,11 @@ export const ManagerDepartment = () => {
             cell: ({ row }) => <div>{row.getValue('employee_count')}</div>,
         },
         {
+            accessorKey: 'EmpName',
+            header: ({ column }) => <DataTableColumnHeader column={column} title="Quản lý" />,
+            cell: ({ row }) => <div>{row.getValue('EmpName')}</div>,
+        },
+        {
             id: 'actions',
             enableHiding: false,
             cell: ({ row }) => {
@@ -166,41 +175,40 @@ export const ManagerDepartment = () => {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DialogTrigger className="w-full">
-                                <DropdownMenuItem className="cursor-pointer">
-                                    Chỉnh sửa phòng ban
-                                </DropdownMenuItem>
-                            </DialogTrigger>
-                            <DialogTrigger
-                                asChild
-                                className="w-full"
+                            <DropdownMenuItem
+                                onClick={() => {
+                                    handleValueEdit(row.original);
+                                }}
+                                className="cursor-pointer"
+                            >
+                                Chỉnh sửa phòng ban
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
                                 onClick={() => {
                                     setSelectRowDelete(row.original);
+                                    setOpenDeleteForm(true);
                                 }}
+                                className="cursor-pointer"
                             >
-                                <DropdownMenuItem className="cursor-pointer">
-                                    Xóa phòng ban
-                                </DropdownMenuItem>
-                            </DialogTrigger>
+                                Xóa phòng ban
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 );
             },
         },
     ];
-
-    React.useEffect(() => {
-        const fetchDataEmp = async () => {
-            try {
-                const response = (await employeeApi.getListEmployee()) as unknown as ListResponse;
-                setListUser(response.data);
-            } catch (error) {
-                console.log(error);
-            }
-        };
-        fetchDataEmp();
-    }, []);
-
+    const handleValueEdit = (data: InfoDepartment) => {
+        formEdit.setValue('DepID', data.DepID);
+        formEdit.setValue('DepName', data.DepName);
+        formEdit.setValue('DepShortName', data.DepShortName);
+        if (data.ManageID) {
+            formEdit.setValue('ManageID', data.ManageID);
+        }
+        setOpenEditForm(true);
+        console.log(formEdit, data.DepID);
+    };
     const table = useReactTable({
         data: listDepartment,
         columns,
@@ -226,6 +234,7 @@ export const ManagerDepartment = () => {
             rowSelection,
         },
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedSetQuery = React.useCallback(
         debounce((value) => setQuery(value), 500),
         []
@@ -236,17 +245,51 @@ export const ManagerDepartment = () => {
         DepShortName: yup.string().required('Cần nhập tên viết tắt của phòng ban'),
         ManageID: yup.number().required('Cần chọn người quản lý'),
     });
+    const schema_edit = yup.object().shape({
+        DepName: yup.string().required('Cần chọn phòng ban'),
+   
+        ManageID: yup.number().required('Cần chọn người quản lý'),
+    });
 
     const formCreate = useForm<DepartmentCreateForm>({
         resolver: yupResolver(schema_create),
     });
+    const formEdit = useForm<DepartmentEditForm>({
+        resolver: yupResolver(schema_edit),
+    });
 
+    const handleEdit: SubmitHandler<DepartmentEditForm> = (data) => {
+        (async () => {
+            try {
+                if (data?.DepID !== undefined) {
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    const { DepID, DepShortName, ...postData } = data;
+                    setLoading(true);
+                    await adminApi.editDepartment(DepID, postData);
+                    fetchData();
+                    setOpenEditForm(false);
+                    toast({
+                        title: 'Thành công',
+                        description: 'Sửa phòng ban thành công',
+                    });
+                }
+            } catch (error: any) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Có lỗi xảy ra',
+                    description: 'Vui lòng thử lại sau',
+                });
+            } finally {
+                setLoading(false);
+            }
+        })();
+    };
     const handleCreate: SubmitHandler<DepartmentCreateForm> = (data) => {
         (async () => {
             try {
                 setLoading(true);
-                const res = adminApi.createDepartment(data);
-                console.log(res);
+                adminApi.createDepartment(data);
+                setOpenCreateForm(false);
                 toast({
                     title: 'Thành công',
                     description: 'Tạo phòng ban thành công',
@@ -266,13 +309,13 @@ export const ManagerDepartment = () => {
     const handleDeleteDepartment = async (id: string) => {
         try {
             setLoading(true);
-            const response = await adminApi.deleteDepartment(id);
+            await adminApi.deleteDepartment(id);
             setSelectRowDelete(null);
-            console.log(response);
             toast({
                 title: 'Thành công',
                 description: 'Xóa thành công',
             });
+            setOpenDeleteForm(false)
             fetchData();
         } catch (error: any) {
             toast({
@@ -298,14 +341,14 @@ export const ManagerDepartment = () => {
                             debouncedSetQuery(value);
                         }}
                     />
-                    <Dialog>
+                    <Dialog open={openCreateForm} onOpenChange={setOpenCreateForm}>
                         <DialogTrigger asChild>
                             <Button className="btn flex gap-2">
                                 <PlusCircledIcon />
                                 Tạo
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-3xl">
+                        <DialogContent>
                             <DialogHeader className="">
                                 <DialogTitle className="text-xl uppercase">
                                     Tạo mới phòng ban
@@ -313,41 +356,28 @@ export const ManagerDepartment = () => {
                             </DialogHeader>
                             <Form {...formCreate}>
                                 <form onSubmit={formCreate.handleSubmit(handleCreate)}>
-                                    <ScrollArea className="h-[400px]">
-                                        <div className="grid grid-cols-2 gap-3 mb-3">
-                                            <TextField
-                                                name="DepShortName"
-                                                label="Tên viết tắt"
-                                                placeholder="DE,DA,..."
-                                                require={true}
-                                            />
-                                            <TextField
-                                                name="DepName"
-                                                label="Tên phòng ban"
-                                                placeholder="Công nghệ thông tin,..."
-                                                require={true}
-                                            />
-                                            <SelectionField
-                                                name="ManageID"
-                                                label="Người quản lý"
-                                                placeholder="Chọn người quản lý"
-                                                require={true}
-                                            >
-                                                {listUser.map((item, index) => (
-                                                    <SelectItem
-                                                        key={index + index + item.DepID}
-                                                        value={item.EmpID + ''}
-                                                    >
-                                                        {item.EmpName}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectionField>
-                                            <div className="col-span-2 px-2">
-                                                <p className="mb-2  font-semibold">Mô tả</p>
-                                                <Textarea className="min-h-[150px]"></Textarea>
-                                            </div>
-                                        </div>
-                                    </ScrollArea>
+                                    <div className="grid grid-cols-2 gap-3 mb-3">
+                                        <TextField
+                                            name="DepName"
+                                            label="Tên phòng ban"
+                                            placeholder="Công nghệ thông tin,..."
+                                            require={true}
+                                        />
+                                        <TextField
+                                            name="DepShortName"
+                                            label="Tên viết tắt"
+                                            placeholder="DE,DA,..."
+                                            require={true}
+                                        />
+
+                                        <SearchField
+                                            name="ManageID"
+                                            label="Phòng ban"
+                                            placeholder="Chọn quản lý"
+                                            typeApi="employee"
+                                            require={true}
+                                        />
+                                    </div>
                                     <DialogFooter className="w-full sticky mt-4">
                                         <DialogClose asChild>
                                             <Button
@@ -374,102 +404,151 @@ export const ManagerDepartment = () => {
                 </div>
                 <DataTableViewOptions table={table} />
             </div>
-            <Dialog>
-                <div className="rounded-md border">
-                    <ScrollArea
-                        style={{ height: 'calc(100vh - 250px)' }}
-                        className=" relative w-full"
-                    >
-                        <Table>
-                            <TableHeader className="sticky top-0 z-[2] bg-[hsl(var(--background))]">
-                                {table.getHeaderGroups().map((headerGroup: any) => (
-                                    <TableRow key={headerGroup.id}>
-                                        {headerGroup.headers.map((header: any) => {
-                                            return (
-                                                <TableHead key={header.id}>
-                                                    {header.isPlaceholder
-                                                        ? null
-                                                        : flexRender(
-                                                              header.column.columnDef.header,
-                                                              header.getContext()
-                                                          )}
-                                                </TableHead>
-                                            );
-                                        })}
-                                    </TableRow>
-                                ))}
-                            </TableHeader>
-                            {!loadingTable && (
-                                <TableBody>
-                                    {table.getRowModel().rows?.length ? (
-                                        table.getRowModel().rows.map((row) => (
-                                            <TableRow
-                                                key={row.id}
-                                                data-state={row.getIsSelected() && 'selected'}
-                                            >
-                                                {row.getVisibleCells().map((cell) => (
-                                                    <TableCell key={cell.id}>
-                                                        {flexRender(
-                                                            cell.column.columnDef.cell,
-                                                            cell.getContext()
-                                                        )}
-                                                    </TableCell>
-                                                ))}
-                                            </TableRow>
-                                        ))
-                                    ) : (
-                                        <TableRow>
-                                            <TableCell
-                                                colSpan={columns.length}
-                                                className="h-24 text-center"
-                                            >
-                                                No results.
-                                            </TableCell>
+            <div className="rounded-md border">
+                <ScrollArea style={{ height: 'calc(100vh - 250px)' }} className=" relative w-full">
+                    <Table>
+                        <TableHeader className="sticky top-0 z-[2] bg-[hsl(var(--background))]">
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => {
+                                        return (
+                                            <TableHead key={header.id}>
+                                                {header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(
+                                                          header.column.columnDef.header,
+                                                          header.getContext()
+                                                      )}
+                                            </TableHead>
+                                        );
+                                    })}
+                                </TableRow>
+                            ))}
+                        </TableHeader>
+                        {!loadingTable && (
+                            <TableBody>
+                                {table.getRowModel().rows?.length ? (
+                                    table.getRowModel().rows.map((row) => (
+                                        <TableRow
+                                            key={row.id}
+                                            data-state={row.getIsSelected() && 'selected'}
+                                        >
+                                            {row.getVisibleCells().map((cell) => (
+                                                <TableCell key={cell.id}>
+                                                    {flexRender(
+                                                        cell.column.columnDef.cell,
+                                                        cell.getContext()
+                                                    )}
+                                                </TableCell>
+                                            ))}
                                         </TableRow>
-                                    )}
-                                </TableBody>
-                            )}
-                        </Table>
-                        {loadingTable && (
-                            <div
-                                style={{ height: 'calc(100vh - 260px)' }}
-                                className="w-full flex items-center justify-center"
-                            >
-                                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> Đang tải
-                            </div>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={columns.length}
+                                            className="h-24 text-center"
+                                        >
+                                            No results.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
                         )}
-                    </ScrollArea>
-                </div>
-                {selectRowDelete && (
-                    <DialogContent>
-                        <DialogHeader className="">
-                            <DialogTitle className="text-xl uppercase">
-                                Xóa phòng ban {selectRowDelete?.DepName}
-                            </DialogTitle>
-                        </DialogHeader>
-                        <DialogFooter>
-                            <DialogClose asChild>
-                                <Button
-                                    onClick={() => {
-                                        setSelectRowDelete(null);
-                                    }}
-                                    type="button"
-                                    variant="outline"
-                                >
-                                    Hủy
-                                </Button>
-                            </DialogClose>
+                    </Table>
+                    {loadingTable && (
+                        <div
+                            style={{ height: 'calc(100vh - 270px)' }}
+                            className="w-full flex items-center justify-center"
+                        >
+                            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> Đang tải
+                        </div>
+                    )}
+                </ScrollArea>
+            </div>
+            <Dialog open={openDeleteForm} onOpenChange={setOpenDeleteForm}>
+                <DialogContent>
+                    <DialogHeader className="">
+                        <DialogTitle>Xác nhận xóa phòng ban?</DialogTitle>
+                    </DialogHeader>
+                    <p>
+                        Bạn có chắc chắn xóa phòng ban <strong>{selectRowDelete?.DepName}</strong>?
+                    </p>
+                    <DialogFooter>
+                        <DialogClose asChild>
                             <Button
+                                onClick={() => {
+                                    setOpenDeleteForm(false);
+                                }}
                                 type="button"
-                                onClick={() => handleDeleteDepartment(selectRowDelete?.DepID + '')}
-                                disabled={loading}
+                                variant="outline"
                             >
-                                {loading && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}{' '}
-                                Xóa
+                                Hủy
                             </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                )}
+                        </DialogClose>
+                        <Button
+                            type="button"
+                            autoFocus
+                            onClick={() => handleDeleteDepartment(selectRowDelete?.DepID + '')}
+                            disabled={loading}
+                        >
+                            {loading && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />} Xóa
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            <Dialog open={openEditForm} onOpenChange={setOpenEditForm}>
+                <DialogContent>
+                    <DialogHeader className="">
+                        <DialogTitle className="text-xl uppercase">Chỉnh sửa phòng ban</DialogTitle>
+                    </DialogHeader>
+                    <Form {...formEdit}>
+                        <form onSubmit={formEdit.handleSubmit(handleEdit)}>
+                            <div className="grid grid-cols-2 gap-3 mb-3">
+                                <TextField
+                                    name="DepName"
+                                    label="Tên phòng ban"
+                                    placeholder="Công nghệ thông tin,..."
+                                    require={true}
+                                />
+                                <TextField
+                                    name="DepShortName"
+                                    label="Tên viết tắt"
+                                    placeholder="DE,DA,..."
+                                    require={true}
+                                    disabled={true}
+                                />
+
+                                <SearchField
+                                    name="ManageID"
+                                    label="Phòng ban"
+                                    placeholder="Chọn quản lý"
+                                    typeApi="employee"
+                                    require={true}
+                                />
+                            </div>
+                            <DialogFooter className="w-full sticky mt-4">
+                                <DialogClose asChild>
+                                    <Button
+                                        onClick={() => {
+                                            setOpenEditForm(false);
+                                        }}
+                                        type="button"
+                                        variant="outline"
+                                    >
+                                        Hủy
+                                    </Button>
+                                </DialogClose>
+                                <Button type="submit" disabled={loading}>
+                                    {loading && (
+                                        <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                                    )}{' '}
+                                    Lưu
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </Form>
+                </DialogContent>
             </Dialog>
             <DataTablePagination table={table} totalRow={totalRow || 0} />
         </div>

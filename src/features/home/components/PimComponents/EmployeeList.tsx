@@ -16,11 +16,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 import {
     Dialog,
-    DialogClose,
     DialogContent,
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogTrigger
 } from '@/components/ui/dialog';
 import {
     DropdownMenu,
@@ -42,9 +42,8 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/components/ui/use-toast';
 import { EmployeeCreateForm, InfoAccount, InforEmployee, ListResponse, QueryParam } from '@/models';
-import { ConvertQueryParam, colorBucket } from '@/utils';
+import { ColorKey, ConvertQueryParam, colorBucket } from '@/utils';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { DialogTrigger } from '@radix-ui/react-dialog';
 import { DotsHorizontalIcon, PlusCircledIcon, ReloadIcon } from '@radix-ui/react-icons';
 import {
     ColumnDef,
@@ -61,7 +60,7 @@ import {
     useReactTable,
 } from '@tanstack/react-table';
 import dayjs from 'dayjs';
-import { debounce, throttle } from 'lodash';
+import { debounce } from 'lodash';
 import queryString from 'query-string';
 import * as React from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -83,6 +82,7 @@ export function EmployeeList() {
     const [pageCount, setPageCount] = React.useState<number>(1);
     const { toast } = useToast();
     const [dialogState, setDialogState] = React.useState<number>(1);
+    const [openDialog,setOpenDialog]=React.useState(false)
     const location = useLocation();
     const navigate = useNavigate();
     const [loading, setLoading] = React.useState(false);
@@ -133,29 +133,29 @@ export function EmployeeList() {
         {
             accessorKey: 'Gender',
             header: 'Giới tính',
-            cell: ({ row }) => <div>{row.getValue('Gender')}</div>,
+            cell: ({ row }) => <div>{row.getValue('Gender')||"Không xác định"}</div>,
         },
         {
             accessorKey: 'JobName',
             header: 'Công việc',
-            cell: ({ row }) => <div>{row.getValue('JobName')}</div>,
+            cell: ({ row }) => <div>{row.getValue('JobName')||"Không xác định"}</div>,
         },
         {
             accessorKey: 'DepName',
             header: 'Phòng ban',
-            cell: ({ row }) => <div>{row.getValue('DepName')}</div>,
+            cell: ({ row }) => <div>{row.getValue('DepName')||"Không xác định"}</div>,
         },
         {
             accessorKey: 'Phone',
             header: 'Số điện thoại',
-            cell: ({ row }) => <div>{row.getValue('Phone')}</div>,
+            cell: ({ row }) => <div>{row.getValue('Phone')||"Không xác định"}</div>,
         },
         {
             accessorKey: 'EmpStatus',
-            header: 'Trạng thái',
+            header: 'Hình thức',
             cell: ({ row }) => (
-                <Badge className={`${row.getValue('EmpStatus') == 1 ? 'bg-[green]' : 'bg-[red]'}`}>
-                    {row.getValue('EmpStatus') == 1 ? 'Hoạt động' : 'Ngưng hoạt động'}
+                <Badge className={`${colorBucket[row.getValue('EmpStatus')  as ColorKey]}`}>
+                    {row.getValue('EmpStatus')}
                 </Badge>
             ),
         },
@@ -221,7 +221,6 @@ export function EmployeeList() {
             asc: !sorting[0].desc,
             filters: columnFilters,
         };
-        console.log(paramObject);
         const newSearch = ConvertQueryParam(paramObject);
         navigate({ search: newSearch });
         location.search = newSearch;
@@ -234,7 +233,6 @@ export function EmployeeList() {
                 const parsed = queryString.parse(
                     location.search ? location.search : '?pageIndex=1&pageSize=10&query='
                 ) as unknown as QueryParam;
-                console.log(parsed);
                 const empData = (await employeeApi.getListEmployee(
                     parsed
                 )) as unknown as ListResponse;
@@ -311,7 +309,7 @@ export function EmployeeList() {
                     HireDate: dayjs(data.HireDate).format('DD/MM/YYYY'),
                 };
                 const res = await employeeApi.createEmployee(newData);
-                console.log(res);
+                setOpenDialog(false);
                 toast({
                     title: 'Thành công',
                     description: 'Tạo nhân viên thành công',
@@ -396,9 +394,9 @@ export function EmployeeList() {
                             api=""
                         />
                     )}
-                    <Dialog>
+                    <Dialog open={openDialog}>
                         <DialogTrigger asChild>
-                            <Button className="btn flex gap-2">
+                            <Button onClick={()=>setOpenDialog(true)} className="btn flex gap-2">
                                 <PlusCircledIcon />
                                 Tạo
                             </Button>
@@ -559,10 +557,10 @@ export function EmployeeList() {
                                             </div>
                                         </ScrollArea>
                                         <DialogFooter className="w-full sticky mt-4">
-                                            <DialogClose asChild>
                                                 <Button
                                                     onClick={() => {
                                                         setDialogState(1);
+                                                        setOpenDialog(false);
                                                         formCreate.reset();
                                                     }}
                                                     type="button"
@@ -570,7 +568,6 @@ export function EmployeeList() {
                                                 >
                                                     Hủy
                                                 </Button>
-                                            </DialogClose>
                                             <Button type="submit" disabled={loading}>
                                                 {loading && (
                                                     <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />

@@ -16,7 +16,7 @@ interface CalendarFieldProps {
     disabledDate?:boolean
 }
 export const CalendarField = (props: CalendarFieldProps) => {
-    const { name, label, disabled = false, placeholder, require = false,disableDate=true } = props;
+    const { name, label, disabled = false, placeholder, require = false,disabledDate=true } = props;
     const form = useFormContext();
     return (
         <FormField
@@ -59,7 +59,7 @@ export const CalendarField = (props: CalendarFieldProps) => {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date: any) =>
-                                    disableDate ?date < new Date():date
+                                    disabledDate ?date < new Date():date
                                 }
                                 initialFocus
                             />

@@ -25,10 +25,10 @@ export const authSlice = createSlice({
             state.actionAuth = 'No action';
         },
 
-        loginSuccess(state, action: PayloadAction<UserResponse>) {
+        loginSuccess(state, action: PayloadAction<InforUser>) {
             state.logging = false;
             state.actionAuth = 'Success';
-            state.currentUser = action.payload.data;
+            state.currentUser = action.payload;
         },
         loginFailed(state) {
             state.logging = false;

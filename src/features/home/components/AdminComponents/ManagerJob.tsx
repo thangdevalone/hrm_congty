@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { adminApi } from '@/api/adminApi';
-import { SelectionField, TextField, TextareaField } from '@/components/FormControls';
+import { SearchField, TextField, TextareaField } from '@/components/FormControls';
 import { DataTablePagination, DataTableViewOptions } from '@/components/common';
 import { DataTableColumnHeader } from '@/components/common/DataTableColumnHeader';
 import { DataTableFilter } from '@/components/common/DataTableFilter';
@@ -12,6 +13,7 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog';
 import {
     DropdownMenu,
@@ -22,7 +24,6 @@ import {
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { SelectItem } from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -31,12 +32,17 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import { InfoDepartment, InfoJob, JobCreateForm, ListResponse, QueryParam } from '@/models';
+import {
+    InfoJob,
+    JobCreateForm,
+    JobEditForm,
+    ListResponse,
+    QueryParam
+} from '@/models';
 import { ConvertQueryParam } from '@/utils';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { DialogTrigger } from '@radix-ui/react-dialog';
+
 import { DotsHorizontalIcon, PlusCircledIcon, ReloadIcon } from '@radix-ui/react-icons';
 import {
     ColumnDef,
@@ -61,11 +67,11 @@ import * as yup from 'yup';
 export const ManagerJob = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [listJob, setListJob] = React.useState<InfoJob[]>([]);
+    const [listRole, setListRole] = React.useState<InfoJob[]>([]);
     const [totalRow, setTotalRow] = React.useState<number>();
     const [pageCount, setPageCount] = React.useState<number>();
+
     const [loading, setLoading] = React.useState<boolean>(false);
-    const [listDepartment, setListDepartment] = React.useState<InfoDepartment[]>([]);
     const [loadingTable, setLoadingTable] = React.useState(false);
     const [query, setQuery] = React.useState<string>('');
     const [queryLodash, setQueryLodash] = React.useState<string>('');
@@ -80,6 +86,14 @@ export const ManagerJob = () => {
         pageIndex: Number(param?.pageIndex || 1) - 1,
         pageSize: Number(param?.pageSize || 10),
     });
+    const [openEditForm, setOpenEditForm] = React.useState<boolean>(false);
+    const [openCreateForm, setOpenCreateForm] = React.useState<boolean>(false);
+    const [openDeleteForm, setOpenDeleteForm] = React.useState<boolean>(false);
+
+    const debouncedSetQuery = React.useCallback(
+        debounce((value) => setQuery(value), 500),
+        []
+    );
     const handleNavigateQuery = () => {
         const paramObject: QueryParam = {
             query: query,
@@ -144,44 +158,28 @@ export const ManagerJob = () => {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DialogTrigger className="w-full">
-                                <DropdownMenuItem className="cursor-pointer">
-                                    Chỉnh sửa chức vụ
-                                </DropdownMenuItem>
-                            </DialogTrigger>
-                            <DialogTrigger
+                            <DropdownMenuItem
+                                onClick={() => handleValueEdit(row.original)}
+                                className="cursor-pointer"
+                            >
+                                Chỉnh sửa chức vụ
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
                                 onClick={() => {
                                     setSelectRowDelete(row.original);
+                                    setOpenDeleteForm(true);
                                 }}
-                                className="w-full"
+                                className="cursor-pointer"
                             >
-                                <DropdownMenuItem className="cursor-pointer">
-                                    Xóa chức vụ
-                                </DropdownMenuItem>
-                            </DialogTrigger>
+                                Xóa chức vụ
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 );
             },
         },
     ];
-
-    const debouncedSetQuery = React.useCallback(
-        debounce((value) => setQuery(value), 500),
-        []
-    );
-
-    React.useEffect(() => {
-        const fetchDataDepartment = async () => {
-            try {
-                const res = (await adminApi.getDepartment()) as unknown as ListResponse;
-                setListDepartment(res.data);
-            } catch (error) {
-                console.log(error);
-            }
-        };
-        fetchDataDepartment();
-    }, []);
     const fetchData = async () => {
         try {
             setLoadingTable(true);
@@ -189,14 +187,24 @@ export const ManagerJob = () => {
                 location.search ? location.search : '?pageIndex=1&pageSize=10&query='
             ) as unknown as QueryParam;
             const jobData = (await adminApi.getJob(parsed)) as unknown as ListResponse;
-            setListJob(jobData.data);
+            setListRole(jobData.data);
             setTotalRow(jobData.total_rows);
-            setPageCount(jobData.current_page);
+            setPageCount(
+                Math.ceil(jobData.total_rows / table.getState().pagination.pageSize));
         } catch (error) {
             console.log(error);
         } finally {
             setLoadingTable(false);
         }
+    };
+    const handleValueEdit = (data: InfoJob) => {
+        if (data.DepID) {
+            formEdit.setValue('DepID', data.DepID);
+        }
+        formEdit.setValue('Descriptions', data.Descriptions);
+        formEdit.setValue('JobName', data.JobName);
+        formEdit.setValue('JobID', data.JobID);
+        setOpenEditForm(true);
     };
     React.useEffect(() => {
         handleNavigateQuery();
@@ -205,7 +213,7 @@ export const ManagerJob = () => {
     }, [query, sorting, columnFilters, pagination]);
 
     const table = useReactTable({
-        data: listJob,
+        data: listRole,
         columns,
         pageCount,
         manualPagination: true,
@@ -233,18 +241,53 @@ export const ManagerJob = () => {
     const schema_create = yup.object().shape({
         DepID: yup.number().required('Cần chọn phòng ban'),
         JobName: yup.string().required('Cần nhập tên chức vụ'),
-        Descriptions: yup.string().required('Cần nhập mô tả chức vụ'),
+        Descriptions: yup.string(),
     });
-
+    const schema_edit = yup.object().shape({
+        DepID: yup.number().required('Cần chọn phòng ban'),
+        JobName: yup.string().required('Cần nhập tên chức vụ'),
+        Descriptions: yup.string(),
+    });
     const formCreate = useForm<JobCreateForm>({
         resolver: yupResolver(schema_create),
     });
-
+    const formEdit = useForm<JobEditForm>({
+        resolver: yupResolver(schema_edit),
+    });
+    const handleEdit: SubmitHandler<JobEditForm> = (data) => {
+        (async () => {
+            try {
+                if (data?.JobID !== undefined) {
+                    const { JobID, ...postData } = data;
+                    setLoading(true);
+                    await adminApi.editJob(JobID, postData);
+                    fetchData();
+                    setOpenEditForm(false);
+                    toast({
+                        title: 'Thành công',
+                        description: 'Sửa chức vụ thành công',
+                    });
+                }
+            } catch (error: any) {
+                console.log({ error: error });
+                toast({
+                    variant: 'destructive',
+                    title: 'Có lỗi xảy ra',
+                    description: error.error,
+                });
+            } finally {
+                setLoading(false);
+            }
+        })();
+    };
     const handleCreate: SubmitHandler<JobCreateForm> = (data) => {
         (async () => {
             try {
                 setLoading(true);
-                const res = await adminApi.createJob(data);
+                await adminApi.createJob(data);
+                fetchData();
+                formCreate.reset();
+                setOpenCreateForm(false);
                 toast({
                     title: 'Thành công',
                     description: 'Tạo chức vụ thành công',
@@ -264,13 +307,14 @@ export const ManagerJob = () => {
     const handleDeleteJob = async (id: string) => {
         try {
             setLoading(true);
-            const response = await adminApi.deleteJob(id);
+            await adminApi.deleteJob(id);
             setSelectRowDelete(null);
             toast({
                 title: 'Thành công',
                 description: 'Xóa thành công',
             });
             fetchData();
+            setOpenDeleteForm(false)
         } catch (error: any) {
             toast({
                 variant: 'destructive',
@@ -303,7 +347,7 @@ export const ManagerJob = () => {
                             api="department"
                         />
                     )}
-                    <Dialog>
+                    <Dialog open={openCreateForm} onOpenChange={setOpenCreateForm}>
                         <DialogTrigger asChild>
                             <Button className="btn flex gap-2">
                                 <PlusCircledIcon />
@@ -318,39 +362,24 @@ export const ManagerJob = () => {
                             </DialogHeader>
                             <Form {...formCreate}>
                                 <form onSubmit={formCreate.handleSubmit(handleCreate)}>
-                                    <ScrollArea className="h-[320px] ">
-                                        <div className="grid grid-cols-2 gap-3 mb-3">
-                                            <TextField
-                                                name="JobName"
-                                                label="Chức vụ"
-                                                placeholder="Business analyst"
-                                                require={true}
-                                            />
-                                            <SelectionField
-                                                name="DepID"
-                                                label="Tên phòng ban"
-                                                placeholder="Chọn phòng ban"
-                                                require={true}
-                                            >
-                                                {listDepartment.map((item, index) => (
-                                                    <SelectItem
-                                                        className="cursor-pointer"
-                                                        key={index + index + item.DepName}
-                                                        value={item.DepID + ''}
-                                                    >
-                                                        {item.DepName}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectionField>
-                                            <div className="col-span-2 px-2">
-                                                <TextareaField
-                                                    require={true}
-                                                    name="Descriptions"
-                                                    label="Mô tả"
-                                                />
-                                            </div>
+                                    <div className="grid grid-cols-2 gap-3 mx-1 mb-3">
+                                        <TextField
+                                            name="JobName"
+                                            label="Chức vụ"
+                                            placeholder="Business analyst"
+                                            require={true}
+                                        />
+                                        <SearchField
+                                            name="DepID"
+                                            label="Phòng ban"
+                                            placeholder="Chọn phòng ban"
+                                            typeApi="department"
+                                            require={true}
+                                        />
+                                        <div className="col-span-2">
+                                            <TextareaField name="Descriptions" label="Mô tả" placeholder='Nhập mô tả' />
                                         </div>
-                                    </ScrollArea>
+                                    </div>
                                     <DialogFooter className="w-full sticky mt-4">
                                         <DialogClose asChild>
                                             <Button
@@ -377,102 +406,148 @@ export const ManagerJob = () => {
                 </div>
                 <DataTableViewOptions table={table} />
             </div>
-            <Dialog>
-                <div className="rounded-md border">
-                    <ScrollArea
-                        style={{ height: 'calc(100vh - 260px)' }}
-                        className=" relative w-full"
-                    >
-                        <Table>
-                            <TableHeader className="sticky top-0 z-[2] bg-[hsl(var(--background))]">
-                                {table.getHeaderGroups().map((headerGroup: any) => (
-                                    <TableRow key={headerGroup.id}>
-                                        {headerGroup.headers.map((header: any) => {
-                                            return (
-                                                <TableHead key={header.id}>
-                                                    {header.isPlaceholder
-                                                        ? null
-                                                        : flexRender(
-                                                              header.column.columnDef.header,
-                                                              header.getContext()
-                                                          )}
-                                                </TableHead>
-                                            );
-                                        })}
-                                    </TableRow>
-                                ))}
-                            </TableHeader>
-                            {!loadingTable && (
-                                <TableBody>
-                                    {table.getRowModel().rows?.length ? (
-                                        table.getRowModel().rows.map((row) => (
-                                            <TableRow
-                                                key={row.id}
-                                                data-state={row.getIsSelected() && 'selected'}
-                                            >
-                                                {row.getVisibleCells().map((cell) => (
-                                                    <TableCell key={cell.id}>
-                                                        {flexRender(
-                                                            cell.column.columnDef.cell,
-                                                            cell.getContext()
-                                                        )}
-                                                    </TableCell>
-                                                ))}
-                                            </TableRow>
-                                        ))
-                                    ) : (
-                                        <TableRow>
-                                            <TableCell
-                                                colSpan={columns.length}
-                                                className="h-24 text-center"
-                                            >
-                                                No results.
-                                            </TableCell>
+            <div className="rounded-md border">
+                <ScrollArea style={{ height: 'calc(100vh - 270px)' }} className=" relative w-full">
+                    <Table>
+                        <TableHeader className="sticky top-0 z-[2] bg-[hsl(var(--background))]">
+                            {table.getHeaderGroups().map((headerGroup: any) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header: any) => {
+                                        return (
+                                            <TableHead key={header.id}>
+                                                {header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(
+                                                          header.column.columnDef.header,
+                                                          header.getContext()
+                                                      )}
+                                            </TableHead>
+                                        );
+                                    })}
+                                </TableRow>
+                            ))}
+                        </TableHeader>
+                        {!loadingTable && (
+                            <TableBody>
+                                {table.getRowModel().rows?.length ? (
+                                    table.getRowModel().rows.map((row) => (
+                                        <TableRow
+                                            key={row.id}
+                                            data-state={row.getIsSelected() && 'selected'}
+                                        >
+                                            {row.getVisibleCells().map((cell) => (
+                                                <TableCell key={cell.id}>
+                                                    {flexRender(
+                                                        cell.column.columnDef.cell,
+                                                        cell.getContext()
+                                                    )}
+                                                </TableCell>
+                                            ))}
                                         </TableRow>
-                                    )}
-                                </TableBody>
-                            )}
-                        </Table>
-                        {loadingTable && (
-                            <div
-                                style={{ height: 'calc(100vh - 220px)' }}
-                                className="w-full flex items-center justify-center"
-                            >
-                                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> Đang tải
-                            </div>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={columns.length}
+                                            className="h-24 text-center"
+                                        >
+                                            No results.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
                         )}
-                    </ScrollArea>
-                </div>
-                {selectRowDelete && (
-                    <DialogContent>
-                        <DialogHeader className="">
-                            <DialogTitle className="text-xl uppercase">
-                                Xóa chức vụ {selectRowDelete?.JobName}
-                            </DialogTitle>
-                        </DialogHeader>
-                        <DialogFooter>
-                            <DialogClose asChild>
-                                <Button
-                                    onClick={() => {
-                                        setSelectRowDelete(null);
-                                    }}
-                                    type="button"
-                                    variant="outline"
-                                >
-                                    Hủy
-                                </Button>
-                            </DialogClose>
+                    </Table>
+                    {loadingTable && (
+                        <div
+                            style={{ height: 'calc(100vh - 220px)' }}
+                            className="w-full flex items-center justify-center"
+                        >
+                            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> Đang tải
+                        </div>
+                    )}
+                </ScrollArea>
+            </div>
+            <Dialog open={openDeleteForm} onOpenChange={setOpenDeleteForm}>
+                <DialogContent>
+                    <DialogHeader className="">
+                        <DialogTitle>Xác nhận xóa công việc?</DialogTitle>
+                    </DialogHeader>
+                    <p>Xóa chức vụ {selectRowDelete?.JobName}</p>
+                    <p>
+                        Bạn có chắc chắn xóa công việc <strong>{selectRowDelete?.JobName}</strong>?
+                    </p>
+                    <DialogFooter>
+                        <DialogClose asChild>
                             <Button
+                                onClick={() => {
+                                    setOpenDeleteForm(false);
+                                }}
                                 type="button"
-                                onClick={() => handleDeleteJob(selectRowDelete?.JobID + '')}
-                                disabled={loading}
+                                variant="outline"
                             >
-                                {loading && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}{' '}
-                                Xóa
+                                Hủy
                             </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                )}
+                        </DialogClose>
+                        <Button
+                            type="submit"
+                            onClick={() => handleDeleteJob(selectRowDelete?.JobID + '')}
+                            disabled={loading}
+                        >
+                            {loading && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />} Xóa
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            <Dialog open={openEditForm} onOpenChange={setOpenEditForm}>
+                <DialogContent>
+                    <DialogHeader className="">
+                        <DialogTitle>Chỉnh sửa chức vụ</DialogTitle>
+                    </DialogHeader>
+                    <Form {...formEdit}>
+                        <form onSubmit={formEdit.handleSubmit(handleEdit)}>
+                            <ScrollArea className="h-[320px] ">
+                                <div className="grid grid-cols-2 gap-3 mx-1 mb-3">
+                                    <TextField
+                                        name="JobName"
+                                        label="Chức vụ"
+                                        placeholder="Business analyst"
+                                        require={true}
+                                    />
+                                    <SearchField
+                                        name="DepID"
+                                        label="Phòng ban"
+                                        placeholder="Chọn phòng ban"
+                                        typeApi="department"
+                                        require={true}
+                                    />
+                                    <div className="col-span-2">
+                                        <TextareaField name="Descriptions" label="Mô tả" placeholder='Nhập mô tả'/>
+                                    </div>
+                                </div>
+                            </ScrollArea>
+                            <DialogFooter className="w-full sticky mt-4">
+                                <DialogClose asChild>
+                                    <Button
+                                        onClick={() => {
+                                            setOpenEditForm(false);
+                                        }}
+                                        type="button"
+                                        variant="outline"
+                                    >
+                                        Hủy
+                                    </Button>
+                                </DialogClose>
+                                <Button type="submit" disabled={loading}>
+                                    {loading && (
+                                        <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                                    )}{' '}
+                                    Lưu
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </Form>
+                </DialogContent>
             </Dialog>
             <DataTablePagination table={table} totalRow={totalRow || 0} />
         </div>

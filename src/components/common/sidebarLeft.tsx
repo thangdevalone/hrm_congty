@@ -1,11 +1,11 @@
 import { useTheme } from '@/components/theme-provider';
+import { useInfoUser } from '@/hooks';
 import { cn } from '@/lib/utils';
 import { TextAlignJustifyIcon } from '@radix-ui/react-icons';
 import * as React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Icons } from '../icons';
 import { Button } from '../ui/button';
-import { useAppSelector } from '@/app/hooks';
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     collapse: boolean;
@@ -20,7 +20,7 @@ export function SidebarLeft({ className, collapse, setCollapse }: SidebarProps) 
         if (location.pathname.includes(router)) return;
         navitage(`/home/${router}`);
     };
-    const { currentUser } = useAppSelector((state) => state.auth);
+    const user=useInfoUser()
 
     return (
         <div className={cn('pb-12 dark:border-r side-bs', className)}>
@@ -32,7 +32,7 @@ export function SidebarLeft({ className, collapse, setCollapse }: SidebarProps) 
                 </div>
                 <div className="px-3 py-2">
                     <div className="space-y-2">
-                        <Button
+                        {user?.RoleName==='Admin' && <Button
                             onClick={() => handleNavitage('admin')}
                             variant={location.pathname.includes('admin') ? 'secondary' : 'ghost'}
                             className="w-full gap-3 justify-start h-10"
@@ -42,7 +42,7 @@ export function SidebarLeft({ className, collapse, setCollapse }: SidebarProps) 
                                 color={theme.theme === 'dark' ? '#ffffff' : ''}
                             />
                             {!collapse && 'Trang quản trị'}
-                        </Button>
+                        </Button>}
                         <Button
                             onClick={() => handleNavitage('info-employee')}
                             variant={
@@ -70,6 +70,17 @@ export function SidebarLeft({ className, collapse, setCollapse }: SidebarProps) 
                             {!collapse && 'Chấm công'}
                         </Button>
                         <Button
+                            onClick={() => handleNavitage('schedules')}
+                            variant={location.pathname.includes('schedules') ? 'secondary' : 'ghost'}
+                            className="w-full gap-3 justify-start h-10"
+                        >
+                            <Icons.schedule
+                                className="w-5 h-5"
+                                color={theme.theme === 'dark' ? '#ffffff' : 'black'}
+                            />
+                            {!collapse && 'Đăng kí lịch'}
+                        </Button>
+                        <Button
                             onClick={() => handleNavitage('leave')}
                             variant={location.pathname.includes('leave') ? 'secondary' : 'ghost'}
                             className="w-full gap-3 justify-start h-10"
@@ -82,10 +93,7 @@ export function SidebarLeft({ className, collapse, setCollapse }: SidebarProps) 
                         </Button>
                     </div>
                 </div>
-                <div className="mb-4 px-[28px] gap-1 fixed bottom-[50px] flex-row flex items-center justify-center">
-                    <img src="#" alt="avatar" className="w-8 h-8 border rounded-full" />
-                    {!collapse && <span>{currentUser?.EmpName}</span>}
-                </div>
+                
             </div>
         </div>
     );

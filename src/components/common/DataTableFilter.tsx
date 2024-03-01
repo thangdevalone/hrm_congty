@@ -31,6 +31,7 @@ interface DataTableFilterProps<TData, TValue> {
           }[]
         | null;
     api: string;
+    reverse?: boolean;
 }
 
 export function DataTableFilter<TData, TValue>({
@@ -38,6 +39,7 @@ export function DataTableFilter<TData, TValue>({
     title,
     options,
     api,
+    reverse = false,
 }: DataTableFilterProps<TData, TValue>) {
     const facets = column?.getFacetedUniqueValues();
     const selectedValues = new Set(column?.getFilterValue() as string[]);
@@ -53,7 +55,7 @@ export function DataTableFilter<TData, TValue>({
         (async () => {
             if (!options) {
                 try {
-                    const res = await queryApi.querySearch({query:""}, api);
+                    const res = await queryApi.querySearch({ query: '' }, api);
                     const data = res.data as unknown as { id: string; value: string }[];
                     setOptionsData(data);
                 } catch (error) {
@@ -88,16 +90,19 @@ export function DataTableFilter<TData, TValue>({
                                     </Badge>
                                 ) : (
                                     optionsData
-                                        ?.filter((option) => selectedValues.has(option.id))
-                                        .map((option) => (
-                                            <Badge
-                                                variant="secondary"
-                                                key={option.id}
-                                                className="rounded-sm px-1 font-normal"
-                                            >
-                                                {option.value}
-                                            </Badge>
-                                        ))
+                                        ?.filter((option) =>reverse ? selectedValues.has(option.id) : selectedValues.has(option.value))
+                                        .map((option) => {
+                                            console.log(option);
+                                            return (
+                                                <Badge
+                                                    variant="secondary"
+                                                    key={option.id}
+                                                    className="rounded-sm px-1 font-normal"
+                                                >
+                                                    {option.value}
+                                                </Badge>
+                                            );
+                                        })
                                 )}
                             </div>
                         </>
@@ -112,15 +117,21 @@ export function DataTableFilter<TData, TValue>({
                             <CommandEmpty>No results found.</CommandEmpty>
                             <CommandGroup>
                                 {optionsData?.map((option) => {
-                                    const isSelected = selectedValues.has(option.value);
+                                    const isSelected = selectedValues.has(
+                                        reverse ? option.id : option.value
+                                    );
                                     return (
                                         <CommandItem
                                             key={option.id}
                                             onSelect={() => {
                                                 if (isSelected) {
-                                                    selectedValues.delete(option.value);
+                                                    selectedValues.delete(
+                                                        reverse ? option.id : option.value
+                                                    );
                                                 } else {
-                                                    selectedValues.add(option.value);
+                                                    selectedValues.add(
+                                                        reverse ? option.id : option.value
+                                                    );
                                                 }
                                                 const filterValues = Array.from(selectedValues);
                                                 column?.setFilterValue(

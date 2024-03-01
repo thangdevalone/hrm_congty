@@ -65,7 +65,7 @@ export const BankField = (props: BankFieldProps) => {
                                     className=" justify-between  w-full"
                                     disabled={disabled}
                                 >
-                                    <span className="line-clamp-1 block text-ellipsis">
+                                    <span className="line-clamp-1 block uppercase text-ellipsis">
                                         {choose ? choose : `${placeholder}`}
                                     </span>
                                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -74,20 +74,20 @@ export const BankField = (props: BankFieldProps) => {
                             <PopoverContent className="w-[500px] p-0">
                                 <Command>
                                     <CommandInput placeholder="Search bank..." />
-                                        <CommandEmpty>No bank found.</CommandEmpty>
+                                    <CommandEmpty>No bank found.</CommandEmpty>
                                     <ScrollArea className="h-[200px] overflow-y-auto">
                                         <CommandGroup>
                                             {banks.map((bank) => (
                                                 <CommandItem
                                                     key={bank.id}
-                                                    value={bank.code}
-                                                    onSelect={() => {
+                                                    value={bank.shortName + ' – ' + bank.name}
+                                                    onSelect={(value) => {
                                                         form.setValue(
                                                             `${name}`,
-                                                            bank.shortName + ' – ' + bank.name
+                                                            value
                                                         );
                                                         setChoose(
-                                                            bank.shortName + ' – ' + bank.name
+                                                            value
                                                         );
                                                         setOpen(false);
                                                     }}

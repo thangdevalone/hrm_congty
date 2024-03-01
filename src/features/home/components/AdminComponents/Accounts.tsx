@@ -1,11 +1,27 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { adminApi } from '@/api/adminApi';
 import { DataTablePagination, DataTableViewOptions } from '@/components/common';
-import { Button } from '@/components/ui/button';
+import { DataTableFilter } from '@/components/common/DataTableFilter';
+import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { DotsHorizontalIcon } from '@radix-ui/react-icons';
+import { Switch } from '@/components/ui/switch';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import { InfoAccount, ListResponse, QueryParam } from '@/models';
+import { ConvertQueryParam } from '@/utils';
+import { ReloadIcon } from '@radix-ui/react-icons';
 import {
     ColumnDef,
     ColumnFiltersState,
+    PaginationState,
     Row,
     SortingState,
     VisibilityState,
@@ -16,75 +32,49 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table';
+import { debounce } from 'lodash';
+import queryString from 'query-string';
 import * as React from 'react';
-import { adminApi } from '@/api/adminApi';
-import { Icons } from '@/components/icons';
-import { Badge } from '@/components/ui/badge';
-import { Command, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
-import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { InputPassword } from '@/components/ui/inputPassword';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { SearchSelection } from '@/components/ui/searchSelection';
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import { useToast } from '@/components/ui/use-toast';
-import { cn } from '@/lib/utils';
-import { InfoAccount, ListAccount } from '@/models';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { DialogTrigger } from '@radix-ui/react-dialog';
-import { Check, ChevronsUpDown } from 'lucide-react';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import * as yup from 'yup';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // eslint-disable-next-line react-refresh/only-export-components
 
 export function Accounts() {
-    const [sorting, setSorting] = React.useState<SortingState>([]);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [sorting, setSorting] = React.useState<SortingState>([{ id: 'UserID', desc: false }]);
     const [listAccount, setListAccount] = React.useState<InfoAccount[]>([]);
-    const [listEmployees, setListEmployees] = React.useState<ListAccount[]>([]);
-    const [open, setOpen] = React.useState<boolean>(false);
-    const [editEmp, setEditEmp] = React.useState<string>('');
+    const [totalRow, setTotalRow] = React.useState<number>();
+    const [pageCount, setPageCount] = React.useState<number>(1);
+    const [loadingTable, setLoadingTable] = React.useState(false);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
-    const [searchEmp, setSearchEmp] = React.useState<string>('');
-    const { toast } = useToast();
-
+    const [query, setQuery] = React.useState<string>('');
+    const param = queryString.parse(location.search);
+    const [queryLodash, setQueryLodash] = React.useState<string>('');
+    const [pagination, setPagination] = React.useState<PaginationState>({
+        pageIndex: Number(param?.pageIndex || 1) - 1,
+        pageSize: Number(param?.pageSize || 10),
+    });
+    const debouncedSetQuery = React.useCallback(
+        debounce((value) => setQuery(value), 500),
+        []
+    );
+    const handleNavigateQuery = () => {
+        const paramObject: QueryParam = {
+            query: query,
+            pageIndex: pagination.pageIndex + 1,
+            pageSize: pagination.pageSize,
+            sort_by: sorting[0].id,
+            asc: !sorting[0].desc,
+            filters: columnFilters,
+        };
+        console.log(columnFilters)
+        const newSearch = ConvertQueryParam(paramObject);
+        navigate({ search: newSearch });
+        location.search = newSearch;
+    };
     const columns: ColumnDef<InfoAccount>[] = [
         {
             id: 'select',
@@ -131,8 +121,10 @@ export function Accounts() {
             accessorKey: 'UserStatus',
             header: 'Trạng thái',
             cell: ({ row }) => (
-                <Badge className={`${row.getValue('UserStatus') == 1 ? 'bg-[green]' : 'bg-[red]'}`}>
-                    {row.getValue('UserStatus') == 1 ? 'Hoạt động' : 'Ngưng hoạt động'}
+                <Badge
+                    className={`${row.getValue('UserStatus') == true ? 'bg-[green]' : 'bg-[red]'}`}
+                >
+                    {row.getValue('UserStatus') == true ? 'Hoạt động' : 'Ngưng hoạt động'}
                 </Badge>
             ),
         },
@@ -140,53 +132,61 @@ export function Accounts() {
             id: 'actions',
             enableHiding: false,
             cell: ({ row }) => {
+                const { UserStatus, EmpID } = row.original;
+
+                // eslint-disable-next-line react-hooks/rules-of-hooks
+                const handleSwitchChange = React.useCallback(
+                    (checked: boolean) => {
+                        console.log(`Switch for EmpID ${EmpID}: `, checked);
+                        handleEditAccount(EmpID, checked);
+                    },
+                    [EmpID]
+                );
+
                 return (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <DotsHorizontalIcon className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="cursor-pointer">
-                                Delete User
-                            </DropdownMenuItem>
-                            <DialogTrigger onClick={() => setDataEdit(row)} className="w-full">
-                                <DropdownMenuItem className="cursor-pointer">
-                                    Edit User
-                                </DropdownMenuItem>
-                            </DialogTrigger>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Switch checked={Boolean(UserStatus)} onCheckedChange={handleSwitchChange} />
                 );
             },
         },
     ];
 
     React.useEffect(() => {
+        handleNavigateQuery();
         const fetchData = async () => {
             try {
-                const [empResponse, accResponse] = await Promise.all([
-                    await adminApi.getListAccount(),
-                    await adminApi.getUserAccount(),
-                ]);
-                if (empResponse.status && accResponse.data) {
-                    setListAccount(accResponse.data);
-                    setListEmployees(empResponse.data);
-                }
+                setLoadingTable(true);
+                const parsed = queryString.parse(
+                    location.search ? location.search : '?pageIndex=1&pageSize=10&query='
+                ) as unknown as QueryParam;
+                const accResponse = (await adminApi.getUserAccount(
+                    parsed
+                )) as unknown as ListResponse;
+                setListAccount(accResponse.data);
+                setTotalRow(accResponse.total_rows);
+                setPageCount(
+                    Math.ceil(accResponse.total_rows / table.getState().pagination.pageSize)
+                );
             } catch (error) {
                 console.log(error);
+            } finally {
+                setLoadingTable(false);
             }
         };
         fetchData();
-    }, []);
+    }, [query, pagination, sorting, columnFilters]);
 
     const table = useReactTable({
         data: listAccount,
         columns,
+        pageCount,
+        manualPagination: true,
+        autoResetPageIndex: false,
+        manualSorting: true,
+        manualFiltering: true,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
+        onPaginationChange: setPagination,
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -194,62 +194,60 @@ export function Accounts() {
         onRowSelectionChange: setRowSelection,
         state: {
             sorting,
+            pagination,
             columnFilters,
             columnVisibility,
             rowSelection,
         },
     });
-    const setDataEdit = (data: Row<InfoAccount>) => {
-        // formEdit.setValue("EmpID",EmpID)
-        formEdit.setValue('UserID', data.original.UserID);
-        formEdit.setValue(
-            'UserStatus',
-            `${Boolean(data.original.UserStatus) === true ? '1' : '0'}`
-        );
-        formEdit.setValue('password', data.original.password);
-        formEdit.setValue('EmpID', data.original.EmpID);
-        setEditEmp(data.getValue('EmpName'));
+    const setDataEdit = (data: Row<InfoAccount>) => {};
+
+    const handleEditAccount = (id: string | undefined, checked: boolean) => {
+        if (id===undefined) return;
+        (async () => {
+            try {
+                await adminApi.editAccount(id, { UserStatus: checked ? 1 : 0 });
+                const newData = listAccount.map((account) =>
+                    account.EmpID === id ? { ...account, UserStatus: checked } : account
+                );
+                setListAccount(newData);
+            } catch (error) {
+                console.log(error);
+            }
+        })();
     };
 
-    const schema_edit = yup.object().shape({
-        UserID: yup.string().required('Cần nhập tên tài khoản'),
-        UserStatus: yup.string().required('Cần nhập trạng thái của nhân viên'),
-        password: yup.string().required('Cần nhập mật khẩu'),
-        EmpID: yup.string().required('Cần chọn tài khoản cho một nhân viên'),
-    });
-
-    const formEdit = useForm<InfoAccount>({
-        resolver: yupResolver(schema_edit),
-    });
-
-    const handleEditAccount = async (data: InfoAccount) => {
-        alert('Chưa có api');
-    };
-    const handleSearchEmp = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchEmp(e.target.value);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data: any = await adminApi.getListAccount({ query: e.target.value });
-        setListEmployees(data.data);
-    };
-
-    const handleEdit: SubmitHandler<InfoAccount> = (data) => {
-        handleEditAccount(data);
-    };
     return (
         <div className="w-full space-y-4">
             <div className="flex items-center">
                 <div className="flex flex-row gap-4">
                     <Input
                         placeholder="Tìm kiếm trên bảng..."
-                        value={''}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                            table.getColumn('email')?.setFilterValue(event.target.value)
-                        }
+                        value={queryLodash}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                            const { value } = event.target;
+                            setQueryLodash(value);
+                            debouncedSetQuery(value);
+                        }}
                     />
-                    <Button className="btn flex gap-2" variant="outline">
-                        <Icons.filter />
-                        Lọc
-                    </Button>
+                     {table.getColumn('UserStatus') && (
+                        <DataTableFilter
+                            column={table.getColumn('UserStatus')}
+                            title="Trạng thái"
+                            options={[
+                                {
+                                    value: 'Hoạt động',
+                                    id: '1',
+                                },
+                                {
+                                    value: 'Ngừng hoạt động',
+                                    id: '0',
+                                },
+                            ]}
+                            reverse={true}
+                            api=""
+                        />
+                    )}
                 </div>
                 <DataTableViewOptions table={table} />
             </div>
@@ -274,8 +272,8 @@ export function Accounts() {
                                 </TableRow>
                             ))}
                         </TableHeader>
-                        <TableBody>
-                            <Dialog>
+                        {!loadingTable && (
+                            <TableBody>
                                 {table.getRowModel().rows?.length ? (
                                     table.getRowModel().rows.map((row) => (
                                         <TableRow
@@ -302,210 +300,20 @@ export function Accounts() {
                                         </TableCell>
                                     </TableRow>
                                 )}
-                                <DialogContent>
-                                    <DialogHeader className="">
-                                        <DialogTitle className="mb-2">
-                                            Sửa mới tài khoản
-                                        </DialogTitle>
-                                    </DialogHeader>
-                                    <Form {...formEdit}>
-                                        <form onSubmit={formEdit.handleSubmit(handleEdit)}>
-                                            <div className="grid grid-cols-2 gap-3 ">
-                                                <FormField
-                                                    control={formEdit.control}
-                                                    name="UserID"
-                                                    render={({ field }) => {
-                                                        return (
-                                                            <FormItem className="">
-                                                                <FormLabel className="text-black">
-                                                                    Tên đăng nhập
-                                                                </FormLabel>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        placeholder="Nhập tên đăng nhập"
-                                                                        autoComplete="true"
-                                                                        {...field}
-                                                                    />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        );
-                                                    }}
-                                                />
-                                                <FormField
-                                                    control={formEdit.control}
-                                                    name="password"
-                                                    disabled
-                                                    render={({ field }) => (
-                                                        <FormItem className="">
-                                                            <FormLabel className="text-black">
-                                                                Mật khẩu
-                                                            </FormLabel>
-                                                            <FormControl>
-                                                                <InputPassword
-                                                                    placeholder="Nhập mật khẩu"
-                                                                    autoComplete="true"
-                                                                    {...field}
-                                                                />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                                <FormField
-                                                    control={formEdit.control}
-                                                    name="UserStatus"
-                                                    render={({ field }) => (
-                                                        <FormItem className="">
-                                                            <FormLabel className="text-black">
-                                                                Trạng thái
-                                                            </FormLabel>
-                                                            <FormControl>
-                                                                <Select
-                                                                    onValueChange={field.onChange}
-                                                                    value={field.value}
-                                                                >
-                                                                    <SelectTrigger {...field}>
-                                                                        <SelectValue placeholder="Chọn trạng thái" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        <SelectGroup>
-                                                                            <SelectItem value={'1'}>
-                                                                                <Badge className="bg-[green]">
-                                                                                    Hoạt động
-                                                                                </Badge>
-                                                                            </SelectItem>
-                                                                            <SelectItem value={'0'}>
-                                                                                <Badge className="bg-[red]">
-                                                                                    Ngưng hoạt động
-                                                                                </Badge>
-                                                                            </SelectItem>
-                                                                        </SelectGroup>
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                                <FormField
-                                                    control={formEdit.control}
-                                                    name="EmpID"
-                                                    render={({ field }) => (
-                                                        <FormItem className="">
-                                                            <FormLabel className="text-black">
-                                                                Nhân viên
-                                                            </FormLabel>
-                                                            <FormControl>
-                                                                <FormControl>
-                                                                    <Popover
-                                                                        open={open}
-                                                                        onOpenChange={setOpen}
-                                                                        {...field}
-                                                                    >
-                                                                        <PopoverTrigger asChild>
-                                                                            <Button
-                                                                                variant="outline"
-                                                                                role="combobox"
-                                                                                className="w-full justify-between"
-                                                                            >
-                                                                                {editEmp
-                                                                                    ? editEmp
-                                                                                    : 'Chọn nhân viên'}
-                                                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                                            </Button>
-                                                                        </PopoverTrigger>
-                                                                        <PopoverContent className="w-[200px] p-0">
-                                                                            <Command>
-                                                                                <SearchSelection
-                                                                                    value={
-                                                                                        searchEmp
-                                                                                    }
-                                                                                    onChange={
-                                                                                        handleSearchEmp
-                                                                                    }
-                                                                                    placeholder="Search ..."
-                                                                                />
-                                                                                <ScrollArea className=" max-h-[200px]">
-                                                                                    {listEmployees.length >
-                                                                                    0 ? (
-                                                                                        <CommandGroup
-                                                                                            {...field}
-                                                                                        >
-                                                                                            {listEmployees.map(
-                                                                                                (
-                                                                                                    epl
-                                                                                                ) => (
-                                                                                                    <CommandItem
-                                                                                                        key={
-                                                                                                            epl.EmpID
-                                                                                                        }
-                                                                                                        value={`${epl.EmpID}`}
-                                                                                                        onSelect={(
-                                                                                                            currentValue
-                                                                                                        ) => {
-                                                                                                            formEdit.setValue(
-                                                                                                                'EmpID',
-                                                                                                                currentValue
-                                                                                                            );
-                                                                                                            setEditEmp(
-                                                                                                                epl.EmpName
-                                                                                                            );
-
-                                                                                                            setOpen(
-                                                                                                                false
-                                                                                                            );
-                                                                                                        }}
-                                                                                                    >
-                                                                                                        <Check
-                                                                                                            className={cn(
-                                                                                                                'mr-2 h-4 w-4',
-                                                                                                                field.value ===
-                                                                                                                    String(
-                                                                                                                        epl.EmpID
-                                                                                                                    )
-                                                                                                                    ? 'opacity-100'
-                                                                                                                    : 'opacity-0'
-                                                                                                            )}
-                                                                                                        />
-                                                                                                        {
-                                                                                                            epl.EmpName
-                                                                                                        }
-                                                                                                    </CommandItem>
-                                                                                                )
-                                                                                            )}
-                                                                                        </CommandGroup>
-                                                                                    ) : (
-                                                                                        <CommandEmpty>
-                                                                                            Không
-                                                                                            tìm thấy
-                                                                                            nhân
-                                                                                            viên
-                                                                                        </CommandEmpty>
-                                                                                    )}
-                                                                                </ScrollArea>
-                                                                            </Command>
-                                                                        </PopoverContent>
-                                                                    </Popover>
-                                                                </FormControl>
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                            </div>
-                                            <DialogFooter className="w-full mt-4">
-                                                <Button type="submit">Lưu</Button>
-                                            </DialogFooter>
-                                        </form>
-                                    </Form>
-                                </DialogContent>
-                            </Dialog>
-                        </TableBody>
+                            </TableBody>
+                        )}
                     </Table>
+                    {loadingTable && (
+                        <div
+                            style={{ height: 'calc(100vh - 220px)' }}
+                            className="w-full flex items-center justify-center"
+                        >
+                            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> Đang tải
+                        </div>
+                    )}
                 </ScrollArea>
             </div>
-            <DataTablePagination table={table} />
+            <DataTablePagination table={table} totalRow={totalRow || 0} />
         </div>
     );
 }
