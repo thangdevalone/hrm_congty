@@ -167,7 +167,7 @@ const QRCodeScanner = (props: QRCodeScannerProps) => {
                 <Button onClick={()=>{setDialogState(2)}} variant="outline" type="submit">
                     Bỏ qua
                 </Button>
-                <Button onClick={handleUploadCCCD} disabled={Boolean(data)}  type="submit">Tiếp tục</Button>
+                <Button onClick={handleUploadCCCD}  type="submit">Tiếp tục</Button>
             </DialogFooter>
         </>
     );
