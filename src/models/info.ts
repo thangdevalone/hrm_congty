@@ -20,7 +20,7 @@ export interface InforUser {
     Gender: string;
     TaxCode: string;
     CCCD: string;
-    BankAccountNumer: string;
+    BankAccountNumber: string;
     BankName: string;
     DepID: number;
     JobID: number;
@@ -43,7 +43,7 @@ export interface InforEmployee {
     Gender: string;
     TaxCode: string;
     CCCD: string;
-    BankAccountNumer: string;
+    BankAccountNumber: string;
     BankName: string;
     DepID: number;
     JobID: number;
@@ -146,6 +146,7 @@ export interface InfoConfigSchedule {
 
 export interface InfoSchedule {
     EmpID: number;
+    id?:number;
     Date: string;
     WorkShift: number;
     WorkShiftDetail: InfoWorkShift;

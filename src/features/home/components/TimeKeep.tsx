@@ -1,11 +1,12 @@
 import { Navbar } from '@/components/common';
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
-import { useInfoUser } from '@/hooks';
+import { PermissionProvider } from '@/utils';
 
 import { Link, Outlet } from 'react-router-dom';
 
 export const TimeKeep = () => {
-    const user = useInfoUser();
+    const P=PermissionProvider()
+
     return (
         <>
             <div className="nav-bs dark:border-b">
@@ -13,7 +14,7 @@ export const TimeKeep = () => {
                 <div className="pl-4 pr-[70px] relative z-10 pt-1 pb-4 flex justify-between flex-row">
                     <NavigationMenu>
                         <NavigationMenuList>
-                            {user && (user.RoleName === 'Admin' || user.RoleName === 'Hr') && (
+                            {P?.IS_ADMIN_OR_HR && (
                                 <NavigationMenuItem>
                                     <NavigationMenuLink
                                         asChild
@@ -23,7 +24,7 @@ export const TimeKeep = () => {
                                     </NavigationMenuLink>
                                 </NavigationMenuItem>
                             )}
-                            {user?.RoleName !== 'Admin' && (
+                            {!P?.IS_ADMIN  && (
                                 <NavigationMenuItem>
                                     <NavigationMenuLink
                                         asChild

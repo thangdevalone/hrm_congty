@@ -25,27 +25,22 @@ const QRCodeScanner = (props: QRCodeScannerProps) => {
     const inputUpload = useRef<HTMLInputElement | null>(null);
     const [detecting, setDetecting] = useState(false);
     const [data, setData] = useState<CCCD | null>(null);
-    
-    function convertDateFormat(inputDateStr:string) {
+
+    function convertDateFormat(inputDateStr: string) {
         // Tách chuỗi ngày thành các thành phần: tháng, ngày và năm
-        const dateComponents = inputDateStr.split("/");
-        
+        const dateComponents = inputDateStr.split('/');
+
         // Kiểm tra xem chuỗi có đúng định dạng không (MM/DD/YYYY)
         if (dateComponents.length !== 3) {
-          return "Invalid date format";
+            return 'Invalid date format';
         }
-        
+
         // Tạo chuỗi ngày mới ở định dạng DD/MM/YYYY
         const outputDateStr = `${dateComponents[1]}/${dateComponents[0]}/${dateComponents[2]}`;
-        
+
         return outputDateStr;
-      }
-      
-      // Sử dụng hàm để chuyển đổi
-      const inputDate = "01/08/2003";
-      const convertedDate = convertDateFormat(inputDate);
-      console.log(convertedDate); // Kết quả: "08/01/2003"
-      
+    }
+
     const { toast } = useToast();
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -77,7 +72,7 @@ const QRCodeScanner = (props: QRCodeScannerProps) => {
             console.error('Error scanning file.', err);
             setQrCodeText('');
             toast({
-                variant: "destructive",
+                variant: 'destructive',
                 title: 'Thất bại',
                 description: 'Error scanning file.',
             });
@@ -90,16 +85,17 @@ const QRCodeScanner = (props: QRCodeScannerProps) => {
             inputUpload.current.click();
         }
     };
-    const handleUploadCCCD= ()=>{
-        form.setValue("EmpName",data?.name)
-        form.setValue("CCCD",data?.code.replace(/\s/g, ""))
-        form.setValue("Gender",data?.sex)
-        form.setValue("Address",data?.address)
-        if(data?.birth){
-            form.setValue("BirthDate",dayjs(convertDateFormat(data?.birth)))
+    const handleUploadCCCD = () => {
+        form.setValue('EmpName', data?.name);
+        form.setValue('CCCD', data?.code.replace(/\s/g, ''));
+        form.setValue('Gender', data?.sex);
+        form.setValue('Address', data?.address);
+        if (data?.birth) {
+            form.setValue('BirthDate', dayjs(convertDateFormat(data?.birth)));
         }
-        setDialogState(2)
-    }
+        setData(null);
+        setDialogState(2);
+    };
     return (
         <>
             <p>
@@ -164,10 +160,18 @@ const QRCodeScanner = (props: QRCodeScannerProps) => {
                 </div>
             )}
             <DialogFooter className="w-full">
-                <Button onClick={()=>{setDialogState(2)}} variant="outline" type="submit">
+                <Button
+                    onClick={() => {
+                        setDialogState(2);
+                    }}
+                    variant="outline"
+                    type="submit"
+                >
                     Bỏ qua
                 </Button>
-                <Button onClick={handleUploadCCCD}  type="submit">Tiếp tục</Button>
+                <Button onClick={handleUploadCCCD} disabled={!data} type="submit">
+                    Tiếp tục
+                </Button>
             </DialogFooter>
         </>
     );

@@ -172,14 +172,6 @@ export const TimeKeepList = () => {
                             debouncedSetQuery(value);
                         }}
                     />
-                    {table.getColumn('DepName') && (
-                        <DataTableFilter
-                            column={table.getColumn('DepName')}
-                            title="Phòng ban"
-                            options={null}
-                            api="department"
-                        />
-                    )}
                 </div>
                 <DataTableViewOptions table={table} />
             </div>

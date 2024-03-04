@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { InforUser, LoginForm, UserResponse } from '@/models';
+import { InforUser, LoginForm } from '@/models';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 export interface AuthState {
@@ -24,7 +24,9 @@ export const authSlice = createSlice({
             state.logging = true;
             state.actionAuth = 'No action';
         },
-
+        setUser(state,action:PayloadAction<InforUser>){
+            state.currentUser=action.payload
+        },
         loginSuccess(state, action: PayloadAction<InforUser>) {
             state.logging = false;
             state.actionAuth = 'Success';

@@ -144,7 +144,7 @@ export const ManagerJob = () => {
         {
             accessorKey: 'Descriptions',
             header: ({ column }) => <DataTableColumnHeader column={column} title="Mô tả" />,
-            cell: ({ row }) => <div>{row.getValue('Descriptions')}</div>,
+            cell: ({ row }) => <div>{row.getValue('Descriptions') || "Không có"}</div>,
         },
         {
             id: 'actions',

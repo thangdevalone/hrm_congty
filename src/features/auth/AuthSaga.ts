@@ -10,10 +10,9 @@ import { authActions } from './AuthSlice';
 function* handleLogin(action: PayloadAction<LoginForm>) {
     try {
         const res: LoginRes = yield call(authApi.login, action.payload);
-        console.log(JSON.stringify(res.data))
         yield put(authActions.loginSuccess(res.data));
         localStorage.setItem(StorageKeys.TOKEN, res.token.access);
-        localStorage.setItem(StorageKeys.NAMEUSER, res.data.EmpName);
+       
         History.push('/home');
     } catch (error) {
         // Handle the error here
@@ -40,8 +39,6 @@ function* handleLogin(action: PayloadAction<LoginForm>) {
 // }
 function handleLogout() {
     localStorage.removeItem(StorageKeys.TOKEN);
-    localStorage.removeItem(StorageKeys.NAMEUSER);
-    localStorage.removeItem(StorageKeys.USER);
     History.push('/');
 
 }

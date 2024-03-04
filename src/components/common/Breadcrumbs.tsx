@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Icons } from '../icons';
 
 export const Breadcrumbs = () => {
@@ -10,12 +10,12 @@ export const Breadcrumbs = () => {
         <nav className="flex" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
                 <li className="inline-flex items-center">
-                    <a
-                        href={`/home/${first}`}
+                    <Link
+                        to={`/home/${first}`}
                         className="inline-flex text-sm  capitalize items-center  font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
                     >
                         {first}
-                    </a>
+                    </Link>
                 </li>
                 <></>
                 {pathArray && (

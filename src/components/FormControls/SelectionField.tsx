@@ -31,7 +31,7 @@ export const SelectionField = (props: SelectionFieldProps) => {
                         <Select
                             disabled={disabled}
                             onValueChange={field.onChange}
-                            value={field.value}
+                            value={field.value || ""}
                         >
                             <SelectTrigger {...field} className="">
                                 <SelectValue placeholder={placeholder} />

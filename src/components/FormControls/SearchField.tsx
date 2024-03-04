@@ -37,29 +37,31 @@ export const SearchField = (props: SearchFieldProps) => {
     );
     const [loading, setLoading] = useState(false);
 
-    const [choose, setChoose] = useState<string>('');
+    const [choose, setChoose] = useState<string>();
     const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         //call api search
         setQuery(value);
         debouncedSetQuery(value);
     };
+    const fetchData = useCallback(async () => {
+        try {
+            setLoading(true);
+            const { data: responseData } = await queryApi.querySearch({ query: search }, typeApi) as { data: dataSearch[] };
+            setData(responseData);
+            const chosenItem = responseData.find(item => item.id === form.getValues(name))?.value || undefined;
+            setChoose(chosenItem);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [form.getValues(name), name, search, typeApi]);
+
     useEffect(() => {
-        (async () => {
-            try {
-                setLoading(true);
-                const { data } = (await queryApi.querySearch({ query: search }, typeApi)) as {
-                    data: dataSearch[];
-                };
-                setData(data);
-                setChoose(data.find((item) => item.id === form.getValues(name))?.value || '');
-            } catch (error) {
-                console.log(error);
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, [search, typeApi]);
+        fetchData();
+    }, [fetchData]);
     return (
         <FormField
             control={form.control}
@@ -75,77 +77,75 @@ export const SearchField = (props: SearchFieldProps) => {
                             </span>
                         )}
                     </FormLabel>
-                    <FormControl>
-                        <FormControl>
-                            <Popover open={open} onOpenChange={setOpen} {...field}>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        disabled={disabled || loading}
-                                        variant="outline"
-                                        role="combobox"
-                                        className="w-full justify-between"
-                                    >
-                                        {choose ? choose : `${placeholder}`}
-                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-[200px]  p-0">
-                                    <Command>
-                                        <SearchSelection
-                                            value={query}
-                                            onChange={handleSearch}
-                                            placeholder="Search ..."
-                                        />
-                                        {!loading && (
-                                            <ScrollArea className="h-[200px]">
-                                                {data && data?.length > 0 ? (
-                                                    <CommandGroup {...field}>
-                                                        {data.map((item) => (
-                                                            <CommandItem
-                                                                key={item.id}
-                                                                className="justify-between"
-                                                                value={`${item.id}`}
-                                                                onSelect={() => {
-                                                                    form.setValue(
-                                                                        `${name}`,
-                                                                        item.id
-                                                                    );
+                    <FormControl {...field}>
+    
+                        <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    disabled={disabled || loading}
+                                    variant="outline"
+                                    role="combobox"
+                                    className="w-full  justify-between"
+                                >
+                      
 
-                                                                    setChoose(item.value);
-                                                                    setOpen(false);
-                                                                }}
-                                                            >
-                                                                <span className="ml-1">
-                                                                    {item.value}
-                                                                </span>
-                                                                <Check
-                                                                    className={cn(
-                                                                        'h-4 w-4',
-                                                                        field.value == item.id
-                                                                            ? 'opacity-100'
-                                                                            : 'opacity-0'
-                                                                    )}
-                                                                />
-                                                            </CommandItem>
-                                                        ))}
-                                                    </CommandGroup>
-                                                ) : (
-                                                    <CommandEmpty>
-                                                        Không tìm thấy dữ liệu
-                                                    </CommandEmpty>
-                                                )}
-                                            </ScrollArea>
-                                        )}
-                                        {loading && (
-                                            <div className="flex h-[50px] items-center justify-center">
-                                                {' '}
-                                                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                                            </div>
-                                        )}
-                                    </Command>
-                                </PopoverContent>
-                            </Popover>
-                        </FormControl>
+                                    <span className="line-clamp-1 block  text-ellipsis">
+                                        {choose ? choose : `${placeholder}`}
+                                    </span>
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[200px]  p-0">
+                                <Command>
+                                    <SearchSelection
+                                        value={query}
+                                        onChange={handleSearch}
+                                        placeholder="Search ..."
+                                    />
+                                    {!loading && (
+                                        <ScrollArea className="h-[200px]">
+                                            {data && data?.length > 0 ? (
+                                                <CommandGroup>
+                                                    {data.map((item) => (
+                                                        <CommandItem
+                                                            key={item.id}
+                                                            className="justify-between"
+                                                            value={`${item.id}`}
+                                                            onSelect={() => {
+                                                                form.setValue(`${name}`, item.id);
+
+                                                                setChoose(item.value);
+                                                                setOpen(false);
+                                                            }}
+                                                        >
+                                                            <span className="ml-1">
+                                                                {item.value}
+                                                            </span>
+                                                            <Check
+                                                                className={cn(
+                                                                    'h-4 w-4',
+                                                                    field.value == item.id
+                                                                        ? 'opacity-100'
+                                                                        : 'opacity-0'
+                                                                )}
+                                                            />
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            ) : (
+                                                <CommandEmpty>Không tìm thấy dữ liệu</CommandEmpty>
+                                            )}
+                                        </ScrollArea>
+                                    )}
+                                    {loading && (
+                                        <div className="flex h-[50px] items-center justify-center">
+                                            {' '}
+                                            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                                        </div>
+                                    )}
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
                     </FormControl>
                     <FormMessage />
                 </FormItem>

@@ -22,7 +22,6 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Form } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SelectItem } from '@/components/ui/select';
 import {
@@ -58,7 +57,6 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import { debounce } from 'lodash';
 import queryString from 'query-string';
 import * as React from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -372,8 +370,8 @@ export const ConfigSchedule = () => {
                                             />
                                             <SelectionField
                                                 name="Using"
-                                                label="Giới tính"
-                                                placeholder="Chọn giới tính"
+                                                label="Trạng thái"
+                                                placeholder="Chọn trạng thái"
                                             >
                                                 <SelectItem value="1">
                                                     <Badge className="bg-[green]">
@@ -387,6 +385,7 @@ export const ConfigSchedule = () => {
                                                 </SelectItem>
                                             </SelectionField>
                                         </div>
+                                        <p className='text-muted-foreground text-sm'>Lưu ý: Ngày đóng sẽ luôn là <b>chủ nhật</b> trước tuần đăng ký</p>
                                         <DialogFooter className="w-full sticky mt-4">
                                             <DialogClose asChild>
                                                 <Button

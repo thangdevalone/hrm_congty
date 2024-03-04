@@ -28,8 +28,14 @@ import {
     ListResponse,
     ScheduleCreateForm,
 } from '@/models';
+import {
+    getNowSunday,
+    isGreaterOrEqualDay,
+    isTimeAfterNowOnSunday,
+    isWithinThisWeek,
+} from '@/utils';
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons';
-import { format } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Check } from 'lucide-react';
 import queryString from 'query-string';
@@ -59,6 +65,7 @@ export const ScheduleReg = () => {
     const handleMonthChange = (value: string) => {
         setDataSetter({ ...dataSetter, month: parseInt(value) });
     };
+    const sunday = getNowSunday();
     const [mySchedule, setMySchedule] = React.useState<InfoSchedule[]>();
     const handleYearChange = (value: string) => {
         setDataSetter({ ...dataSetter, year: parseInt(value) });
@@ -74,15 +81,15 @@ export const ScheduleReg = () => {
         // Cập nhật state monthSetter với giá trị mới
         setMonthSetter(newDate);
         navigate({ search: `?month=${dataSetter.month}&year=${dataSetter.year}` });
-        location.search=`?month=${dataSetter.month}&year=${dataSetter.year}`
-        fetchData()
+        location.search = `?month=${dataSetter.month}&year=${dataSetter.year}`;
+        fetchData();
     }, [dataSetter]);
     const fetchData = async () => {
         try {
             const paramString = param
                 ? location.search
                 : `?month=${dataSetter.month}&year=${dataSetter.year}`;
-                console.log(paramString)
+            console.log(paramString);
             const scheduleData = (await scheduleApi.getListSchedule(
                 paramString
             )) as unknown as ListResponse;
@@ -96,12 +103,11 @@ export const ScheduleReg = () => {
 
         if (!localStorage.getItem('showScheduleColor')) {
             localStorage.setItem('showScheduleColor', 'true');
-            setShowScheduleColor(true)
+            setShowScheduleColor(true);
         }
         if (!localStorage.getItem('showShowBadge')) {
             localStorage.setItem('showShowBadge', 'true');
-            setShowBadge(true)
-
+            setShowBadge(true);
         }
         (async () => {
             try {
@@ -116,7 +122,6 @@ export const ScheduleReg = () => {
             }
         })();
     }, []);
-
 
     const [showBadge, setShowBadge] = React.useState(
         localStorage.getItem('showBadge') === 'true' ? true : false
@@ -138,12 +143,21 @@ export const ScheduleReg = () => {
                     title: `Đăng kí thành công`,
                     description: `Đăng kí ${data.WorkShiftName} vào ${dateReg} thành công!`,
                 });
-                fetchData()
+                fetchData();
             }
         } catch (error) {
             toast({
                 variant: 'destructive',
                 title: 'Có lỗi xảy ra',
+            });
+        }
+    };
+    const handleRegStatus = (status: boolean | undefined) => {
+        if (status == true) {
+            toast({
+                variant: 'destructive',
+                title: 'Bị khóa',
+                description: 'Đã quá thời gian đăng kí lịch',
             });
         }
     };
@@ -155,7 +169,6 @@ export const ScheduleReg = () => {
             logic: res || false,
             find: find || null,
             color: find?.WorkShiftDetail.Color || null,
-            
         };
     };
     const BadgeRender = (props: { date: Date }) => {
@@ -182,6 +195,27 @@ export const ScheduleReg = () => {
     const handleShowScheduleColor = () => {
         localStorage.setItem('showScheduleColor', JSON.stringify(!showBadge));
         setShowScheduleColor((prev: boolean) => !prev);
+    };
+    const handleDel = async (data: InfoSchedule | undefined) => {
+        console.log(data);
+        try {
+            if (data && data.id) {
+                await scheduleApi.deleteSchedule(data.id);
+                toast({
+                    title: `Hủy thành công`,
+                    description: `Hủy đăng kí ${data.WorkShiftDetail.WorkShiftName} vào ${format(
+                        data.Date,
+                        'dd/MM/yyyy'
+                    )} thành công!`,
+                });
+                fetchData();
+            }
+        } catch (error) {
+            toast({
+                variant: 'destructive',
+                title: 'Có lỗi xảy ra',
+            });
+        }
     };
     return (
         <div className="w-full">
@@ -260,7 +294,8 @@ export const ScheduleReg = () => {
                                     Ngày tối thiểu: <strong>{usingConfig.DateMin}</strong> ngày
                                 </p>
                                 <p>
-                                    Khóa đăng kí vào: <strong>{usingConfig.TimeBlock}</strong>
+                                    Khóa đăng kí vào:{' '}
+                                    <strong>{usingConfig.TimeBlock} Chủ nhật</strong>
                                 </p>
                             </div>
                         )}{' '}
@@ -273,6 +308,16 @@ export const ScheduleReg = () => {
                     onMonthChange={handleSetter}
                     className={cn('w-full h-full')}
                     locale={vi}
+                    disabled={(date) => {
+                        if (
+                            isWithinThisWeek(date) &&
+                            usingConfig &&
+                            isTimeAfterNowOnSunday(usingConfig?.TimeBlock, sunday)
+                        ) {
+                            return true;
+                        }
+                        return date < sunday ? true : false;
+                    }}
                     classNames={{
                         months: 'flex w-full h-full flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
                         month: 'space-y-4 flex-1',
@@ -310,11 +355,17 @@ export const ScheduleReg = () => {
                         DayContent: (...props) => {
                             const { date, activeModifiers } =
                                 props[0] as unknown as DayContentProps;
-
+                            console.log();
                             return (
                                 <div>
                                     <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
+                                        <DropdownMenuTrigger
+                                            onClick={() =>
+                                                handleRegStatus(activeModifiers.disabled)
+                                            }
+                                            disabled={activeModifiers.disabled}
+                                            asChild
+                                        >
                                             <div
                                                 className={cn(
                                                     'relative flex items-center bg  cursor-pointer justify-center rounded-md h-8 w-8 p-0 font-normal aria-selected:opacity-100',
@@ -327,11 +378,9 @@ export const ScheduleReg = () => {
                                                         (showScheduleColor && logic(date)?.color) ||
                                                         ''
                                                     }`,
-
                                                 }}
                                             >
                                                 {date.getDate()}
-
                                                 {showBadge && <BadgeRender date={date} />}
                                             </div>
                                         </DropdownMenuTrigger>
@@ -378,6 +427,34 @@ export const ScheduleReg = () => {
                                                         </div>
                                                     </DropdownMenuItem>
                                                 ))}
+                                            {shift &&
+                                                shift.map((item) => {
+                                                    const scheduledShift =
+                                                        mySchedule &&
+                                                        mySchedule.find(
+                                                            (ck) =>
+                                                                ck.Date ===
+                                                                    format(date, 'yyyy-MM-dd') &&
+                                                                item.WorkShiftName ===
+                                                                    ck.WorkShiftDetail.WorkShiftName
+                                                        );
+
+                                                    return (
+                                                        scheduledShift && (
+                                                            <React.Fragment key={scheduledShift.id}>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem
+                                                                    onClick={() =>
+                                                                        handleDel(scheduledShift)
+                                                                    }
+                                                                    className="cursor-pointer flex justify-between"
+                                                                >
+                                                                    Hủy đăng kí
+                                                                </DropdownMenuItem>
+                                                            </React.Fragment>
+                                                        )
+                                                    );
+                                                })}
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </div>

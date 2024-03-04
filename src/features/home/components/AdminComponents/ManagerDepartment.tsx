@@ -37,7 +37,6 @@ import {
     DepartmentCreateForm,
     DepartmentEditForm,
     InfoDepartment,
-    InforUser,
     ListResponse,
     QueryParam,
 } from '@/models';
@@ -152,6 +151,11 @@ export const ManagerDepartment = () => {
             accessorKey: 'DepName',
             header: ({ column }) => <DataTableColumnHeader column={column} title="Phòng ban" />,
             cell: ({ row }) => <div>{row.getValue('DepName')}</div>,
+        },
+        {
+            accessorKey: 'DepShortName',
+            header: ({ column }) => <DataTableColumnHeader column={column} title="Tên ngắn" />,
+            cell: ({ row }) => <div>{row.getValue('DepShortName')}</div>,
         },
         {
             accessorKey: 'employee_count',
@@ -288,8 +292,9 @@ export const ManagerDepartment = () => {
         (async () => {
             try {
                 setLoading(true);
-                adminApi.createDepartment(data);
+                await adminApi.createDepartment(data);
                 setOpenCreateForm(false);
+                fetchData()
                 toast({
                     title: 'Thành công',
                     description: 'Tạo phòng ban thành công',
@@ -315,8 +320,8 @@ export const ManagerDepartment = () => {
                 title: 'Thành công',
                 description: 'Xóa thành công',
             });
-            setOpenDeleteForm(false)
             fetchData();
+            setOpenDeleteForm(false)
         } catch (error: any) {
             toast({
                 variant: 'destructive',
@@ -372,7 +377,7 @@ export const ManagerDepartment = () => {
 
                                         <SearchField
                                             name="ManageID"
-                                            label="Phòng ban"
+                                            label="Quản lý"
                                             placeholder="Chọn quản lý"
                                             typeApi="employee"
                                             require={true}

@@ -1,6 +1,6 @@
 import { useTheme } from '@/components/theme-provider';
-import { useInfoUser } from '@/hooks';
 import { cn } from '@/lib/utils';
+import { PermissionProvider } from '@/utils';
 import { TextAlignJustifyIcon } from '@radix-ui/react-icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Icons } from './icons';
@@ -8,11 +8,11 @@ import { Button } from './ui/button';
 
 interface SidebarProps {
     collapse: boolean;
-    className:string;
+    className: string;
     setCollapse: (newCollapse: boolean) => void;
 }
 
-export const SidebarLeft = ({ className, collapse, setCollapse }: SidebarProps)=> {
+export const SidebarLeft = ({ className, collapse, setCollapse }: SidebarProps) => {
     const navitage = useNavigate();
     const theme = useTheme();
     const location = useLocation();
@@ -20,7 +20,7 @@ export const SidebarLeft = ({ className, collapse, setCollapse }: SidebarProps)=
         if (location.pathname.includes(router)) return;
         navitage(`/home/${router}`);
     };
-    const user=useInfoUser()
+    const P = PermissionProvider();
 
     return (
         <div className={cn('pb-12 dark:border-r side-bs', className)}>
@@ -32,30 +32,49 @@ export const SidebarLeft = ({ className, collapse, setCollapse }: SidebarProps)=
                 </div>
                 <div className="px-3 py-2">
                     <div className="space-y-2">
-                        {user?.RoleName==='Admin' && <Button
-                            onClick={() => handleNavitage('admin')}
-                            variant={location.pathname.includes('admin') ? 'secondary' : 'ghost'}
+                        <Button
+                            onClick={() => handleNavitage('overview')}
+                            variant={location.pathname.includes('overview') ? 'secondary' : 'ghost'}
                             className="w-full gap-3 justify-start h-10"
                         >
-                            <Icons.dashboard
+                            <Icons.overview
                                 className="w-5 h-5"
                                 color={theme.theme === 'dark' ? '#ffffff' : ''}
                             />
-                            {!collapse && 'Trang quản trị'}
-                        </Button>}
-                        <Button
-                            onClick={() => handleNavitage('info-employee')}
-                            variant={
-                                location.pathname.includes('info-employee') ? 'secondary' : 'ghost'
-                            }
-                            className="w-full gap-3 justify-start h-10"
-                        >
-                            <Icons.group
-                                className="w-5 h-5"
-                                color={theme.theme === 'dark' ? '#ffffff' : 'black'}
-                            />
-                            {!collapse && 'Nhân viên'}
+                            {!collapse && 'Tổng quan'}
                         </Button>
+                        {P?.IS_ADMIN && (
+                            <Button
+                                onClick={() => handleNavitage('admin')}
+                                variant={
+                                    location.pathname.includes('admin') ? 'secondary' : 'ghost'
+                                }
+                                className="w-full gap-3 justify-start h-10"
+                            >
+                                <Icons.dashboard
+                                    className="w-5 h-5"
+                                    color={theme.theme === 'dark' ? '#ffffff' : ''}
+                                />
+                                {!collapse && 'Trang quản trị'}
+                            </Button>
+                        )}
+                        {P?.IS_ADMIN_OR_HR_MANAGER && (
+                            <Button
+                                onClick={() => handleNavitage('info-employee')}
+                                variant={
+                                    location.pathname.includes('info-employee')
+                                        ? 'secondary'
+                                        : 'ghost'
+                                }
+                                className="w-full gap-3 justify-start h-10"
+                            >
+                                <Icons.group
+                                    className="w-5 h-5"
+                                    color={theme.theme === 'dark' ? '#ffffff' : 'black'}
+                                />
+                                {!collapse && 'Nhân viên'}
+                            </Button>
+                        )}
                         <Button
                             onClick={() => handleNavitage('time-keep')}
                             variant={
@@ -71,7 +90,9 @@ export const SidebarLeft = ({ className, collapse, setCollapse }: SidebarProps)=
                         </Button>
                         <Button
                             onClick={() => handleNavitage('schedules')}
-                            variant={location.pathname.includes('schedules') ? 'secondary' : 'ghost'}
+                            variant={
+                                location.pathname.includes('schedules') ? 'secondary' : 'ghost'
+                            }
                             className="w-full gap-3 justify-start h-10"
                         >
                             <Icons.schedule
@@ -93,8 +114,7 @@ export const SidebarLeft = ({ className, collapse, setCollapse }: SidebarProps)=
                         </Button>
                     </div>
                 </div>
-                
             </div>
         </div>
     );
-}
+};

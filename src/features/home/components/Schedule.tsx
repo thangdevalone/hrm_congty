@@ -9,12 +9,11 @@ import {
     NavigationMenuTrigger,
     navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
-import { useInfoUser } from '@/hooks';
-import { Outlet } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { PermissionProvider } from '@/utils';
+import { Link, Outlet } from 'react-router-dom';
 
 export const Schedule = () => {
-    const user = useInfoUser();
+    const P = PermissionProvider();
     return (
         <>
             <div className="nav-bs dark:border-b">
@@ -22,7 +21,7 @@ export const Schedule = () => {
                 <div className="pl-4 pr-[70px] relative z-10 pt-1 pb-4 flex justify-between flex-row">
                     <NavigationMenu>
                         <NavigationMenuList>
-                            {user && (user.RoleName === 'Admin' || user.RoleName === 'Hr') && (
+                            {P?.IS_ADMIN_OR_HR && (
                                 <NavigationMenuItem>
                                     <NavigationMenuLink
                                         asChild
@@ -32,7 +31,7 @@ export const Schedule = () => {
                                     </NavigationMenuLink>
                                 </NavigationMenuItem>
                             )}
-                            {user?.RoleName !== 'Admin' && (
+                            {!P?.IS_ADMIN && (
                                 <NavigationMenuItem>
                                     <NavigationMenuLink
                                         asChild
@@ -42,23 +41,25 @@ export const Schedule = () => {
                                     </NavigationMenuLink>
                                 </NavigationMenuItem>
                             )}
-                            <NavigationMenuItem>
-                                <NavigationMenuTrigger>Quản lý</NavigationMenuTrigger>
-                                <NavigationMenuContent>
-                                    <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-2">
-                                        <Link to="./work-shifts">
-                                            <ListItem title="Quản lý ca làm việc">
-                                                Thêm sửa xóa ca làm việc trong công ty.
-                                            </ListItem>
-                                        </Link>
-                                        <Link to="./config-schedules">
-                                            <ListItem title="Cấu hình lịch">
-                                                Thêm sửa xóa lịch trong công ty.
-                                            </ListItem>
-                                        </Link>
-                                    </ul>
-                                </NavigationMenuContent>
-                            </NavigationMenuItem>
+                            {P?.IS_ADMIN_OR_HR && (
+                                <NavigationMenuItem>
+                                    <NavigationMenuTrigger>Quản lý</NavigationMenuTrigger>
+                                    <NavigationMenuContent>
+                                        <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-2">
+                                            <Link to="./work-shifts">
+                                                <ListItem title="Quản lý ca làm việc">
+                                                    Thêm sửa xóa ca làm việc trong công ty.
+                                                </ListItem>
+                                            </Link>
+                                            <Link to="./config-schedules">
+                                                <ListItem title="Cấu hình lịch">
+                                                    Thêm sửa xóa lịch trong công ty.
+                                                </ListItem>
+                                            </Link>
+                                        </ul>
+                                    </NavigationMenuContent>
+                                </NavigationMenuItem>
+                            )}
                         </NavigationMenuList>
                     </NavigationMenu>
                 </div>

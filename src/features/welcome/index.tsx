@@ -8,6 +8,30 @@ import Typed from 'react-typed';
 import type { Engine } from 'tsparticles-engine';
 import { loadSlim } from 'tsparticles-slim';
 import './styles.css';
+import { useInfoUser } from '@/hooks';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Home, LogOut, SquareUserRound } from 'lucide-react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useDispatch } from 'react-redux';
+import { authActions } from '../auth/AuthSlice';
+import { STATIC_HOST_NO_SPLASH } from '@/constants';
+import { Link } from 'react-router-dom';
 
 export default function Welcome() {
     const { theme } = useTheme();
@@ -15,7 +39,12 @@ export default function Welcome() {
     const particlesInit = useCallback(async (engine: Engine) => {
         await loadSlim(engine);
     }, []);
-
+    const user = useInfoUser();
+    const [openAlertLogout, setOpenAlertLogout] = useState(false);
+    const dispatch = useDispatch();
+    const handleLogout = () => {
+        dispatch(authActions.logout());
+    };
     useEffect(() => {
         // Set a timeout to show the Typed component after 2 seconds
         const timeoutId = setTimeout(() => {
@@ -54,9 +83,68 @@ export default function Welcome() {
                         >
                             Liên hệ
                         </a>
-                        <a href="/login">
-                            <Button>Đăng nhập</Button>
-                        </a>
+                        {!user ? (
+                            <Link to="/login">
+                                <Button>Đăng nhập</Button>
+                            </Link>
+                        ) : (
+                            <>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <img
+                                            src={`${STATIC_HOST_NO_SPLASH + user?.PhotoPath}`}
+                                            alt="avatar"
+                                            className=" cursor-pointer w-10 h-10 border rounded-full"
+                                        />
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent side="bottom" align="end">
+                                        <DropdownMenuLabel>Tài khoản</DropdownMenuLabel>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem className="cursor-pointer flex gap-2">
+                                            <SquareUserRound />
+                                            Thông tin cá nhân
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="">
+                                            <Link to="/home">
+                                                <div className="flex flex-row cursor-pointer items-center gap-2">
+                                                    <Home />
+                                                    Trang chủ
+                                                </div>
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={() => setOpenAlertLogout(true)}
+                                            className="cursor-pointer flex gap-2"
+                                        >
+                                            <LogOut />
+                                            Đăng xuất
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                <AlertDialog
+                                    open={openAlertLogout}
+                                    onOpenChange={setOpenAlertLogout}
+                                >
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>
+                                                Bạn có chắc muốn đăng xuất?
+                                            </AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Đăng xuất xong bạn sẽ không thể thao tác với dữ liệu
+                                                của ứng dụng
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                            <AlertDialogAction onClick={handleLogout}>
+                                                Đăng xuất
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </>
+                        )}
                         <ModeToggle />
                     </div>
                 </div>

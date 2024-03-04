@@ -210,7 +210,7 @@ export const ScheduleList = () => {
                                     Ngày tối thiểu: <strong>{usingConfig.DateMin}</strong> ngày
                                 </p>
                                 <p>
-                                    Khóa đăng kí vào: <strong>{usingConfig.TimeBlock}</strong>
+                                    Khóa đăng kí vào: <strong>{usingConfig.TimeBlock} Chủ nhật</strong>
                                 </p>
                             </div>
                         )}{' '}

@@ -1,3 +1,4 @@
+import { EmployeeCreateForm } from '@/models';
 import { TimeValue } from "react-aria";
 
 export interface FormAccount {
@@ -6,15 +7,15 @@ export interface FormAccount {
     employee: string;
 }
 
-export interface EmployeeCreateForm {
+interface EmployeeBaseForm {
     EmpName: string;
     Email: string;
     CCCD: string;
     DepID: number;
     JobID: number;
     RoleID: number;
-    EmpStatus?: string;
-    BankAccountNumber?: string; // Corrected typo here
+    EmpStatus: string;
+    BankAccountNumber?: string;
     BankName?: string;
     Gender?: string;
     TaxCode?: string;
@@ -24,6 +25,24 @@ export interface EmployeeCreateForm {
     Address?: string;
 }
 
+export interface EmployeeCreateForm extends EmployeeBaseForm {}
+
+export interface EmployeeEditForm extends EmployeeBaseForm {
+    EmpID?: number;
+}
+
+export interface EmployeeEditDetailForm extends EmployeeBaseForm {
+    PhotoPath?: string;
+    EmpID?: number;
+}
+export interface ChangePass{
+    current_password:string;
+    new_password:string
+    re_password:string;
+}
+export interface RoleEditForm extends RoleCreateForm {
+    EmpID?: number;
+}
 export interface DepartmentCreateForm {
     DepName: string;
     DepShortName: string;

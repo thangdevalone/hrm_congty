@@ -1,9 +1,10 @@
 import { STATIC_HOST_NO_SPLASH } from '@/constants';
 import { authActions } from '@/features/auth/AuthSlice';
 import { useInfoUser } from '@/hooks';
-import { Group, LogOut, SquareUserRound } from 'lucide-react';
+import { Lock, LogOut, Settings, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { Breadcrumbs } from '.';
 import {
     AlertDialog,
@@ -57,11 +58,20 @@ export function Navbar() {
                 <DropdownMenuContent side="bottom" align="end">
                     <DropdownMenuLabel>Tài khoản</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer flex gap-2">
-                        <SquareUserRound /> Thông tin cá nhân
+                    <DropdownMenuItem asChild>
+                        <Link to='/settings/profile'  className="cursor-pointer flex gap-2">
+                            <UserRound /> Thông tin cá nhân
+                        </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer flex gap-2">
-                        <Group /> Nhóm
+                    <DropdownMenuItem asChild>
+                        <Link to='/settings/password'  className="cursor-pointer flex gap-2">
+                            <Lock /> Quản lý mật khẩu
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                        <Link to='/settings'  className="cursor-pointer flex gap-2">
+                            <Settings/> Cài đặt
+                        </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={() => setOpenAlertLogout(true)}

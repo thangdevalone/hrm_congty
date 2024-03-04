@@ -32,14 +32,16 @@ export const BankField = (props: BankFieldProps) => {
             .getBanks()
             .then((data) => {
                 //
-                console.log(data);
                 setBanks(data.data);
             })
             .catch((err) => {
                 console.log(err);
             });
     }, []);
-
+    React.useEffect(() => {
+        setChoose(form.getValues(name)||"");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [form.getValues(name), name]);
     return (
         <FormField
             control={form.control}
@@ -56,7 +58,7 @@ export const BankField = (props: BankFieldProps) => {
                         )}
                     </FormLabel>
                     <FormControl>
-                        <Popover open={open} onOpenChange={setOpen} {...field}>
+                        <Popover open={open}  onOpenChange={setOpen} >
                             <PopoverTrigger asChild>
                                 <Button
                                     variant="outline"
@@ -65,43 +67,47 @@ export const BankField = (props: BankFieldProps) => {
                                     className=" justify-between  w-full"
                                     disabled={disabled}
                                 >
-                                    <span className="line-clamp-1 block uppercase text-ellipsis">
+                                    <span className="line-clamp-1 block  text-ellipsis">
                                         {choose ? choose : `${placeholder}`}
                                     </span>
                                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-[500px] p-0">
-                                <Command>
+                                <Command {...field} value={field.value}>
                                     <CommandInput placeholder="Search bank..." />
                                     <CommandEmpty>No bank found.</CommandEmpty>
                                     <ScrollArea className="h-[200px] overflow-y-auto">
                                         <CommandGroup>
-                                            {banks.map((bank) => (
-                                                <CommandItem
-                                                    key={bank.id}
-                                                    value={bank.shortName + ' – ' + bank.name}
-                                                    onSelect={(value) => {
-                                                        form.setValue(
-                                                            `${name}`,
-                                                            value
-                                                        );
-                                                        setChoose(
-                                                            value
-                                                        );
-                                                        setOpen(false);
-                                                    }}
-                                                >
-                                                    <img
-                                                        src={bank.logo}
-                                                        className="w-[100px] rounded-[50%]"
-                                                        alt={bank.code}
-                                                    />{' '}
-                                                    <span className="line-clamp-1 block text-ellipsis">
-                                                        {bank.shortName + ' – ' + bank.name}
-                                                    </span>
-                                                </CommandItem>
-                                            ))}
+                                            {banks.map((bank) => {
+                                                
+                                                const bankmerge = (
+                                                    bank.shortName +
+                                                    ' – ' +
+                                                    bank.name
+                                                ).toUpperCase();
+                                                return (
+                                                    <CommandItem
+                                                        key={bank.id}
+                                                        value={bankmerge}
+                                                        onSelect={() => {
+                                                        
+                                                            form.setValue(name, bankmerge);
+                                                            setChoose(bankmerge);
+                                                            setOpen(false);
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={bank.logo}
+                                                            className="w-[100px] rounded-[50%]"
+                                                            alt={bank.code}
+                                                        />{' '}
+                                                        <span className="line-clamp-1 block text-ellipsis">
+                                                            {bankmerge}
+                                                        </span>
+                                                    </CommandItem>
+                                                );
+                                            })}
                                         </CommandGroup>
                                     </ScrollArea>
                                 </Command>
