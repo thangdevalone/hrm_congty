@@ -18,9 +18,9 @@ export const Admin = () => {
             <div className="nav-bs dark:border-b">
                 <Navbar />
                 <div className="pl-4 pr-[70px] relative z-10 pt-1 pb-4 flex justify-between flex-row">
-                    <NavigationMenu>
-                        <NavigationMenuList>
-                            <NavigationMenuItem>
+                    <NavigationMenu >
+                        <NavigationMenuList >
+                            <NavigationMenuItem >
                                 <NavigationMenuLink
                                     asChild
                                     className={navigationMenuTriggerStyle()}
