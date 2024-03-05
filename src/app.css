@@ -43,7 +43,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .spinner {
-    --animation-duration: 5000ms;
+    --animation-duration: 4000ms;
     position: relative;
     width: var(--size);
     height: var(--size);

@@ -1,11 +1,17 @@
 import { ModeToggle } from '@/components/mode-toggle';
 
-import { LoginForm } from '@/models';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { authActions } from '../AuthSlice';
+import authApi from '@/api/authApi';
+import { useAppSelector } from '@/app/hooks';
+import {
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import {
     Form,
     FormControl,
@@ -15,12 +21,19 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { InputPassword } from '@/components/ui/inputPassword';
-import { useAppSelector } from '@/app/hooks';
-import { useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
+import { LoginForm } from '@/models';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import { useEffect, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+import * as yup from 'yup';
+import { authActions } from '../AuthSlice';
+interface GmailForm {
+    email: string;
+}
 
 export function LoginPage() {
     const dispatch = useDispatch();
@@ -31,7 +44,8 @@ export function LoginPage() {
         username: yup.string().required('Cần nhập tên đăng nhập'),
         password: yup.string().required('Cần nhập mật khẩu'),
     });
-
+    const [alert, setAlert] = useState(false);
+    const [loading2, setLoading2] = useState(false);
     const form = useForm<LoginForm>({
         resolver: yupResolver(schema),
         defaultValues: {
@@ -51,6 +65,39 @@ export function LoginPage() {
             });
         }
     }, [actionAuth, toast]);
+
+    const handleSendGmail: SubmitHandler<GmailForm> = (data) => {
+        (async () => {
+            try {
+                if (data.email) {
+                    setLoading2(true);
+                    await authApi.forgotPass(data.email);
+                    toast({
+                        title: 'Thành công',
+                        description: 'Link đổi mật khẩu đã được gửi vào gmail của bạn',
+                    });
+                    setAlert(false);
+                }
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } catch (error: any) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Có lỗi xảy ra',
+                    description: error.error,
+                });
+            } finally {
+                setLoading2(false);
+            }
+        })();
+    };
+
+    const gmail_schema = yup.object().shape({
+        email: yup.string().email().required('Cần nhập gmail'),
+    });
+
+    const gmailForm = useForm<GmailForm>({
+        resolver: yupResolver(gmail_schema),
+    });
     return (
         <>
             <div className="absolute top-[20px] right-[20px] z-20">
@@ -124,11 +171,13 @@ export function LoginPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <p className="text-end text-sm p-y-2">
-                                    <a href="/forgot-pass" className="hover:underline">
-                                        <i>Quên mật khẩu?</i>
-                                    </a>
+                                <p
+                                    onClick={() => setAlert(true)}
+                                    className="underline w-full text-end italic text-sm cursor-pointer"
+                                >
+                                    Quên mật khẩu?
                                 </p>
+
                                 <Button type="submit" disabled={logging} className="w-full ">
                                     {logging && (
                                         <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
@@ -139,6 +188,46 @@ export function LoginPage() {
                         </Form>
                     </div>
                 </div>
+                <AlertDialog open={alert} onOpenChange={setAlert}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Quên mật khẩu</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Link đổi mật khẩu sẽ được gửi về gmail của bạn. Truy cập vào gmail
+                                để đổi mật khẩu
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <Form {...gmailForm}>
+                            <form onSubmit={gmailForm.handleSubmit(handleSendGmail)}>
+                                <FormField
+                                    name="email"
+                                    control={gmailForm.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <Input
+                                                    type="email"
+                                                    {...field}
+                                                    placeholder="Nhập gmail của bạn"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <AlertDialogFooter className="mt-4">
+                                    <AlertDialogCancel>Đóng</AlertDialogCancel>
+                                    <Button disabled={loading2} type="submit">
+                                        {loading2 && (
+                                            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                                        )}
+                                        Gửi
+                                    </Button>
+                                </AlertDialogFooter>
+                            </form>
+                        </Form>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </>
     );

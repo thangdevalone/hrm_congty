@@ -7,7 +7,7 @@ export const LoadingPage = () => {
         // Set a timeout to add the loading-page class after 2 seconds
         const timeoutId = setTimeout(() => {
             setShowLoading(true);
-        }, 2000);
+        }, 1000);
 
         // Cleanup the timeout when the component unmounts
         return () => clearTimeout(timeoutId);
