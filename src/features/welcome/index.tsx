@@ -49,7 +49,7 @@ export default function Welcome() {
         // Set a timeout to show the Typed component after 2 seconds
         const timeoutId = setTimeout(() => {
             setShowTyped(true);
-        }, 2000);
+        }, 1000);
         return () => {
             clearTimeout(timeoutId);
         };

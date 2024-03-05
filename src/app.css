@@ -24,23 +24,65 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     animation: fadeout-2 1s ease-in-out forwards;
 }
 @keyframes fadeout {
-    0% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-        display: none;
-    }
+  0% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0;
+      display: none;
+  }
 }
+
+@-webkit-keyframes fadeout {
+  0% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0;
+      display: none;
+  }
+}
+
+@-moz-keyframes fadeout {
+  0% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0;
+      display: none;
+  }
+}
+
 @keyframes fadeout-2 {
-    0% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-        display: none;
-    }
+  0% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0;
+      display: none;
+  }
 }
+
+@-webkit-keyframes fadeout-2 {
+  0% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0;
+      display: none;
+  }
+}
+
+@-moz-keyframes fadeout-2 {
+  0% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0;
+      display: none;
+  }
+}
+
 
 .spinner {
     --animation-duration: 4000ms;
