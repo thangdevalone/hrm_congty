@@ -36,7 +36,6 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/components/ui/use-toast';
 import { STATIC_HOST_NO_SPLASH } from '@/constants';
-import { useInfoUser } from '@/hooks';
 import { cn } from '@/lib/utils';
 import {
     InfoConfigSchedule,
@@ -60,7 +59,6 @@ export const ScheduleList = () => {
     const defYear = new Date().getFullYear();
     const location = useLocation();
     const param = queryString.parse(location.search);
-    const user = useInfoUser();
     const [dataSetter, setDataSetter] = React.useState<DataSetter>({
         year: param && param.year ? Number(param.year) : new Date().getFullYear(),
         month: param && param.month ? Number(param.month) : new Date().getMonth() + 1,
@@ -210,7 +208,8 @@ export const ScheduleList = () => {
                                     Ngày tối thiểu: <strong>{usingConfig.DateMin}</strong> ngày
                                 </p>
                                 <p>
-                                    Khóa đăng kí vào: <strong>{usingConfig.TimeBlock} Chủ nhật</strong>
+                                    Khóa đăng kí vào:{' '}
+                                    <strong>{usingConfig.TimeBlock} Chủ nhật</strong>
                                 </p>
                             </div>
                         )}{' '}
@@ -326,7 +325,7 @@ export const ScheduleList = () => {
                                             >
                                                 {date.getDate()}
                                                 {listing && listing[format(date, 'yyyy-MM-dd')] && (
-                                                    <Badge className='bg-black absolute rounded-full top-[-10px] right-[-15px] p-0 flex items-center justify-center w-5 h-5'>
+                                                    <Badge className="bg-black absolute rounded-full top-[-10px] right-[-15px] p-0 flex items-center justify-center w-5 h-5">
                                                         {listing[format(date, 'yyyy-MM-dd')].total}
                                                     </Badge>
                                                 )}
@@ -351,13 +350,39 @@ export const ScheduleList = () => {
                                                         }
                                                     >
                                                         <div className="flex w-full flex-row justify-between items-center">
-                                                            {item.WorkShiftName} <strong>{listing &&listing[format(date, 'yyyy-MM-dd')]&& listing[format(date, 'yyyy-MM-dd')][item.WorkShiftName] ||0}</strong>
+                                                            {item.WorkShiftName}{' '}
+                                                            <strong>
+                                                                {(listing &&
+                                                                    listing[
+                                                                        format(date, 'yyyy-MM-dd')
+                                                                    ] &&
+                                                                    listing[
+                                                                        format(date, 'yyyy-MM-dd')
+                                                                    ][item.WorkShiftName]) ||
+                                                                    0}
+                                                            </strong>
                                                         </div>
                                                     </DropdownMenuItem>
                                                 ))}
                                             <DropdownMenuSeparator />
-                                            <DropdownMenuItem className="cursor-pointer flex justify-between">
-                                                Xem tất cả <strong>{listing&&listing[format(date, 'yyyy-MM-dd')]&& listing[format(date, 'yyyy-MM-dd')]?.total ||0}</strong>
+                                            <DropdownMenuItem
+                                                onClick={() =>
+                                                    handleChecker(
+                                                        date,
+                                                        'all',
+                                                        format(date, 'yyyy-MM-dd')
+                                                    )
+                                                }
+                                                className="cursor-pointer flex justify-between"
+                                            >
+                                                Xem tất cả{' '}
+                                                <strong>
+                                                    {(listing &&
+                                                        listing[format(date, 'yyyy-MM-dd')] &&
+                                                        listing[format(date, 'yyyy-MM-dd')]
+                                                            ?.total) ||
+                                                        0}
+                                                </strong>
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
