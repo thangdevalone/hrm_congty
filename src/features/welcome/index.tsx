@@ -101,8 +101,12 @@ export default function Welcome() {
                                         <DropdownMenuLabel>Tài khoản</DropdownMenuLabel>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem className="cursor-pointer flex gap-2">
-                                            <SquareUserRound />
-                                            Thông tin cá nhân
+                                            <Link to="/settings/profile">
+                                                <div className="flex flex-row cursor-pointer items-center gap-2">
+                                                    <SquareUserRound />
+                                                    Thông tin cá nhân
+                                                </div>
+                                            </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem className="">
                                             <Link to="/home">
