@@ -132,7 +132,7 @@ export const TimeKeepList = () => {
             )) as unknown as ListResponse;
             setListJob(timeKeepData.data);
             setTotalRow(timeKeepData.total_rows);
-            setPageCount(timeKeepData.current_page);
+            setPageCount(Math.ceil(timeKeepData.total_rows / table.getState().pagination.pageSize));
         } catch (error) {
             console.log(error);
         } finally {
@@ -269,6 +269,7 @@ export const TimeKeepList = () => {
                                 <RangeCalendarField
                                     name="dateRange"
                                     placeholder="Chọn khoảng ngày"
+                                    disableDate={false}
                                 />
                                 <Button type="submit" className="flex flex-row gap-2">
                                     <Icons.filter /> Lọc
