@@ -102,7 +102,7 @@ export const RangeCalendarField = (props: RangeCalendarFieldProps) => {
                                         : '';
                                     form.setValue(`${name}`, valueStringDate);
                                 }}
-                                disabled={(date: any) => (disableDate ? date < new Date() : date)}
+                                disabled={(date: any) => (disableDate ? date < new Date() : false)}
                                 initialFocus
                             />
                         </PopoverContent>
