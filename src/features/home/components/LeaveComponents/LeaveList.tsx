@@ -724,8 +724,8 @@ export const LeaveList = () => {
                                     />
                                     <RangeCalendarField
                                         name="leaveDate"
-                                        label="Loại nghỉ phép"
-                                        placeholder="Chọn loại nghỉ phép"
+                                        label="Ngày nghỉ phép"
+                                        placeholder="Chọn ngày nghỉ phép"
                                         require={true}
                                     />
                                     <div className="col-span-2">

@@ -10,7 +10,7 @@ import { Calendar } from '../ui/calendar';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 interface RangeCalendarFieldProps {
-    label: string;
+    label?: string;
     name: string;
     disabled?: boolean | undefined;
     placeholder: string;
@@ -20,7 +20,7 @@ interface RangeCalendarFieldProps {
 export const RangeCalendarField = (props: RangeCalendarFieldProps) => {
     const {
         name,
-        label,
+        label = '',
         disabled = false,
         placeholder,
         require = false,
@@ -34,31 +34,31 @@ export const RangeCalendarField = (props: RangeCalendarFieldProps) => {
     // }
     const [date, setDate] = React.useState<DateRange | undefined>();
     useEffect(() => {
-        const leaveDate = form.getValues('leaveDate');
-        if (leaveDate) {
+        const val = form.getValues(name);
+        if (val) {
             setDate({
                 from: form.getValues('RawDateStart'),
                 to: form.getValues('RawDateEnd'),
             });
         }
-        
     }, []);
-    console.log(date)
     return (
         <FormField
             control={form.control}
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel className=" relative">
-                        {label}
-                        {require && (
-                            <span className="text-xl absolute top-[-5px] right-[-10px] text-[red]">
-                                {' '}
-                                *
-                            </span>
-                        )}
-                    </FormLabel>
+                    {label && (
+                        <FormLabel className=" relative">
+                            {label}
+                            {require && (
+                                <span className="text-xl absolute top-[-5px] right-[-10px] text-[red]">
+                                    {' '}
+                                    *
+                                </span>
+                            )}
+                        </FormLabel>
+                    )}
                     <Popover>
                         <PopoverTrigger asChild>
                             <FormControl>
@@ -66,7 +66,7 @@ export const RangeCalendarField = (props: RangeCalendarFieldProps) => {
                                     variant={'outline'}
                                     disabled={disabled}
                                     className={cn(
-                                        'w-full pl-3 text-left font-normal',
+                                        'w-full pl-3 flex gap-3 text-left font-normal',
                                         !field.value && 'text-muted-foreground'
                                     )}
                                 >
