@@ -158,16 +158,16 @@ export const SidebarLeft = ({ className, collapse, setCollapse }: SidebarProps) 
                         </div>
                     </div>
                 </div>
-                <div className="px-5">
+                <div className="px-3">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <div className='flex flex-row gap-2 items-center cursor-pointer'>
+                            <div className='flex px-3 py-2 rounded-md flex-row gap-3 items-center cursor-pointer hover:bg-accent hover:text-accent-foreground'>
                                 <img
                                     src={`${STATIC_HOST_NO_SPLASH + user?.PhotoPath}`}
                                     alt="avatar"
-                                    className=" cursor-pointer w-10 h-10 border rounded-full"
+                                    className={cn(" cursor-pointer  border rounded-full",collapse?"":"w-10 h-10")}
                                 />
-                                {user && user.EmpName && <strong>{shorten(user.EmpName)}</strong>}{' '}
+                                {!collapse &&user && user.EmpName && <strong>{shorten(user.EmpName)}</strong>}{' '}
                             </div>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent side="left" align="end">

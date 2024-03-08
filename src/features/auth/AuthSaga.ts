@@ -39,7 +39,7 @@ function* handleLogin(action: PayloadAction<LoginForm>) {
 // }
 function handleLogout() {
     localStorage.removeItem(StorageKeys.TOKEN);
-    History.push('/');
+    History.push('/login');
 
 }
 

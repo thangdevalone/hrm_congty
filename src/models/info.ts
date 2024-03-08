@@ -1,4 +1,4 @@
-import { ColorKey } from "@/utils";
+import { ColorKey } from '@/utils';
 
 export interface InfoCompany {
     company_name: string;
@@ -84,8 +84,8 @@ export interface InfoJob {
     DepName: string;
 }
 export interface InfoRole {
-    RoleName:string;
-    RoleID:number;
+    RoleName: string;
+    RoleID: number;
 }
 export interface InfoDepartment {
     employee_count: number;
@@ -146,7 +146,7 @@ export interface InfoConfigSchedule {
 
 export interface InfoSchedule {
     EmpID: number;
-    id?:number;
+    id?: number;
     Date: string;
     WorkShift: number;
     WorkShiftDetail: InfoWorkShift;
@@ -166,5 +166,67 @@ export interface InfoTimeKeep {
     EmpName: string;
     id: number;
     TimeIn: string;
-    TimeOut: string|null;
+    TimeOut: string | null;
+    Late: number;
+    WorkHour: number;
+    Phone: string;
+    HireDate: string;
+    BirthDate: string;
+    Address: string;
+    PhotoPath: string;
+    Email: string;
+    EmpStatus: string;
+    Gender: string;
+    TaxCode: string;
+    CCCD: string;
+    BankAccountNumber: string;
+    BankName: string;
+    DepID: number;
+    JobID: number;
+    RoleID: number;
+    RoleName: string;
+    DepName: string;
+    JobName: string;
+}
+export interface RawTimeSheet {
+    EmpID: number;
+    EmpName: string;
+    Phone: string;
+    HireDate: string;
+    BirthDate: string;
+    Address: string;
+    PhotoPath: string;
+    Email: string;
+    EmpStatus: string;
+    Gender: string;
+    TaxCode: null | string;
+    CCCD: string;
+    BankAccountNumber: string;
+    BankName: string;
+    DepID: number;
+    JobID: number;
+    RoleID: number;
+    UserID: string;
+    DepName: string;
+    RoleName: string;
+    JobName: string;
+    DateValue: {
+        [date: string]: {
+            total_late: number;
+            total_workhour: number;
+        };
+    };
+}
+
+export interface DateValue {
+    id: number;
+    TimeIn: string;
+    TimeOut?: string;
+    Late: number;
+    WorkHour: number;
+    EmpID: number;
+    date: string;
+    day: number;
+    month: number;
+    year: number;
 }

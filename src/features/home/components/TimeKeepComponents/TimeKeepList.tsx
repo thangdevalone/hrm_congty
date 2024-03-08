@@ -5,9 +5,27 @@ import { DataTablePagination, DataTableViewOptions } from '@/components/common';
 import { DataTableColumnHeader } from '@/components/common/DataTableColumnHeader';
 import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -17,10 +35,9 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/components/ui/use-toast';
-import { InfoTimeKeep, ListResponse, QueryParam } from '@/models';
+import { InfoTimeKeep, ListResponse, QueryParam, RawTimeSheet } from '@/models';
 import { ConvertQueryParam } from '@/utils';
 import { yupResolver } from '@hookform/resolvers/yup';
-
 import { ReloadIcon } from '@radix-ui/react-icons';
 import {
     ColumnDef,
@@ -35,23 +52,44 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import { format } from 'date-fns';
+import { addDays, endOfMonth, format, startOfMonth } from 'date-fns';
+import * as ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 import { debounce } from 'lodash';
 import queryString from 'query-string';
 import * as React from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
+import { DataSetter } from '../ScheduleComponents';
 interface FilterDateForm {
-    dateRange?: string
+    dateRange?: string;
 }
-interface FilterDate{
-    from:string
-    to:string
+interface FilterDate {
+    from: string;
+    to: string;
+}
+function getFirstDayOfMonth(year: number, month: number): Date {
+    return startOfMonth(new Date(year, month - 1));
+}
+
+// Hàm để lấy ngày cuối cùng của tháng trong một năm bất kỳ
+function getLastDayOfMonth(year: number, month: number): Date {
+    return endOfMonth(new Date(year, month - 1));
+}
+function generateDateArray(start: Date, end: Date): Date[] {
+    const dates: Date[] = [];
+    let currentDate = start;
+    while (currentDate <= end) {
+        dates.push(new Date(currentDate));
+        currentDate = addDays(currentDate, 1);
+    }
+    return dates;
 }
 export const TimeKeepList = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const defYear = new Date().getFullYear();
     const [listJob, setListJob] = React.useState<InfoTimeKeep[]>([]);
     const [totalRow, setTotalRow] = React.useState<number>();
     const [pageCount, setPageCount] = React.useState<number>();
@@ -63,20 +101,20 @@ export const TimeKeepList = () => {
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = React.useState({});
     const { toast } = useToast();
-    const [filterDate,setFilterDate]=React.useState<FilterDate|undefined>()
+    const [filterDate, setFilterDate] = React.useState<FilterDate | undefined>();
     const [sorting, setSorting] = React.useState<SortingState>([{ id: 'id', desc: false }]);
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: Number(param?.pageIndex || 1) - 1,
         pageSize: Number(param?.pageSize || 10),
     });
-
+    const [exportLoading, setExportLoading] = React.useState(false);
     const debouncedSetQuery = React.useCallback(
         debounce((value) => setQuery(value), 500),
         []
     );
     const handleNavigateQuery = () => {
-        let paramObject: QueryParam ={}
-        if(filterDate){
+        let paramObject: QueryParam = {};
+        if (filterDate) {
             paramObject = {
                 query: query,
                 pageIndex: pagination.pageIndex + 1,
@@ -87,8 +125,7 @@ export const TimeKeepList = () => {
                 from: filterDate.from,
                 to: filterDate.to,
             };
-        }
-        else{
+        } else {
             paramObject = {
                 query: query,
                 pageIndex: pagination.pageIndex + 1,
@@ -134,6 +171,16 @@ export const TimeKeepList = () => {
                 </div>
             ),
         },
+        {
+            accessorKey: 'Late',
+            header: ({ column }) => <DataTableColumnHeader column={column} title="Số giờ muộn" />,
+            cell: ({ row }) => <div>{(row.getValue('Late') || 0) + ' Giờ'}</div>,
+        },
+        {
+            accessorKey: 'WorkHour',
+            header: ({ column }) => <DataTableColumnHeader column={column} title="Số giờ làm" />,
+            cell: ({ row }) => <div>{(row.getValue('WorkHour') || 0) + ' Giờ'}</div>,
+        },
     ];
     const fetchData = async () => {
         try {
@@ -153,12 +200,14 @@ export const TimeKeepList = () => {
             setLoadingTable(false);
         }
     };
-
+    const [dataSetter, setDataSetter] = React.useState<DataSetter>({
+        year: new Date().getFullYear(),
+        month: new Date().getMonth() + 1,
+    });
     React.useEffect(() => {
         handleNavigateQuery();
-
         fetchData();
-    }, [query, sorting, columnFilters, pagination,filterDate]);
+    }, [query, sorting, columnFilters, pagination, filterDate]);
 
     const table = useReactTable({
         data: listJob,
@@ -220,10 +269,9 @@ export const TimeKeepList = () => {
             };
             const startDateISO: string = convertToISODate(startDateString);
             const endDateISO: string = convertToISODate(endDateString);
-            setFilterDate({from:startDateISO,to:endDateISO})
-        }
-        else{
-            setFilterDate(undefined)
+            setFilterDate({ from: startDateISO, to: endDateISO });
+        } else {
+            setFilterDate(undefined);
         }
         (async () => {
             try {
@@ -241,6 +289,129 @@ export const TimeKeepList = () => {
                 console.log(error);
             } finally {
                 setLoadingTable(false);
+            }
+        })();
+    };
+    const exportToExcel = () => {
+        // Tạo một workbook mới
+        const firstDay = getFirstDayOfMonth(dataSetter.year, dataSetter.month);
+        const lastDay = getLastDayOfMonth(dataSetter.year, dataSetter.month);
+        const dateArray = generateDateArray(firstDay, lastDay);
+        (async () => {
+            try {
+                setExportLoading(true);
+                const parsed = queryString.parse(
+                    `?from=${format(
+                        getFirstDayOfMonth(dataSetter.year, dataSetter.month),
+                        'yyyy-MM-dd'
+                    )}&to=${format(
+                        getLastDayOfMonth(dataSetter.year, dataSetter.month),
+                        'yyyy-MM-dd'
+                    )}`
+                ) as unknown as QueryParam;
+                const res = (await timeKeepApi.getListTimeKeepAllRaw(parsed)) as unknown as {
+                    data: RawTimeSheet[];
+                };
+                const { data } = res;
+                if (data.length === 0) {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Dữ liệu trống',
+                    });
+                    return;
+                }
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet(`Bảng chấm công tháng ${dataSetter.month} năm ${dataSetter.year}`);
+                const headers = [
+                    'Mã nhân viên',
+                    'Tên nhân viên',
+                    'Số điện thoại',
+                    'Email',
+                    'Tên tài khoản',
+                    'Số tài khoản',
+                    'Phòng ban',
+                    'Vai trò',
+                    'Công việc',
+                ];
+                const nullHeader = Array.from({ length: 9 }, () => '');
+                const dataDate = dateArray.map((date) => format(date, 'yyyy-MM-dd'));
+
+                const header1 = worksheet.addRow(headers.concat(dataDate));
+                header1.eachCell((cell, colNumber) => {
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'FFFF00' }, // Màu vàng
+                    };
+                    cell.font = {
+                        bold: true,
+                    };
+                });
+                const header2 = worksheet.addRow(
+                    nullHeader.concat(dataDate.map((_, i) => String(i + 1)))
+                );
+                header2.eachCell((cell, colNumber) => {
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'ccc0da' }, // Màu vàng
+                    };
+                    cell.font = {
+                        bold: true,
+                    };
+                });
+                headers.forEach((header, index) => {
+                    worksheet.mergeCells(1, index + 1, 2, index + 1);
+                });
+                for (const dataQuery of data) {
+                    const rowData = [
+                        dataQuery.UserID,
+                        dataQuery.EmpName,
+                        dataQuery.Phone,
+                        dataQuery.Email,
+                        dataQuery.Gender,
+                        dataQuery.BankName,
+                        dataQuery.BankAccountNumber,
+                        dataQuery.DepName,
+                        dataQuery.RoleName,
+                        dataQuery.JobName,
+                    ];
+                    for (const dateKey in dataQuery.DateValue) {
+                        if (Object.prototype.hasOwnProperty.call(dataQuery.DateValue, dateKey)) {
+                            const dateValue = dataQuery.DateValue[dateKey];
+                            const idx = dataDate.findIndex((item) => item === dateKey);
+                            for (let i = 1; i < idx; i++) {
+                                rowData.push('');
+                            }
+                            rowData.push(String(String(dateValue.total_workhour)));
+                        }
+                    }
+                    worksheet.addRow(rowData);
+                }
+                worksheet.views = [
+                    {
+                        state: 'frozen', // Bảng tính sẽ không cuộn khi di chuyển nếu thiết lập 'frozen'
+                        xSplit: 9, // Số cột sẽ được giữ cố định
+                        showGridLines: true, // Hiển thị các đường kẻ
+                    },
+                ];
+                // Thêm dữ liệu vào worksheet
+                workbook.xlsx.writeBuffer().then((buffer) => {
+                    // Tạo Blob từ buffer
+                    const blob = new Blob([buffer], {
+                        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    });
+                    // Tải file xuống
+                    saveAs(blob, `BangChamCongT${dataSetter.month}Y${dataSetter.year}.xlsx`);
+                });
+            } catch (error) {
+                console.log(error);
+                toast({
+                    variant: 'destructive',
+                    title: 'Có lỗi xảy ra thử lại sau',
+                });
+            } finally {
+                setExportLoading(false);
             }
         })();
     };
@@ -266,11 +437,83 @@ export const TimeKeepList = () => {
                                     disableDate={false}
                                 />
                                 <Button type="submit" className="flex flex-row gap-2">
-                                    <Icons.filter /> Lọc
+                                    <Icons.filter className="dark:white white" /> Lọc
                                 </Button>
                             </div>
                         </form>
                     </Form>
+
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button disabled={exportLoading} className="flex gap-3">
+                                {exportLoading ? (
+                                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                    <Icons.sheet />
+                                )}{' '}
+                                Xuất dữ liệu
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Chọn khoảng thời gian xuất dữ liệu</DialogTitle>
+                                <DialogDescription>
+                                    Nhập tháng và năm cần xuất dữ liệu
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <Label>Tháng: </Label>
+                                    <Select
+                                        value={dataSetter.month.toString()}
+                                        onValueChange={(value) =>
+                                            setDataSetter({ ...dataSetter, month: Number(value) })
+                                        }
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Month" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {Array.from({ length: 12 }, (_, i) => (
+                                                <SelectItem key={i + 1} value={`${i + 1}`}>
+                                                    {i + 1}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <Label>Năm: </Label>
+                                    <Select
+                                        value={dataSetter.year.toString()}
+                                        onValueChange={(value) =>
+                                            setDataSetter({ ...dataSetter, year: Number(value) })
+                                        }
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Year" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {Array.from({ length: 6 }, (_, i) => (
+                                                <SelectItem key={i} value={`${defYear - 2 + i}`}>
+                                                    {defYear - 2 + i}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button variant="outline">Đóng</Button>
+                                </DialogClose>
+                                <Button onClick={exportToExcel} className="flex gap-3">
+                                    <Icons.sheet />
+                                    Xuất dữ liệu
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </div>
                 <DataTableViewOptions table={table} />
             </div>

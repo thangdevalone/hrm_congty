@@ -51,7 +51,7 @@ import queryString from 'query-string';
 import * as React from 'react';
 import { DayContentProps, DayPicker } from 'react-day-picker';
 import { useLocation, useNavigate } from 'react-router-dom';
-interface DataSetter {
+export interface DataSetter {
     year: number;
     month: number;
 }

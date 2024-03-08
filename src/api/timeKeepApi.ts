@@ -7,6 +7,10 @@ const timeKeepApi = {
         const url = `timesheet/list-timesheet${ConvertQueryParam(param)}`;
         return axiosClient.get(url);
     },
+    getListTimeKeepAllRaw(param?: QueryParam) {
+        const url = `timesheet/list-timesheet-raw${ConvertQueryParam(param)}`;
+        return axiosClient.get(url);
+    },
     getListTimeKeep(param?: QueryParam) {
         const url = `timesheet/list-timesheet-staff${ConvertQueryParam(param)}`;
         return axiosClient.get(url);

@@ -89,6 +89,16 @@ export const TimeKeepReg = () => {
             header: ({ column }) => <DataTableColumnHeader column={column} title="Giờ về" />,
             cell: ({ row }) => <div>{row.getValue('TimeOut')?format(row.getValue('TimeOut'), 'dd/MM/yyyy hh:mm:ss'):"Chưa check out"}</div>,
         },
+        {
+            accessorKey: 'Late',
+            header: ({ column }) => <DataTableColumnHeader column={column} title="Số giờ muộn" />,
+            cell: ({ row }) => <div>{row.getValue('Late')||0}</div>,
+        },
+        {
+            accessorKey: 'WorkHour',
+            header: ({ column }) => <DataTableColumnHeader column={column} title="Số giờ làm" />,
+            cell: ({ row }) => <div>{row.getValue('WorkHour')||0}</div>,
+        },
     ];
     const fetchData = async () => {
         try {
