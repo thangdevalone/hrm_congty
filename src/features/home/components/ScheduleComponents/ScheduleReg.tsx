@@ -141,7 +141,6 @@ export const ScheduleReg = () => {
                     Date: dateReg,
                 };
                 await scheduleApi.createSchedule(postData);
-                setDropDate(true);
                 toast({
                     title: `Đăng kí thành công`,
                     description: `Đăng kí ${data.WorkShiftName} vào ${dateReg} thành công!`,
