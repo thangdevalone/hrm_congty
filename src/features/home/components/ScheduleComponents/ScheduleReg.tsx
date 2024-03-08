@@ -1,4 +1,5 @@
 import scheduleApi from '@/api/scheduleApi';
+import { useTheme } from '@/components/theme-provider';
 import { Badge } from '@/components/ui/badge';
 import { buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -37,7 +38,8 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import { format, isSameDay } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { Check } from 'lucide-react';
+import { divide } from 'lodash';
+import { Check, Lock } from 'lucide-react';
 import queryString from 'query-string';
 import * as React from 'react';
 import { DayContentProps, DayPicker } from 'react-day-picker';
@@ -139,6 +141,7 @@ export const ScheduleReg = () => {
                     Date: dateReg,
                 };
                 await scheduleApi.createSchedule(postData);
+                setDropDate(true);
                 toast({
                     title: `Đăng kí thành công`,
                     description: `Đăng kí ${data.WorkShiftName} vào ${dateReg} thành công!`,
@@ -171,6 +174,7 @@ export const ScheduleReg = () => {
             color: find?.WorkShiftDetail.Color || null,
         };
     };
+    const theme=useTheme()
     const BadgeRender = (props: { date: Date }) => {
         const data = logic(props.date);
         return (
@@ -370,7 +374,7 @@ export const ScheduleReg = () => {
                                                 className={cn(
                                                     'relative flex items-center bg  cursor-pointer justify-center rounded-md h-8 w-8 p-0 font-normal aria-selected:opacity-100',
                                                     activeModifiers.today
-                                                        ? 'bg-black text-white'
+                                                        ? 'bg-black border text-white'
                                                         : 'border'
                                                 )}
                                                 style={{
@@ -380,6 +384,16 @@ export const ScheduleReg = () => {
                                                     }`,
                                                 }}
                                             >
+                                                {activeModifiers.disabled && (
+                                                    <div className="absolute top-[-12px] z-[2] left-[-7px]">
+                                                        <Lock
+                                                            fill={theme.theme=="light"?"white":"black"}
+                                                            className="w-5"
+                                                      
+                                                            stroke={theme.theme=="light"?"black":"white"}
+                                                        />
+                                                    </div>
+                                                )}
                                                 {date.getDate()}
                                                 {showBadge && <BadgeRender date={date} />}
                                             </div>
