@@ -369,20 +369,22 @@ export const TimeKeepList = () => {
                         dataQuery.EmpName,
                         dataQuery.Phone,
                         dataQuery.Email,
-                        dataQuery.Gender,
                         dataQuery.BankName,
                         dataQuery.BankAccountNumber,
                         dataQuery.DepName,
                         dataQuery.RoleName,
                         dataQuery.JobName,
                     ];
+                    let i=1
                     for (const dateKey in dataQuery.DateValue) {
                         if (Object.prototype.hasOwnProperty.call(dataQuery.DateValue, dateKey)) {
                             const dateValue = dataQuery.DateValue[dateKey];
                             const idx = dataDate.findIndex((item) => item === dateKey);
-                            for (let i = 1; i < idx; i++) {
+                            while (i<idx+1){
                                 rowData.push('');
+                                i++;
                             }
+                            i++
                             rowData.push(String(String(dateValue.total_workhour)));
                         }
                     }
