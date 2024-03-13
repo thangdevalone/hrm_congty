@@ -156,13 +156,13 @@ function App() {
                                         />
                                     }
                                 />
-                                {P?.IS_ADMIN && (
+                                {P?.IS_ADMIN_OR_HR && (
                                     <Route path="schedule-list" element={<ScheduleList />} />
                                 )}
                                 {!P?.IS_ADMIN && (
                                     <Route path="schedule-reg" element={<ScheduleReg />} />
                                 )}
-                                {P?.IS_ADMIN_OR_HR && (
+                                {P?.IS_ADMIN && (
                                     <>
                                         <Route path="work-shifts" element={<WorkShift />} />
                                         <Route
