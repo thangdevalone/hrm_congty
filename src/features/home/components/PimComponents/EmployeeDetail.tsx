@@ -128,7 +128,7 @@ export const EmployeeDetail = () => {
                 if (EmpID) {
                     const res = await employeeApi.editEmployee(EmpID, reData);
                     if (EmpID === user?.EmpID) {
-                        dispatch(authActions.setUser(res.data as unknown as InforUser));
+                        dispatch(authActions.setUser(res.data[0] as unknown as InforUser));
                     }
                 }
                 toast({

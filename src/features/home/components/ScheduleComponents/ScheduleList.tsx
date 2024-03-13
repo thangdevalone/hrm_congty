@@ -18,6 +18,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
     Select,
     SelectContent,
@@ -223,39 +224,41 @@ export const ScheduleList = () => {
                         <div>
                             <Table>
                                 <TableCaption className="caption-top">Bảng thông tin</TableCaption>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>ID</TableHead>
-                                        <TableHead>Nhân viên</TableHead>
-                                        <TableHead>Email</TableHead>
-                                        <TableHead>Phòng ban</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {peopleData &&
-                                        peopleData?.map((item) => (
-                                            <TableRow key={item.EmpID}>
-                                                <TableCell>{item.EmpID}</TableCell>
+                                <ScrollArea className="h-[400px]">
+                                    <TableHeader className="sticky top-0 z-[2] bg-[hsl(var(--background))]">
+                                        <TableRow>
+                                            <TableHead>ID</TableHead>
+                                            <TableHead>Nhân viên</TableHead>
+                                            <TableHead>Email</TableHead>
+                                            <TableHead>Phòng ban</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
 
-                                                <TableCell>
-                                                    <div className="flex flex-row items-center gap-2">
-                                                        {' '}
-                                                        <img
-                                                            src={`${
-                                                                STATIC_HOST_NO_SPLASH +
-                                                                item.PhotoPath
-                                                            }`}
-                                                            alt="avatar"
-                                                            className=" w-8 h-8 border rounded-full"
-                                                        />
-                                                        <strong>{item.EmployeeName}</strong>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>{item.Email}</TableCell>
-                                                <TableCell>{item.DepName}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                </TableBody>
+                                    <TableBody>
+                                        {peopleData ?
+                                            peopleData?.map((item) => (
+                                                <TableRow key={item.EmpID}>
+                                                    <TableCell>{item.EmpID}</TableCell>
+                                                    <TableCell>
+                                                        <div className="flex flex-row items-center gap-2">
+                                                            {' '}
+                                                            <img
+                                                                src={`${
+                                                                    STATIC_HOST_NO_SPLASH +
+                                                                    item.PhotoPath
+                                                                }`}
+                                                                alt="avatar"
+                                                                className=" w-8 h-8 border rounded-full"
+                                                            />
+                                                            <strong>{item.EmployeeName}</strong>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>{item.Email}</TableCell>
+                                                    <TableCell>{item.DepName}</TableCell>
+                                                </TableRow>
+                                            )):"Không có dữ liệu"}
+                                    </TableBody>
+                                </ScrollArea>
                             </Table>
                         </div>
                         <DialogFooter className="sm:justify-start">

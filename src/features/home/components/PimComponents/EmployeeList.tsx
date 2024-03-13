@@ -41,10 +41,13 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/components/ui/use-toast';
+import { authActions } from '@/features/auth/AuthSlice';
+import { useInfoUser } from '@/hooks';
 import {
     EmployeeCreateForm,
     EmployeeEditForm,
     InforEmployee,
+    InforUser,
     ListResponse,
     QueryParam,
 } from '@/models';
@@ -69,6 +72,7 @@ import { debounce } from 'lodash';
 import queryString from 'query-string';
 import * as React from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
 
@@ -306,7 +310,8 @@ export function EmployeeList() {
     const formCreate = useForm<EmployeeCreateForm>({
         resolver: yupResolver(schema_create),
     });
-
+    const dispatch=useDispatch()
+    const user=useInfoUser()
     const handleEdit: SubmitHandler<EmployeeEditForm> = (data) => {
         (async () => {
             try {
@@ -318,7 +323,11 @@ export function EmployeeList() {
                     HireDate: dayjs(data.HireDate).format('DD/MM/YYYY'),
                 };
                 if (EmpID) {
-                    await employeeApi.editEmployee(EmpID, reData);
+                    const res =await employeeApi.editEmployee(EmpID, reData);
+                    if (EmpID === user?.EmpID) {
+                        dispatch(authActions.setUser(res.data[0] as unknown as InforUser));
+                    }
+                    
                 }
                 setOpenEditDialog(false);
                 formEdit.reset();
