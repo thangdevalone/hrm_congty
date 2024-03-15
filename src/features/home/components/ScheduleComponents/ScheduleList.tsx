@@ -91,8 +91,8 @@ export const ScheduleList = () => {
         const newDate = new Date(dataSetter.year, dataSetter.month - 1);
         // Cập nhật state monthSetter với giá trị mới
         setMonthSetter(newDate);
-        navigate({ search: `?month=${dataSetter.month}&year=${dataSetter.year}` });
-        location.search = `?month=${dataSetter.month}&year=${dataSetter.year}`;
+        navigate({ search: `?month=${dataSetter.month}&year=${dataSetter.year}&type=list` });
+        location.search = `?month=${dataSetter.month}&year=${dataSetter.year}&type=list`;
         fetchData();
     }, [dataSetter]);
 
@@ -114,7 +114,7 @@ export const ScheduleList = () => {
         try {
             const paramString = param
                 ? location.search
-                : `?month=${dataSetter.month}&year=${dataSetter.year}`;
+                : `?month=${dataSetter.month}&year=${dataSetter.year}&type=list`;
             console.log(paramString);
             const scheduleData = (await scheduleApi.getListSchedule(
                 paramString
@@ -217,7 +217,7 @@ export const ScheduleList = () => {
                     </div>
                 </div>
                 <Dialog onOpenChange={setOpen} open={open}>
-                    <DialogContent className="max-w-3xl">
+                    <DialogContent className="max-w-4xl">
                         <DialogHeader>
                             <DialogTitle>{titleDialog}</DialogTitle>
                         </DialogHeader>
@@ -231,6 +231,8 @@ export const ScheduleList = () => {
                                             <TableHead>Nhân viên</TableHead>
                                             <TableHead>Email</TableHead>
                                             <TableHead>Phòng ban</TableHead>
+                                            <TableHead>Ca đăng ký</TableHead>
+
                                         </TableRow>
                                     </TableHeader>
 
@@ -255,6 +257,8 @@ export const ScheduleList = () => {
                                                     </TableCell>
                                                     <TableCell>{item.Email}</TableCell>
                                                     <TableCell>{item.DepName}</TableCell>
+                                                    <TableCell><Badge  className='text-sm rounded-xl' style={{backgroundColor:`${item.WorkShiftDetail.Color}`}}>{item.WorkShiftDetail.WorkShiftName}</Badge></TableCell>
+
                                                 </TableRow>
                                             )):"Không có dữ liệu"}
                                     </TableBody>

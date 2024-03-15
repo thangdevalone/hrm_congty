@@ -83,7 +83,7 @@ export function LoginPage() {
                 toast({
                     variant: 'destructive',
                     title: 'Có lỗi xảy ra',
-                    description: error.error,
+                    description: error.message,
                 });
             } finally {
                 setLoading2(false);

@@ -322,7 +322,7 @@ export const TimeKeepList = () => {
                 }
                 const workbook = new ExcelJS.Workbook();
                 const worksheet = workbook.addWorksheet(`Bảng chấm công tháng ${dataSetter.month} năm ${dataSetter.year}`);
-                const headers = [
+                const header1_a = [
                     'Mã nhân viên',
                     'Tên nhân viên',
                     'Số điện thoại',
@@ -333,11 +333,11 @@ export const TimeKeepList = () => {
                     'Vai trò',
                     'Công việc',
                 ];
+          
                 const nullHeader = Array.from({ length: 9 }, () => '');
-                const dataDate = dateArray.map((date) => format(date, 'yyyy-MM-dd'));
-
-                const header1 = worksheet.addRow(headers.concat(dataDate));
-                header1.eachCell((cell, colNumber) => {
+                const dataDate = dateArray.map((date) => [format(date, 'yyyy-MM-dd'),'']).flat();
+                const header1_w = worksheet.addRow(header1_a.concat(dataDate));
+                header1_w.eachCell((cell, colNumber) => {
                     cell.fill = {
                         type: 'pattern',
                         pattern: 'solid',
@@ -346,11 +346,17 @@ export const TimeKeepList = () => {
                     cell.font = {
                         bold: true,
                     };
+                    cell.alignment = { horizontal: "center",vertical:colNumber<=9?"middle":"bottom" };
+                    
                 });
-                const header2 = worksheet.addRow(
-                    nullHeader.concat(dataDate.map((_, i) => String(i + 1)))
+                const header2_a=dataDate.map((_, i)=>String(i+1)).join(',,').split(',')
+                const header2_w=worksheet.addRow(
+                    nullHeader.concat(header2_a)
                 );
-                header2.eachCell((cell, colNumber) => {
+                worksheet.addRow(
+                    nullHeader.concat(dataDate.map((_, i) => i % 2 ===0 ?"HS Muộn" :"HS Làm"))
+                );
+                header2_w.eachCell((cell, colNumber) => {
                     cell.fill = {
                         type: 'pattern',
                         pattern: 'solid',
@@ -359,12 +365,20 @@ export const TimeKeepList = () => {
                     cell.font = {
                         bold: true,
                     };
+                    cell.alignment = { horizontal: "center",vertical:colNumber<=9?"middle":"bottom" };
                 });
-                headers.forEach((header, index) => {
-                    worksheet.mergeCells(1, index + 1, 2, index + 1);
-                });
+    
+                for (let i=0;i<header1_a.length;i++){
+                    worksheet.mergeCells(1, i + 1, 3, i + 1);
+                }
+                for (let i=9;i<dataDate.length+9;i=i+2){
+                    worksheet.mergeCells(1, i + 1, 1, i + 2);
+                }
+                for (let i=9;i<header2_a.length+9;i=i+2){
+                    worksheet.mergeCells(2, i + 1, 2, i + 2);
+                }       
                 for (const dataQuery of data) {
-                    const rowData = [
+                    const rowData:any[] = [
                         dataQuery.UserID,
                         dataQuery.EmpName,
                         dataQuery.Phone,
@@ -381,11 +395,13 @@ export const TimeKeepList = () => {
                             const dateValue = dataQuery.DateValue[dateKey];
                             const idx = dataDate.findIndex((item) => item === dateKey);
                             while (i<idx+1){
-                                rowData.push('');
+                                rowData.push(0);
                                 i++;
                             }
-                            i++
-                            rowData.push(String(String(dateValue.total_workhour)));
+                            i=i+2
+                            rowData.push(dateValue.total_late);
+                            rowData.push(dateValue.total_workhour);
+
                         }
                     }
                     worksheet.addRow(rowData);

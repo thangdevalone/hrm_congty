@@ -41,7 +41,7 @@ export const Schedule = () => {
                                     </NavigationMenuLink>
                                 </NavigationMenuItem>
                             )}
-                            {P?.IS_ADMIN_OR_HR && (
+                            {P?.IS_ADMIN && (
                                 <NavigationMenuItem>
                                     <NavigationMenuTrigger>Quản lý</NavigationMenuTrigger>
                                     <NavigationMenuContent>

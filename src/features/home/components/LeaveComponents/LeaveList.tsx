@@ -510,7 +510,7 @@ export const LeaveList = () => {
                         <DialogContent>
                             <DialogHeader className="">
                                 <DialogTitle className="text-xl uppercase">
-                                    Tạo mới chức vụ
+                                    Tạo mới đơn nghỉ phép
                                 </DialogTitle>
                             </DialogHeader>
                             <Form {...formCreate}>

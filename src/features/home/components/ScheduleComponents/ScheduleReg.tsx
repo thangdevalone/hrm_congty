@@ -31,19 +31,18 @@ import {
 } from '@/models';
 import {
     getNowSunday,
-    isGreaterOrEqualDay,
     isTimeAfterNowOnSunday,
-    isWithinThisWeek,
+    isWithinThisWeek
 } from '@/utils';
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons';
-import { format, isSameDay } from 'date-fns';
+import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { divide } from 'lodash';
 import { Check, Lock } from 'lucide-react';
 import queryString from 'query-string';
 import * as React from 'react';
 import { DayContentProps, DayPicker } from 'react-day-picker';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {toast as toastSonner} from 'sonner'
 interface DataSetter {
     year: number;
     month: number;
@@ -82,15 +81,15 @@ export const ScheduleReg = () => {
         const newDate = new Date(dataSetter.year, dataSetter.month - 1);
         // Cập nhật state monthSetter với giá trị mới
         setMonthSetter(newDate);
-        navigate({ search: `?month=${dataSetter.month}&year=${dataSetter.year}` });
-        location.search = `?month=${dataSetter.month}&year=${dataSetter.year}`;
+        navigate({ search: `?month=${dataSetter.month}&year=${dataSetter.year}&type=reg` });
+        location.search = `?month=${dataSetter.month}&year=${dataSetter.year}&type=reg`;
         fetchData();
     }, [dataSetter]);
     const fetchData = async () => {
         try {
             const paramString = param
                 ? location.search
-                : `?month=${dataSetter.month}&year=${dataSetter.year}`;
+                : `?month=${dataSetter.month}&year=${dataSetter.year}&type=reg`;
             console.log(paramString);
             const scheduleData = (await scheduleApi.getListSchedule(
                 paramString
@@ -141,10 +140,7 @@ export const ScheduleReg = () => {
                     Date: dateReg,
                 };
                 await scheduleApi.createSchedule(postData);
-                toast({
-                    title: `Đăng kí thành công`,
-                    description: `Đăng kí ${data.WorkShiftName} vào ${dateReg} thành công!`,
-                });
+                toastSonner.success(`Đăng kí ${data.WorkShiftName} vào ${dateReg} thành công!`,{closeButton:true})
                 fetchData();
             }
         } catch (error) {
@@ -210,6 +206,7 @@ export const ScheduleReg = () => {
                         data.Date,
                         'dd/MM/yyyy'
                     )} thành công!`,
+                    duration:100
                 });
                 fetchData();
             }
@@ -374,7 +371,7 @@ export const ScheduleReg = () => {
                                                     'relative flex items-center bg  cursor-pointer justify-center rounded-md h-8 w-8 p-0 font-normal aria-selected:opacity-100',
                                                     activeModifiers.today
                                                         ? 'bg-black border text-white'
-                                                        : 'border'
+                                                        : 'border',logic(date)?.color?"text-white":""
                                                 )}
                                                 style={{
                                                     backgroundColor: `${

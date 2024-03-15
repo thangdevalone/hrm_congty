@@ -7,7 +7,7 @@ import { persistor, store } from './app/store.ts';
 import './index.css';
 import NavigateSetter from './router/NavigateSetter.tsx';
 import { Toaster } from './components/ui/toaster.tsx';
-
+import { Toaster as SonnerToast } from "@/components/ui/sonner.tsx"
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
@@ -15,6 +15,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 <NavigateSetter />
                 <App />
                 <Toaster />
+                <SonnerToast richColors  />
             </BrowserRouter>
         </PersistGate>
     </Provider>

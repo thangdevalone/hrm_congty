@@ -1,5 +1,5 @@
 import { ConfigScheduleCreateForm, QueryParam, ScheduleCreateForm, WorkShiftCreateForm } from '@/models';
-import { ConvertQueryParam } from '@/utils';
+import { ConvertQueryParam, PermissionProvider } from '@/utils';
 import axiosClient from './axiosClient';
 
 const scheduleApi = {
