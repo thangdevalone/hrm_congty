@@ -200,14 +200,10 @@ export const ScheduleReg = () => {
         try {
             if (data && data.id) {
                 await scheduleApi.deleteSchedule(data.id);
-                toast({
-                    title: `Hủy thành công`,
-                    description: `Hủy đăng kí ${data.WorkShiftDetail.WorkShiftName} vào ${format(
-                        data.Date,
-                        'dd/MM/yyyy'
-                    )} thành công!`,
-                    duration:100
-                });
+                toastSonner.success(`Hủy đăng kí ${data.WorkShiftDetail.WorkShiftName} vào ${format(
+                    data.Date,
+                    'dd/MM/yyyy'
+                )} thành công!`)
                 fetchData();
             }
         } catch (error) {
