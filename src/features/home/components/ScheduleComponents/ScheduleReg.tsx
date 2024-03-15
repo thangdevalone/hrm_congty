@@ -192,7 +192,7 @@ export const ScheduleReg = () => {
         setShowBadge((prev: boolean) => !prev);
     };
     const handleShowScheduleColor = () => {
-        localStorage.setItem('showScheduleColor', JSON.stringify(!showBadge));
+        localStorage.setItem('showScheduleColor', JSON.stringify(!showScheduleColor));
         setShowScheduleColor((prev: boolean) => !prev);
     };
     const handleDel = async (data: InfoSchedule | undefined) => {
@@ -367,7 +367,7 @@ export const ScheduleReg = () => {
                                                     'relative flex items-center bg  cursor-pointer justify-center rounded-md h-8 w-8 p-0 font-normal aria-selected:opacity-100',
                                                     activeModifiers.today
                                                         ? 'bg-black border text-white'
-                                                        : 'border',logic(date)?.color?"text-white":""
+                                                        : 'border',(showScheduleColor && logic(date)?.color)?"text-white":""
                                                 )}
                                                 style={{
                                                     backgroundColor: `${
