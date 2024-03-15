@@ -102,7 +102,7 @@ export const TimeKeepList = () => {
     const [rowSelection, setRowSelection] = React.useState({});
     const { toast } = useToast();
     const [filterDate, setFilterDate] = React.useState<FilterDate | undefined>();
-    const [sorting, setSorting] = React.useState<SortingState>([{ id: 'id', desc: false }]);
+    const [sorting, setSorting] = React.useState<SortingState>([{ id: 'id', desc: true }]);
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: Number(param?.pageIndex || 1) - 1,
         pageSize: Number(param?.pageSize || 10),
@@ -146,9 +146,9 @@ export const TimeKeepList = () => {
             cell: ({ row }) => <div className="ml-2">{row.getValue('id')}</div>,
         },
         {
-            accessorKey: 'EmpID',
+            accessorKey: 'UserID',
             header: ({ column }) => <DataTableColumnHeader column={column} title="Mã nhân viên" />,
-            cell: ({ row }) => <div>{row.getValue('EmpID')}</div>,
+            cell: ({ row }) => <div>{row.getValue('UserID')}</div>,
         },
         {
             accessorKey: 'EmpName',

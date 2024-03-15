@@ -52,7 +52,7 @@ export const TimeKeepReg = () => {
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = React.useState({});
     const { toast } = useToast();
-    const [sorting, setSorting] = React.useState<SortingState>([{ id: 'id', desc: false }]);
+    const [sorting, setSorting] = React.useState<SortingState>([{ id: 'id', desc: true }]);
 
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: Number(param?.pageIndex || 1) - 1,
