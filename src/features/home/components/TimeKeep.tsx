@@ -24,6 +24,16 @@ export const TimeKeep = () => {
                                     </NavigationMenuLink>
                                 </NavigationMenuItem>
                             )}
+                            {P?.IS_ADMIN_OR_HR && (
+                                <NavigationMenuItem>
+                                    <NavigationMenuLink
+                                        asChild
+                                        className={navigationMenuTriggerStyle()}
+                                    >
+                                        <Link to="./timekeep-absent">Danh sách nghỉ không phép</Link>
+                                    </NavigationMenuLink>
+                                </NavigationMenuItem>
+                            )}
                             {!P?.IS_ADMIN  && (
                                 <NavigationMenuItem>
                                     <NavigationMenuLink

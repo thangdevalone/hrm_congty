@@ -49,6 +49,7 @@ import {
 } from './components/ui/alert-dialog';
 import { useDispatch } from 'react-redux';
 import { authActions } from './features/auth/AuthSlice';
+import { LeaveNoP } from './features/home/components/TimeKeepComponents/LeaveNoP';
 const checkTokenExpiration = (token: string) => {
     const decodedToken = jwtDecode<JwtPayload>(token);
     const currentTime = Date.now() / 1000; // Chuyển đổi thời gian hiện tại sang định dạng Unix time
@@ -135,7 +136,10 @@ function App() {
                                     }
                                 />
                                 {P?.IS_ADMIN_OR_HR && (
-                                    <Route path="timekeep-list" element={<TimeKeepList />} />
+                                    <>
+                                        <Route path="timekeep-list" element={<TimeKeepList />} />
+                                        <Route path="timekeep-absent" element={<LeaveNoP />} />
+                                    </>
                                 )}
                                 {!P?.IS_ADMIN && (
                                     <Route path="timekeep-reg" element={<TimeKeepReg />} />

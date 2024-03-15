@@ -185,6 +185,7 @@ export const TimeKeepList = () => {
     const fetchData = async () => {
         try {
             setLoadingTable(true);
+            
             const parsed = queryString.parse(
                 location.search ? location.search : '?pageIndex=1&pageSize=10&query='
             ) as unknown as QueryParam;
@@ -349,7 +350,8 @@ export const TimeKeepList = () => {
                     cell.alignment = { horizontal: "center",vertical:colNumber<=9?"middle":"bottom" };
                     
                 });
-                const header2_a=dataDate.map((_, i)=>String(i+1)).join(',,').split(',')
+                const header2_a=dateArray.map((_, i)=> [String(i+1),'']).flat()
+                console.log(header2_a)
                 const header2_w=worksheet.addRow(
                     nullHeader.concat(header2_a)
                 );

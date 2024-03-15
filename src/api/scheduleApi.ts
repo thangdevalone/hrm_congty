@@ -58,7 +58,7 @@ const scheduleApi = {
     updateSchedule(id: number, data: ScheduleCreateForm) {
         const url = `schedules/${id}/`;
         return axiosClient.put(url, data);
-    },
+    }
  
 };
 export default scheduleApi;

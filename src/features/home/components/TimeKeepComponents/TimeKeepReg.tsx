@@ -3,7 +3,6 @@ import timeKeepApi from '@/api/timeKeepApi';
 import { DataTablePagination, DataTableViewOptions } from '@/components/common';
 import { DataTableColumnHeader } from '@/components/common/DataTableColumnHeader';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
     Table,
@@ -103,6 +102,7 @@ export const TimeKeepReg = () => {
     const fetchData = async () => {
         try {
             setLoadingTable(true);
+            
             const parsed = queryString.parse(
                 location.search ? location.search : '?pageIndex=1&pageSize=10&query='
             ) as unknown as QueryParam;

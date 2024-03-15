@@ -230,3 +230,35 @@ export interface DateValue {
     month: number;
     year: number;
 }
+export interface NoAttendance {
+    EmpID: number
+    EmpName: string
+    Phone: string
+    HireDate: string
+    BirthDate: string
+    Address: string
+    PhotoPath: string
+    Email: string
+    EmpStatus: string
+    Gender: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    TaxCode: any
+    CCCD: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    BankAccountNumber: any
+    BankName: string
+    DepID: number
+    JobID: number
+    RoleID: number
+    UserID: string
+    DepName: string
+    RoleName: string
+    JobName: string
+    NotAttendedDates: NotAttendedDate[]
+  }
+  
+  export interface NotAttendedDate {
+    date: string
+    coe: number
+  }
+  
